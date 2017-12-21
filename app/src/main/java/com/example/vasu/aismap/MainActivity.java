@@ -21,7 +21,7 @@ public class MainActivity extends AppCompatActivity {
         b2=(Button)findViewById(R.id.button6);
         b3=(Button)findViewById(R.id.button7);
 
-        ed1=(EditText)findViewById(R.id.editText);
+        ed1=(EditText)findViewById(R.id.editText);  
         ed2=(EditText)findViewById(R.id.editText2);
 
         sharedPreferences=getApplicationContext().getSharedPreferences("MyPref", MODE_PRIVATE);
