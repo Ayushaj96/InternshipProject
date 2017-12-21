@@ -36,14 +36,16 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
     private GoogleMap mMap;
     LocationRequest mLocationRequest;
     GoogleApiClient mGoogleApiClient;
-    Location mCurrentLocation ;
+    Location mCurrentLocation , mPreviousLocation;
 
     private static final String TAG = "LocationActivity";
     private static final long INTERVAL = 1000 * 10;
     private static final long FASTEST_INTERVAL = 1000 * 5;
 
-    Marker myLoc ;
+    LatLng position = new LatLng(28.6291027, 77.207133) ;
     MarkerOptions markerOptionsMyLoc ;
+    Marker myLoc ;
+
 
     protected void createLocationRequest() {
         mLocationRequest = new LocationRequest();
@@ -62,6 +64,8 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
         mapFragment.getMapAsync(this);
 
         Log.d(TAG, "onCreate ...............................");
+
+
 
         createLocationRequest();
         if (mGoogleApiClient == null) {
@@ -89,10 +93,10 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
     @Override
     public void onMapReady(GoogleMap googleMap) {
         mMap = googleMap;
-        LatLng position = new LatLng(28.6291027, 77.207133) ;
         googleMap.moveCamera(CameraUpdateFactory.newLatLngZoom(position, 14));
         MarkerOptions markerOptions = new MarkerOptions().position(position);
         this.mMap.addMarker(new MarkerOptions().position(position).icon(BitmapDescriptorFactory.fromResource(R.drawable.machine)).title("Machine"));
+
     }
 
 
@@ -133,13 +137,23 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
     @Override
     public void onLocationChanged(Location location) {
         mCurrentLocation = location;
-        Log.i(TAG, "location is rgerwbgebebg ...............");
+        //deletePrevious();
         updateUI();
+    }
+
+    private void deletePrevious() {
+        if (null != mPreviousLocation) {
+
+        }
     }
 
     private void updateUI() {
         Log.d(TAG, "UI update initiated .............");
         if (null != mCurrentLocation) {
+
+            markerOptionsMyLoc = new MarkerOptions().position(position).title("My Location");
+            myLoc = mMap.addMarker(markerOptionsMyLoc.flat(true).rotation(mCurrentLocation.getBearing()).icon(BitmapDescriptorFactory.fromResource(R.drawable.marker)));
+
             Double lat = mCurrentLocation.getLatitude();
             Double lng = mCurrentLocation.getLongitude();
 
@@ -147,14 +161,13 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
 
             mMap.animateCamera(CameraUpdateFactory.newLatLngZoom(ll, 14));
             markerOptionsMyLoc = new MarkerOptions().position(ll).title("My Location");
+            myLoc.remove();
             myLoc = mMap.addMarker(markerOptionsMyLoc.flat(true).rotation(mCurrentLocation.getBearing()).icon(BitmapDescriptorFactory.fromResource(R.drawable.marker)));
-
-
+            
         } else {
             Log.d(TAG, "location is null ...............");
         }
 
-        Toast.makeText(this, ""+mCurrentLocation, Toast.LENGTH_SHORT).show();
     }
 
 }
