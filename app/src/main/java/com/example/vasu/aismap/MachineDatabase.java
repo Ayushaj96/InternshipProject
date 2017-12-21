@@ -15,7 +15,7 @@ public class MachineDatabase extends SQLiteOpenHelper {
     public static final String TABLE_NAME = "machinelist_data";
     public static final String COL1 = "ID";
     public static final String COL2 = "LATITUDE";
-    public static final String COL3 = "LATITUDE";
+    public static final String COL3 = "LONGITUDE";
 
 
     public MachineDatabase(Context context) {
