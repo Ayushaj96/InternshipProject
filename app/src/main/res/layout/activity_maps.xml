@@ -22,7 +22,7 @@
         android:layout_margin="30dp"
         android:background="@android:color/transparent"
         android:clickable="true"
-android:src="@drawable/common_google_signin_btn_text_dark"
+        android:src="@drawable/marker"
         android:onClick="myLocationCall"
         android:rotation="0" />
 
