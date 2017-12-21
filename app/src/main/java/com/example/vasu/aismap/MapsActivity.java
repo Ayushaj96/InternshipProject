@@ -2,8 +2,10 @@ package com.example.vasu.aismap;
 
 import android.Manifest;
 import android.content.pm.PackageManager;
+import android.database.Cursor;
 import android.location.Location;
 import android.os.Bundle;
+import android.renderscript.Double2;
 import android.support.annotation.NonNull;
 import android.support.design.widget.FloatingActionButton;
 import android.support.v4.app.ActivityCompat;
@@ -50,6 +52,9 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
     float zoom = 14;
     Circle mCircle , mPrevCircle;
 
+    MachineDatabase machineDatabase;
+    Cursor data ;
+
 
     protected void createLocationRequest() {
         mLocationRequest = new LocationRequest();
@@ -75,6 +80,9 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
             }
         });
 
+        machineDatabase = new MachineDatabase(this);
+        data = machineDatabase.getListContents();
+
 
         createLocationRequest();
         if (mGoogleApiClient == null) {
@@ -92,6 +100,10 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
 
     }
 
+    public void show_machines_on_map(LatLng latLng){
+        this.mMap.addMarker(new MarkerOptions().position(latLng).icon(BitmapDescriptorFactory.fromResource(R.drawable.machine)).title("Machine"));
+    }
+
     @Override
     public void onMapReady(GoogleMap googleMap) {
         mMap = googleMap;
@@ -102,8 +114,11 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
             }
         });
         googleMap.moveCamera(CameraUpdateFactory.newLatLngZoom(position, 14));
-        MarkerOptions markerOptions = new MarkerOptions().position(position);
-        this.mMap.addMarker(new MarkerOptions().position(position).icon(BitmapDescriptorFactory.fromResource(R.drawable.machine)).title("Machine"));
+        //this.mMap.addMarker(new MarkerOptions().position(position).icon(BitmapDescriptorFactory.fromResource(R.drawable.machine)).title("Machine"));
+
+        while (data.moveToNext()) {
+            show_machines_on_map(new LatLng(Double.parseDouble(data.getString(1)) , Double.parseDouble(data.getString(2))));
+        }
 
     }
 
