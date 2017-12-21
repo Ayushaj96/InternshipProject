@@ -64,7 +64,7 @@
         android:layout_below="@+id/editText"
         android:layout_marginTop="50dp"
         android:ems="10"
-        android:text="2"
+        android:text="1000"
         />
 
     <TextView
