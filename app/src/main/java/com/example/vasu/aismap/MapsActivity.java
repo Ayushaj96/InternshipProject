@@ -165,6 +165,7 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
             if (mPrevCircle != null){
                 mPrevCircle.remove();
             }
+
             myCurrentLocMarker = mMap.addMarker(markerOptionsMyLoc.flat(true).rotation(mCurrentLocation.getBearing()).icon(BitmapDescriptorFactory.fromResource(R.drawable.marker)));
             mPrevLocMarker = myCurrentLocMarker ;
             CircleOptions circleOptions = new CircleOptions().center(ll).radius(radiusInMeters).fillColor(shadeColor).strokeColor(strokeColor).strokeWidth(3);
