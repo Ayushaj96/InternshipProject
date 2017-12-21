@@ -1,6 +1,7 @@
 package com.example.vasu.aismap;
 
 import android.Manifest;
+import android.content.SharedPreferences;
 import android.content.pm.PackageManager;
 import android.database.Cursor;
 import android.location.Location;
@@ -50,11 +51,14 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
     LatLng position = new LatLng(28.6291027, 77.207133);
     MarkerOptions markerOptionsMyLoc;
     Marker myCurrentLocMarker, mPrevLocMarker;
-    float zoom = 14;
     Circle mCircle , mPrevCircle;
 
     MachineDatabase machineDatabase;
     Cursor data ;
+
+    SharedPreferences sharedPreferences ;
+    float zoom = 15.0f ;
+    float radius = 100.0f ;
 
 
     protected void createLocationRequest() {
@@ -84,6 +88,10 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
         machineDatabase = new MachineDatabase(this);
         data = machineDatabase.getListContents();
 
+        sharedPreferences =getApplicationContext().getSharedPreferences("MyPref", MODE_PRIVATE);
+        zoom = Float.parseFloat(sharedPreferences.getString("Zoom" , "15.0"));
+        radius = Float.parseFloat(sharedPreferences.getString("Radius" , "100.0"));
+
 
         createLocationRequest();
         if (mGoogleApiClient == null) {
@@ -103,6 +111,7 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
 
     public void show_machines_on_map(LatLng latLng){
         this.mMap.addMarker(new MarkerOptions().position(latLng).icon(BitmapDescriptorFactory.fromResource(R.drawable.machine)).title("Machine"));
+
     }
 
     @Override
@@ -154,7 +163,6 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
     @Override
     public void onLocationChanged(Location location) {
         mCurrentLocation = location;
-        Toast.makeText(this, "Location Updated", Toast.LENGTH_SHORT).show();
         updateUI();
     }
 
@@ -162,7 +170,6 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
         Log.d(TAG, "UI update initiated .............");
         if (null != mCurrentLocation) {
 
-            double radiusInMeters = 1000.0;
             int strokeColor = 0xffff0000; //red outline
             int shadeColor = 0x44ff0000; //opaque red fill
 
@@ -183,7 +190,7 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
 
             myCurrentLocMarker = mMap.addMarker(markerOptionsMyLoc.flat(true).rotation(mCurrentLocation.getBearing()).icon(BitmapDescriptorFactory.fromResource(R.drawable.marker)));
             mPrevLocMarker = myCurrentLocMarker ;
-            CircleOptions circleOptions = new CircleOptions().center(ll).radius(radiusInMeters).fillColor(shadeColor).strokeColor(strokeColor).strokeWidth(3);
+            CircleOptions circleOptions = new CircleOptions().center(ll).radius(radius).fillColor(shadeColor).strokeColor(strokeColor).strokeWidth(3);
             mCircle = mMap.addCircle(circleOptions);
             mPrevCircle = mCircle ;
  

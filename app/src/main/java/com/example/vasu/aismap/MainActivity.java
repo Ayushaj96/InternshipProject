@@ -72,8 +72,8 @@ public class MainActivity extends AppCompatActivity {
                 sharedPreferences=getApplicationContext().getSharedPreferences("MyPref", MODE_PRIVATE);
                 SharedPreferences.Editor editor = sharedPreferences.edit();
                 editor.putString("Zoom",ed1.getText().toString());
-                editor.putString("distance",ed2.getText().toString());
-                editor.apply();
+                editor.putString("Radius",ed2.getText().toString());
+                editor.commit();
 
                 Intent intent=new Intent(MainActivity.this,MapsActivity.class);
                 startActivity(intent);
