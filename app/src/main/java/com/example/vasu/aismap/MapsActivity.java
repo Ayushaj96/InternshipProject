@@ -6,6 +6,7 @@ import android.support.annotation.NonNull;
 import android.support.annotation.Nullable;
 import android.support.v4.app.FragmentActivity;
 import android.util.Log;
+import android.widget.Toast;
 
 import com.google.android.gms.common.ConnectionResult;
 import com.google.android.gms.common.api.GoogleApiClient;
@@ -16,6 +17,7 @@ import com.google.android.gms.maps.CameraUpdateFactory;
 import com.google.android.gms.maps.GoogleMap;
 import com.google.android.gms.maps.OnMapReadyCallback;
 import com.google.android.gms.maps.SupportMapFragment;
+import com.google.android.gms.maps.model.BitmapDescriptorFactory;
 import com.google.android.gms.maps.model.LatLng;
 import com.google.android.gms.maps.model.Marker;
 import com.google.android.gms.maps.model.MarkerOptions;
@@ -75,6 +77,7 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
         LatLng position = new LatLng(28.6291027, 77.207133) ;
         googleMap.moveCamera(CameraUpdateFactory.newLatLngZoom(position, 14));
         MarkerOptions markerOptions = new MarkerOptions().position(position);
+
         this.mMap.addMarker(new MarkerOptions().position(position).icon(BitmapDescriptorFactory.fromResource(R.drawable.machine)).title("Machine"));
     }
 
@@ -115,7 +118,7 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
 
 
         } else {
-            Log.d(TAG, "location is null ...............");
+            Log.d(TAG, "location is null ...............");    
         }
 
         Toast.makeText(this, ""+mCurrentLocation, Toast.LENGTH_SHORT).show();
