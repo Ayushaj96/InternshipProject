@@ -5,6 +5,7 @@ import android.content.Context;
 import android.database.Cursor;
 import android.database.sqlite.SQLiteDatabase;
 import android.database.sqlite.SQLiteOpenHelper;
+import android.renderscript.Double2;
 
 /**
  * Created by Mitch on 2016-05-13.
@@ -36,7 +37,7 @@ public class MachineDatabase extends SQLiteOpenHelper {
         onCreate(db);
     }
 
-    public boolean addData(String item0,String item1) {
+    public boolean addData(Double item0, Double item1) {
 
         SQLiteDatabase db = this.getWritableDatabase();
         ContentValues contentValues = new ContentValues();
@@ -67,6 +68,11 @@ public class MachineDatabase extends SQLiteOpenHelper {
     public Integer deleteDataFromId (String id) {
         SQLiteDatabase db = this.getWritableDatabase();
         return db.delete(TABLE_NAME, "NAME = ?",new String[] {id});
+    }
+
+    public void deleteAllData(){
+        SQLiteDatabase db = this.getWritableDatabase();
+        db.execSQL("delete from " + TABLE_NAME);
     }
 
 }

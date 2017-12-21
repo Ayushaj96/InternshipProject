@@ -12,6 +12,7 @@ import android.support.v4.app.ActivityCompat;
 import android.support.v4.app.FragmentActivity;
 import android.util.Log;
 import android.view.View;
+import android.widget.Toast;
 
 import com.google.android.gms.common.ConnectionResult;
 import com.google.android.gms.common.api.GoogleApiClient;
@@ -117,7 +118,7 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
         //this.mMap.addMarker(new MarkerOptions().position(position).icon(BitmapDescriptorFactory.fromResource(R.drawable.machine)).title("Machine"));
 
         while (data.moveToNext()) {
-            show_machines_on_map(new LatLng(Double.parseDouble(data.getString(1)) , Double.parseDouble(data.getString(2))));
+            show_machines_on_map(new LatLng(Double.parseDouble(data.getString(2)) , Double.parseDouble(data.getString(1))));
         }
 
     }
@@ -153,7 +154,7 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
     @Override
     public void onLocationChanged(Location location) {
         mCurrentLocation = location;
-       // Toast.makeText(this, "Location Updated", Toast.LENGTH_SHORT).show();
+        Toast.makeText(this, "Location Updated", Toast.LENGTH_SHORT).show();
         updateUI();
     }
 
@@ -186,7 +187,7 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
             mCircle = mMap.addCircle(circleOptions);
             mPrevCircle = mCircle ;
  
-            float[] distance = new float[5] ;
+            float[] distance = new float[2] ;
             Location.distanceBetween(mCurrentLocation.getLatitude(),mCurrentLocation.getLongitude(),position.latitude,position.longitude,distance);
            // Toast.makeText(this, ""+distance[0], Toast.LENGTH_SHORT).show();
 
