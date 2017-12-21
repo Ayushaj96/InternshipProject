@@ -9,17 +9,15 @@ import android.widget.Button;
 import android.widget.EditText;
 
 public class MainActivity extends AppCompatActivity {
- Button b1,b2,b3;
+    Button b1,b2,b3;
     EditText ed1,ed2;
     SharedPreferences sharedPreferences;
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
-
-
-
-      b1=(Button)findViewById(R.id.button5);
+        
+        b1=(Button)findViewById(R.id.button5);
         b2=(Button)findViewById(R.id.button6);
         b3=(Button)findViewById(R.id.button7);
 
@@ -28,7 +26,7 @@ ed1=(EditText)findViewById(R.id.editText);
 
         sharedPreferences=getApplicationContext().getSharedPreferences("MyPref", MODE_PRIVATE);
         SharedPreferences.Editor editor = sharedPreferences.edit();
-editor.putInt("Zoom",12);
+        editor.putInt("Zoom",12);
         editor.putInt("distance",1000);
         editor.apply();
 
@@ -40,7 +38,7 @@ editor.putInt("Zoom",12);
         });
 
         b2.setOnClickListener(new View.OnClickListener() {
-            @Override  
+            @Override
             public void onClick(View v) {
 
             }
