@@ -16,12 +16,12 @@ public class MainActivity extends AppCompatActivity {
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
-        
+
         b1=(Button)findViewById(R.id.button5);
         b2=(Button)findViewById(R.id.button6);
         b3=(Button)findViewById(R.id.button7);
 
-ed1=(EditText)findViewById(R.id.editText);
+        ed1=(EditText)findViewById(R.id.editText);
         ed2=(EditText)findViewById(R.id.editText2);
 
         sharedPreferences=getApplicationContext().getSharedPreferences("MyPref", MODE_PRIVATE);
