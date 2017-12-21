@@ -3,9 +3,7 @@ package com.example.vasu.aismap;
 import android.Manifest;
 import android.content.pm.PackageManager;
 import android.location.Location;
-import android.renderscript.Double2;
 import android.support.annotation.NonNull;
-import android.support.annotation.Nullable;
 import android.support.v4.app.ActivityCompat;
 import android.support.v4.app.FragmentActivity;
 import android.os.Bundle;
@@ -39,12 +37,12 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
     Location mCurrentLocation , mPreviousLocation;
 
     private static final String TAG = "LocationActivity";
-    private static final long INTERVAL = 1000 * 10;
+    private static final long INTERVAL = 1000 * 5;
     private static final long FASTEST_INTERVAL = 1000 * 5;
 
     LatLng position = new LatLng(28.6291027, 77.207133) ;
     MarkerOptions markerOptionsMyLoc ;
-    Marker myLoc ;
+    Marker myCurrentLocMarker , mPrevLocMarker;
 
 
     protected void createLocationRequest() {
@@ -137,22 +135,13 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
     @Override
     public void onLocationChanged(Location location) {
         mCurrentLocation = location;
-        //deletePrevious();
+        Toast.makeText(this, "Location Updated", Toast.LENGTH_SHORT).show();
         updateUI();
-    }
-
-    private void deletePrevious() {
-        if (null != mPreviousLocation) {
-
-        }
     }
 
     private void updateUI() {
         Log.d(TAG, "UI update initiated .............");
         if (null != mCurrentLocation) {
-
-            markerOptionsMyLoc = new MarkerOptions().position(position).title("My Location");
-            myLoc = mMap.addMarker(markerOptionsMyLoc.flat(true).rotation(mCurrentLocation.getBearing()).icon(BitmapDescriptorFactory.fromResource(R.drawable.marker)));
 
             Double lat = mCurrentLocation.getLatitude();
             Double lng = mCurrentLocation.getLongitude();
@@ -161,9 +150,12 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
 
             mMap.animateCamera(CameraUpdateFactory.newLatLngZoom(ll, 14));
             markerOptionsMyLoc = new MarkerOptions().position(ll).title("My Location");
-            myLoc.remove();
-            myLoc = mMap.addMarker(markerOptionsMyLoc.flat(true).rotation(mCurrentLocation.getBearing()).icon(BitmapDescriptorFactory.fromResource(R.drawable.marker)));
-            
+            if (mPrevLocMarker != null){
+                mPrevLocMarker.remove();
+            }
+            myCurrentLocMarker = mMap.addMarker(markerOptionsMyLoc.flat(true).rotation(mCurrentLocation.getBearing()).icon(BitmapDescriptorFactory.fromResource(R.drawable.marker)));
+            mPrevLocMarker = myCurrentLocMarker ;
+
         } else {
             Log.d(TAG, "location is null ...............");
         }
