@@ -1,15 +1,15 @@
 package com.example.vasu.aismap;
 
 import android.Manifest;
-import android.content.Context;
 import android.content.pm.PackageManager;
 import android.location.Location;
-import android.location.LocationManager;
+import android.os.Bundle;
 import android.support.annotation.NonNull;
+import android.support.design.widget.FloatingActionButton;
 import android.support.v4.app.ActivityCompat;
 import android.support.v4.app.FragmentActivity;
-import android.os.Bundle;
 import android.util.Log;
+import android.view.View;
 import android.widget.Toast;
 
 import com.google.android.gms.common.ConnectionResult;
@@ -24,7 +24,6 @@ import com.google.android.gms.maps.GoogleMap;
 import com.google.android.gms.maps.OnMapReadyCallback;
 import com.google.android.gms.maps.SupportMapFragment;
 import com.google.android.gms.maps.model.BitmapDescriptorFactory;
-import com.google.android.gms.maps.model.CameraPosition;
 import com.google.android.gms.maps.model.Circle;
 import com.google.android.gms.maps.model.CircleOptions;
 import com.google.android.gms.maps.model.LatLng;
@@ -41,6 +40,7 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
     GoogleApiClient mGoogleApiClient;
     Location mCurrentLocation;
 
+    FloatingActionButton floatingActionButton;
     private static final String TAG = "LocationActivity";
     private static final long INTERVAL = 1000 * 5;
     private static final long FASTEST_INTERVAL = 1000 * 5;
@@ -69,7 +69,12 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
         mapFragment.getMapAsync(this);
 
         Log.d(TAG, "onCreate ...............................");
+        floatingActionButton = (FloatingActionButton)findViewById(R.id.imageButton);
+        floatingActionButton.setOnClickListener(new View.OnClickListener() {
+            public void onClick(View v) {
 
+            }
+        });
 
 
         createLocationRequest();
@@ -112,14 +117,7 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
 
     protected void startLocationUpdates() {
         if (ActivityCompat.checkSelfPermission(this, Manifest.permission.ACCESS_FINE_LOCATION) != PackageManager.PERMISSION_GRANTED && ActivityCompat.checkSelfPermission(this, Manifest.permission.ACCESS_COARSE_LOCATION) != PackageManager.PERMISSION_GRANTED) {
-            // TODO: Consider calling
-            //    ActivityCompat#requestPermissions
-            // here to request the missing permissions, and then overriding
-            //   public void onRequestPermissionsResult(int requestCode, String[] permissions,
-            //                                          int[] grantResults)
-            // to handle the case where the user grants the permission. See the documentation
-            // for ActivityCompat#requestPermissions for more details.
-            Toast.makeText(this, "Permission not given", Toast.LENGTH_SHORT).show();
+            // Toast.makeText(this, "Permission not given", Toast.LENGTH_SHORT).show();
             return;
         }
         PendingResult<Status> pendingResult = LocationServices.FusedLocationApi.requestLocationUpdates(
@@ -141,7 +139,7 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
     @Override
     public void onLocationChanged(Location location) {
         mCurrentLocation = location;
-        Toast.makeText(this, "Location Updated", Toast.LENGTH_SHORT).show();
+       // Toast.makeText(this, "Location Updated", Toast.LENGTH_SHORT).show();
         updateUI();
     }
 
