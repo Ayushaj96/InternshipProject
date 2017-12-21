@@ -120,7 +120,7 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
             // to handle the case where the user grants the permission. See the documentation
             // for ActivityCompat#requestPermissions for more details.
             Toast.makeText(this, "Permission not given", Toast.LENGTH_SHORT).show();
-            return;
+            return;   
         }
         PendingResult<Status> pendingResult = LocationServices.FusedLocationApi.requestLocationUpdates(
                 mGoogleApiClient, mLocationRequest, this);
@@ -167,6 +167,7 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
             if (mPrevCircle != null){
                 mPrevCircle.remove();
             }
+
             myCurrentLocMarker = mMap.addMarker(markerOptionsMyLoc.flat(true).rotation(mCurrentLocation.getBearing()).icon(BitmapDescriptorFactory.fromResource(R.drawable.marker)));
             mPrevLocMarker = myCurrentLocMarker ;
             CircleOptions circleOptions = new CircleOptions().center(ll).radius(radiusInMeters).fillColor(shadeColor).strokeColor(strokeColor).strokeWidth(3);
