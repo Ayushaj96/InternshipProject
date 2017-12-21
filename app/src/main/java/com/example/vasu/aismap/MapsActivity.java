@@ -1,8 +1,10 @@
 package com.example.vasu.aismap;
 
 import android.Manifest;
+import android.content.Context;
 import android.content.pm.PackageManager;
 import android.location.Location;
+import android.location.LocationManager;
 import android.support.annotation.NonNull;
 import android.support.v4.app.ActivityCompat;
 import android.support.v4.app.FragmentActivity;
@@ -22,27 +24,32 @@ import com.google.android.gms.maps.GoogleMap;
 import com.google.android.gms.maps.OnMapReadyCallback;
 import com.google.android.gms.maps.SupportMapFragment;
 import com.google.android.gms.maps.model.BitmapDescriptorFactory;
+import com.google.android.gms.maps.model.CameraPosition;
+import com.google.android.gms.maps.model.Circle;
+import com.google.android.gms.maps.model.CircleOptions;
 import com.google.android.gms.maps.model.LatLng;
 import com.google.android.gms.maps.model.Marker;
 import com.google.android.gms.maps.model.MarkerOptions;
 
-public class MapsActivity extends FragmentActivity implements OnMapReadyCallback ,
+public class MapsActivity extends FragmentActivity implements OnMapReadyCallback,
         LocationListener,
         GoogleApiClient.ConnectionCallbacks,
-        GoogleApiClient.OnConnectionFailedListener{
+        GoogleApiClient.OnConnectionFailedListener {
 
     private GoogleMap mMap;
     LocationRequest mLocationRequest;
     GoogleApiClient mGoogleApiClient;
-    Location mCurrentLocation , mPreviousLocation;
+    Location mCurrentLocation;
 
     private static final String TAG = "LocationActivity";
     private static final long INTERVAL = 1000 * 5;
     private static final long FASTEST_INTERVAL = 1000 * 5;
 
-    LatLng position = new LatLng(28.6291027, 77.207133) ;
-    MarkerOptions markerOptionsMyLoc ;
-    Marker myCurrentLocMarker , mPrevLocMarker;
+    LatLng position = new LatLng(28.6291027, 77.207133);
+    MarkerOptions markerOptionsMyLoc;
+    Marker myCurrentLocMarker, mPrevLocMarker;
+    float zoom = 14;
+    Circle mCircle , mPrevCircle;
 
 
     protected void createLocationRequest() {
@@ -53,7 +60,7 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
     }
 
     @Override
-    protected void onCreate (Bundle savedInstanceState){
+    protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_maps);
         // Obtain the SupportMapFragment and get notified when the map is ready to be used.
@@ -77,20 +84,19 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
             mGoogleApiClient.connect();
         }
 
+
+
     }
 
-    /**
-     * Manipulates the map once available.
-     * This callback is triggered when the map is ready to be used.
-     * This is where we can add markers or lines, add listeners or move the camera. In this case,
-     * we just add a marker near Sydney, Australia.
-     * If Google Play services is not installed on the device, the user will be prompted to install
-     * it inside the SupportMapFragment. This method will only be triggered once the user has
-     * installed Google Play services and returned to the app.
-     */
     @Override
     public void onMapReady(GoogleMap googleMap) {
         mMap = googleMap;
+        mMap.setOnCameraIdleListener(new GoogleMap.OnCameraIdleListener() {
+            @Override
+            public void onCameraIdle() {
+                zoom  = mMap.getCameraPosition().zoom;
+            }
+        });
         googleMap.moveCamera(CameraUpdateFactory.newLatLngZoom(position, 14));
         MarkerOptions markerOptions = new MarkerOptions().position(position);
         this.mMap.addMarker(new MarkerOptions().position(position).icon(BitmapDescriptorFactory.fromResource(R.drawable.machine)).title("Machine"));
@@ -143,23 +149,40 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
         Log.d(TAG, "UI update initiated .............");
         if (null != mCurrentLocation) {
 
+            double radiusInMeters = 1000.0;
+            int strokeColor = 0xffff0000; //red outline
+            int shadeColor = 0x44ff0000; //opaque red fill
+
             Double lat = mCurrentLocation.getLatitude();
             Double lng = mCurrentLocation.getLongitude();
 
             LatLng ll = new LatLng(lat, lng);
 
-            mMap.animateCamera(CameraUpdateFactory.newLatLngZoom(ll, 14));
+            mMap.animateCamera(CameraUpdateFactory.newLatLngZoom(ll, zoom));
+
             markerOptionsMyLoc = new MarkerOptions().position(ll).title("My Location");
             if (mPrevLocMarker != null){
                 mPrevLocMarker.remove();
             }
+            if (mPrevCircle != null){
+                mPrevCircle.remove();
+            }
             myCurrentLocMarker = mMap.addMarker(markerOptionsMyLoc.flat(true).rotation(mCurrentLocation.getBearing()).icon(BitmapDescriptorFactory.fromResource(R.drawable.marker)));
             mPrevLocMarker = myCurrentLocMarker ;
+            CircleOptions circleOptions = new CircleOptions().center(ll).radius(radiusInMeters).fillColor(shadeColor).strokeColor(strokeColor).strokeWidth(3);
+            mCircle = mMap.addCircle(circleOptions);
+            mPrevCircle = mCircle ;
+
+            float[] distance = new float[5] ;
+            Location.distanceBetween(mCurrentLocation.getLatitude(),mCurrentLocation.getLongitude(),position.latitude,position.longitude,distance);
+            Toast.makeText(this, ""+distance[0], Toast.LENGTH_SHORT).show();
 
         } else {
             Log.d(TAG, "location is null ...............");
         }
 
     }
+
+
 
 }
