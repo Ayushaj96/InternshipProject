@@ -5,7 +5,6 @@ import android.content.pm.PackageManager;
 import android.database.Cursor;
 import android.location.Location;
 import android.os.Bundle;
-import android.renderscript.Double2;
 import android.support.annotation.NonNull;
 import android.support.design.widget.FloatingActionButton;
 import android.support.v4.app.ActivityCompat;
@@ -185,7 +184,7 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
             CircleOptions circleOptions = new CircleOptions().center(ll).radius(radiusInMeters).fillColor(shadeColor).strokeColor(strokeColor).strokeWidth(3);
             mCircle = mMap.addCircle(circleOptions);
             mPrevCircle = mCircle ;
- 
+
             float[] distance = new float[5] ;
             Location.distanceBetween(mCurrentLocation.getLatitude(),mCurrentLocation.getLongitude(),position.latitude,position.longitude,distance);
            // Toast.makeText(this, ""+distance[0], Toast.LENGTH_SHORT).show();
@@ -194,7 +193,7 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
             Log.d(TAG, "location is null ...............");
         }
 
-    }
+    }  
 
 
 

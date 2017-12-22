@@ -42,11 +42,6 @@ public class MainActivity extends AppCompatActivity {
         ed1=(EditText)findViewById(R.id.editText);  
         ed2=(EditText)findViewById(R.id.editText2);
 
-        sharedPreferences=getApplicationContext().getSharedPreferences("MyPref", MODE_PRIVATE);
-        SharedPreferences.Editor editor = sharedPreferences.edit();
-        editor.putInt("Zoom",12);
-        editor.putInt("distance",1000);
-        editor.apply();
 
         b1.setOnClickListener(new View.OnClickListener() {
             @Override
