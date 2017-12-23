@@ -31,5 +31,6 @@ dependencies {
     compile 'com.android.support.constraint:constraint-layout:1.0.2'
     compile 'com.android.support:design:26.+'
     compile 'de.hdodenhof:circleimageview:2.2.0'
-    testCompile 'junit:junit:4.12'
+    compile 'com.github.jd-alexander:library:1.1.0'
+    testCompile 'junit:junit:4.12'  
 }
