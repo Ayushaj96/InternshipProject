@@ -214,6 +214,26 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
             mClusterManager.addItem(offsetItem);
         }
     }
+    
+    public LatLng getNearestMachine(){
+        data.moveToFirst();
+        float[] directDistance = new float[2] ; 
+        float minDis = Float.MAX_VALUE ;
+        LatLng minLL = null;
+        while (data.moveToNext()){
+            Location.distanceBetween(mCurrentLocation.getLatitude() , mCurrentLocation.getLongitude() , 
+                    Double.parseDouble(data.getString(2)) , Double.parseDouble(data.getString(1)) , directDistance );
+            
+            if (directDistance[0] <= minDis){
+                minDis = directDistance[0] ;
+                minLL = new LatLng( Double.parseDouble(data.getString(2)) , Double.parseDouble(data.getString(1)) ) ;
+            }
+            
+        }
+        
+        return minLL ;
+        
+    }
 
 
     @Override
