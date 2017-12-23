@@ -11,7 +11,9 @@ import android.support.design.widget.FloatingActionButton;
 import android.support.v4.app.ActivityCompat;
 import android.support.v4.app.FragmentActivity;
 import android.util.Log;
+import android.widget.Toast;
 
+import com.example.vasu.aismap.Models.ClusteringItem;
 import com.google.android.gms.common.ConnectionResult;
 import com.google.android.gms.common.api.GoogleApiClient;
 import com.google.android.gms.common.api.PendingResult;
@@ -28,6 +30,13 @@ import com.google.android.gms.maps.model.Circle;
 import com.google.android.gms.maps.model.LatLng;
 import com.google.android.gms.maps.model.Marker;
 import com.google.android.gms.maps.model.MarkerOptions;
+import com.google.maps.android.clustering.Cluster;
+import com.google.maps.android.clustering.ClusterManager;
+
+import org.json.JSONException;
+
+import java.io.InputStream;
+import java.util.List;
 
 public class MapsActivity extends FragmentActivity implements OnMapReadyCallback,
         LocationListener,
@@ -55,6 +64,8 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
     SharedPreferences sharedPreferences ;
     float zoom = 15.0f ;
     float radius = 100.0f ;
+
+    private ClusterManager<ClusteringItem> mClusterManager;
 
 
     protected void createLocationRequest() {
@@ -114,20 +125,29 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
                 zoom  = mMap.getCameraPosition().zoom;
             }
         });
-      googleMap.moveCamera(CameraUpdateFactory.newLatLngZoom(position, 16));
+        googleMap.moveCamera(CameraUpdateFactory.newLatLngZoom(position, 16));
         this.mMap.addMarker(new MarkerOptions().position(position).icon(BitmapDescriptorFactory.fromResource(R.drawable.machine)).title("Machine"));
 
         while (data.moveToNext()) {
             show_machines_on_map(new LatLng(Double.parseDouble(data.getString(2)) , Double.parseDouble(data.getString(1))));
         }
 
+        mClusterManager = new ClusterManager<ClusteringItem>(this, mMap);
+
+        mMap.setOnCameraIdleListener(mClusterManager);
+        try {
+            readItems();
+        } catch (JSONException e) {
+            Toast.makeText(this, "Problem reading list of markers.", Toast.LENGTH_LONG).show();
+        }
+
 
         // Setting a custom info window adapter for the google map
        MarkerInfoWindowAdapter markerInfoWindowAdapter = new MarkerInfoWindowAdapter(getApplicationContext());
-        googleMap.setInfoWindowAdapter(markerInfoWindowAdapter);
+        mMap.setInfoWindowAdapter(markerInfoWindowAdapter);
 
         // Adding and showing marker when the map is touched
-        googleMap.setOnMapClickListener(new GoogleMap.OnMapClickListener() {
+        mMap.setOnMapClickListener(new GoogleMap.OnMapClickListener() {
             @Override
             public void onMapClick(LatLng arg0) {
 
@@ -139,6 +159,17 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
                 marker.remove();
             }
         });
+    }
+
+
+    private void readItems() throws JSONException {
+        data.moveToFirst() ;
+        while (data.moveToNext()){
+            double lat = Double.parseDouble(data.getString(2)) ;
+            double lng = Double.parseDouble(data.getString(1)) ;
+            ClusteringItem offsetItem = new ClusteringItem(lat, lng);
+            mClusterManager.addItem(offsetItem);
+        }
     }
 
 
