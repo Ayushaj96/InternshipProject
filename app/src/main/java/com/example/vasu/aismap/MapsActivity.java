@@ -11,6 +11,7 @@ import android.support.design.widget.FloatingActionButton;
 import android.support.v4.app.ActivityCompat;
 import android.support.v4.app.FragmentActivity;
 import android.util.Log;
+import android.view.View;
 import android.widget.Toast;
 
 import com.example.vasu.aismap.Models.ClusteringItem;
@@ -30,13 +31,11 @@ import com.google.android.gms.maps.model.Circle;
 import com.google.android.gms.maps.model.LatLng;
 import com.google.android.gms.maps.model.Marker;
 import com.google.android.gms.maps.model.MarkerOptions;
-import com.google.maps.android.clustering.Cluster;
 import com.google.maps.android.clustering.ClusterManager;
 
 import org.json.JSONException;
 
-import java.io.InputStream;
-import java.util.List;
+import de.hdodenhof.circleimageview.CircleImageView;
 
 public class MapsActivity extends FragmentActivity implements OnMapReadyCallback,
         LocationListener,
@@ -67,6 +66,7 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
 
     private ClusterManager<ClusteringItem> mClusterManager;
 
+    CircleImageView circleImageView;
 
     protected void createLocationRequest() {
         mLocationRequest = new LocationRequest();
@@ -141,6 +141,14 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
             Toast.makeText(this, "Problem reading list of markers.", Toast.LENGTH_LONG).show();
         }
 
+       circleImageView =(CircleImageView) findViewById(R.id.GetDirections);
+
+        circleImageView.setOnClickListener(new View.OnClickListener() {
+        @Override
+        public void onClick(View v) {
+
+        }
+});
 
         // Setting a custom info window adapter for the google map
        MarkerInfoWindowAdapter markerInfoWindowAdapter = new MarkerInfoWindowAdapter(getApplicationContext());
