@@ -325,7 +325,7 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
             urlConnection.connect();
 
             // Reading data from url
-            iStream = urlConnection.getInputStream();
+            iStream = urlConnection.getInputStream();      
 
             BufferedReader br = new BufferedReader(new InputStreamReader(iStream));
 
