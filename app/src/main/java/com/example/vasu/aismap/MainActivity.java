@@ -29,6 +29,7 @@ public class MainActivity extends AppCompatActivity {
     SharedPreferences sharedPreferences;
     public static final int CONNECTION_TIMEOUT = 10000;
     public static final int READ_TIMEOUT = 15000;
+    MachineDatabase machineDatabase ;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -42,6 +43,13 @@ public class MainActivity extends AppCompatActivity {
         ed1=(EditText)findViewById(R.id.editText);  
         ed2=(EditText)findViewById(R.id.editText2);
 
+        machineDatabase = new MachineDatabase(this) ;
+
+        sharedPreferences=getApplicationContext().getSharedPreferences("MyPref", MODE_PRIVATE);
+        SharedPreferences.Editor editor = sharedPreferences.edit();
+        editor.putInt("Zoom",12);
+        editor.putInt("distance",1000);
+        editor.apply();
 
         b1.setOnClickListener(new View.OnClickListener() {
             @Override
@@ -64,8 +72,8 @@ public class MainActivity extends AppCompatActivity {
                 sharedPreferences=getApplicationContext().getSharedPreferences("MyPref", MODE_PRIVATE);
                 SharedPreferences.Editor editor = sharedPreferences.edit();
                 editor.putString("Zoom",ed1.getText().toString());
-                editor.putString("distance",ed2.getText().toString());
-                editor.apply();
+                editor.putString("Radius",ed2.getText().toString());
+                editor.commit();
 
                 Intent intent=new Intent(MainActivity.this,MapsActivity.class);
                 startActivity(intent);
@@ -157,7 +165,9 @@ public class MainActivity extends AppCompatActivity {
         @Override
         protected void onPostExecute(String result) {
             pdLoading.dismiss();
-            Toast.makeText(MainActivity.this, "" + result, Toast.LENGTH_SHORT).show();
+            Toast.makeText(MainActivity.this, "Information Fetched", Toast.LENGTH_SHORT).show();
+
+            machineDatabase.deleteAllData();
 
             try {
                 JSONArray jsonArray =new JSONArray(result);
@@ -166,10 +176,10 @@ public class MainActivity extends AppCompatActivity {
                     JSONObject object = jsonArray.getJSONObject(i);
                     double latitude = object.getDouble("latitude");
                     double longitude = object.getDouble("longitude");
+                    machineDatabase.addData(latitude,longitude);
                     Log.i("myapp"," "+latitude+" "+longitude);
                 }
             } catch (Exception e) {
-
 
             }
         }
