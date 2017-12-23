@@ -1,13 +1,11 @@
 package com.example.vasu.aismap;
 
 import android.Manifest;
-import android.content.Intent;
 import android.content.SharedPreferences;
 import android.content.pm.PackageManager;
 import android.database.Cursor;
 import android.graphics.Color;
 import android.location.Location;
-import android.net.Uri;
 import android.os.AsyncTask;
 import android.os.Bundle;
 import android.support.annotation.NonNull;
@@ -15,11 +13,11 @@ import android.support.design.widget.FloatingActionButton;
 import android.support.v4.app.ActivityCompat;
 import android.support.v4.app.FragmentActivity;
 import android.util.Log;
+import android.view.View;
 import android.widget.Toast;
 
 import com.example.vasu.aismap.Models.ClusteringItem;
 import com.example.vasu.aismap.Models.DirectionJSONParser;
-import com.example.vasu.aismap.Models.GetLinePath;
 import com.example.vasu.aismap.Models.OwnClusterIconRendered;
 import com.google.android.gms.common.ConnectionResult;
 import com.google.android.gms.common.api.GoogleApiClient;
@@ -125,9 +123,15 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
         }
         if (mGoogleApiClient != null) {
             mGoogleApiClient.connect();
-        }  
+        }
 
-
+        floatingActionButton=(FloatingActionButton)findViewById(R.id.GetDirections);
+        floatingActionButton.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                
+            }
+        });
 
     }
 

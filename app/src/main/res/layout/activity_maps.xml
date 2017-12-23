@@ -23,7 +23,7 @@
         android:background="@android:color/transparent"
         android:clickable="true"
 
-        android:onClick="myLocationCall"
-        android:rotation="0" />
+
+  />
 
 </RelativeLayout>
