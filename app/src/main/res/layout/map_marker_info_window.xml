@@ -10,6 +10,8 @@
     <RelativeLayout
         android:layout_width="160dp"
         android:layout_height="100dp"
+        android:clickable="true"
+        android:id="@+id/GetDirections"
         >
 
         <de.hdodenhof.circleimageview.CircleImageView
@@ -55,12 +57,14 @@
             />
 
         <de.hdodenhof.circleimageview.CircleImageView
-            android:id="@+id/GetDirections"
+
             android:layout_width="40dp"
             android:layout_height="40dp"
             android:layout_alignParentBottom="true"
             android:layout_alignParentRight="true"
             android:src="@drawable/next"
+            android:elevation="15dp"
+
             android:layout_marginBottom="15dp"/>
         <TextView
             android:layout_width="wrap_content"
