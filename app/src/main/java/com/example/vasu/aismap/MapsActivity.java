@@ -128,9 +128,9 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
         googleMap.moveCamera(CameraUpdateFactory.newLatLngZoom(position, 16));
         this.mMap.addMarker(new MarkerOptions().position(position).icon(BitmapDescriptorFactory.fromResource(R.drawable.machine)).title("Machine"));
 
-        while (data.moveToNext()) {
+        /* while (data.moveToNext()) {
             show_machines_on_map(new LatLng(Double.parseDouble(data.getString(2)) , Double.parseDouble(data.getString(1))));
-        }
+        } */
 
         mClusterManager = new ClusterManager<ClusteringItem>(this, mMap);
 
