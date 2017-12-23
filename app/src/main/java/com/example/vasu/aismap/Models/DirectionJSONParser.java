@@ -1,5 +1,8 @@
 package com.example.vasu.aismap.Models;
 
+import android.util.Log;
+import android.widget.Toast;
+
 import com.google.android.gms.maps.model.LatLng;
 
 import org.json.JSONArray;
@@ -60,6 +63,41 @@ public class DirectionJSONParser {
         }catch (Exception e){
         }
         return routes;
+    }
+
+    public ArrayList<Float> getTravelDistance(JSONObject jObject){
+        JSONArray jRoutes = null;
+        JSONArray jLegs = null;
+        JSONArray jSteps = null;
+        ArrayList<Float> distList = new ArrayList<>() ;
+
+        try {
+
+            jRoutes = jObject.getJSONArray("routes");
+
+
+            for(int i=0;i<jRoutes.length();i++){
+                jLegs = ( (JSONObject)jRoutes.get(i)).getJSONArray("legs");
+                List path = new ArrayList<HashMap<String, String>>();
+
+                float dist = 0.0f ;
+                for(int j=0;j<jLegs.length();j++){
+                    jSteps = ( (JSONObject)jLegs.get(j)).getJSONArray("steps");
+
+                    for(int k=0;k<jSteps.length();k++){
+                        dist +=  Float.parseFloat((((JSONObject)((JSONObject)jSteps.get(k)).get("distance")).get("value")).toString());
+
+                    }
+                }
+
+                distList.add(dist);
+                Log.i("DEBUGING ANDROID" , String.valueOf(dist));
+            }
+
+        }catch (Exception e){
+            Log.e("ERROR" , e.toString()) ;
+        }
+        return distList;
     }
 
     private List<LatLng> decodePoly(String encoded) {
