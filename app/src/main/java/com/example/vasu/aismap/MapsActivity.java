@@ -8,6 +8,7 @@ import android.graphics.Color;
 import android.location.Location;
 import android.os.AsyncTask;
 import android.os.Bundle;
+import android.os.Handler;
 import android.support.annotation.NonNull;
 import android.support.design.widget.FloatingActionButton;
 import android.support.v4.app.ActivityCompat;
@@ -234,23 +235,34 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
             
         }
 
-        Toast.makeText(this, ""+minDis+" m", Toast.LENGTH_SHORT).show();
+        // Toast.makeText(this, ""+minDis+" m", Toast.LENGTH_SHORT).show();
 
-        mMap.animateCamera(CameraUpdateFactory.newLatLngZoom(minLL, 18));
+        final LatLng finalMinLL = minLL;
+        mMap.animateCamera(CameraUpdateFactory.newLatLngZoom(minLL, 18),500 , new GoogleMap.CancelableCallback() {
+            @Override
+            public void onFinish() {
+                new Handler().postDelayed(new Runnable() {
+                    @Override
+                    public void run() {
+                        Collection<Marker> mm = mClusterManager.getMarkerCollection().getMarkers();
+                        Iterator<Marker> itr = mm.iterator();
 
-        Collection<Marker> mm = mClusterManager.getMarkerCollection().getMarkers();
-        Iterator<Marker> itr = mm.iterator();
-
-        while (itr.hasNext()) {
-            Marker marker = itr.next();
-            if (minLL.latitude == marker.getPosition().latitude && minLL.longitude == marker.getPosition().longitude) {
-                marker.showInfoWindow();
-                break;
+                        while (itr.hasNext()) {
+                            Marker marker = itr.next();
+                            if (finalMinLL.latitude == marker.getPosition().latitude && finalMinLL.longitude == marker.getPosition().longitude) {
+                                marker.showInfoWindow();
+                                //break outer;
+                            }
+                        }
+                    }
+                }, 1000);
             }
 
-        }
+            @Override
+            public void onCancel() {
 
-
+            }
+        });
 
 
 
