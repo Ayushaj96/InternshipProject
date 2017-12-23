@@ -3,6 +3,8 @@ package com.example.vasu.aismap.Models ;
 import com.google.android.gms.maps.model.LatLng;
 import com.google.maps.android.clustering.ClusterItem;
 
+import java.util.Random;
+
 public class ClusteringItem implements ClusterItem {
     private final LatLng mPosition;
     private String mTitle;
@@ -10,8 +12,8 @@ public class ClusteringItem implements ClusterItem {
 
     public ClusteringItem(double lat, double lng) {
         mPosition = new LatLng(lat, lng);
-        mTitle = null;
-        mSnippet = null;
+        mTitle = "A Machine";
+        mSnippet = String.valueOf(new Random().nextInt(100));
     }
 
     public ClusteringItem(double lat, double lng, String title, String snippet) {
