@@ -47,8 +47,12 @@ public class GetLinePath {
         // Sensor enabled
         String sensor = "sensor=false";
 
+        String mode = "mode=walking" ;
+
+        String alternative = "alternatives=true" ;
+
         // Building the parameters to the web service
-        String parameters = str_origin+"&"+str_dest+"&"+sensor;
+        String parameters = str_origin+"&"+str_dest+"&"+sensor+"&"+mode+"&"+alternative;
 
         // Output format
         String output = "json";

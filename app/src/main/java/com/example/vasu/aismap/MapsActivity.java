@@ -52,6 +52,7 @@ import java.io.InputStreamReader;
 import java.net.HttpURLConnection;
 import java.net.URL;
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.HashMap;
 import java.util.List;
 
@@ -85,7 +86,7 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
 
     private ClusterManager<ClusteringItem> mClusterManager;
 
-    Polyline pl = null ;
+    Polyline pl[] = new Polyline[5] ;
 
     protected void createLocationRequest() {
         mLocationRequest = new LocationRequest();
@@ -296,8 +297,12 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
         // Sensor enabled
         String sensor = "sensor=false";
 
+        String mode = "mode=walking" ;
+
+        String alternative = "alternatives=true" ;
+
         // Building the parameters to the web service
-        String parameters = str_origin+"&"+str_dest+"&"+sensor;
+        String parameters = str_origin+"&"+str_dest+"&"+sensor+"&"+mode+"&"+alternative;
 
         // Output format
         String output = "json";
@@ -379,11 +384,14 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
 
     private class ParserTask extends AsyncTask<String, Integer, List<List<HashMap<String,String>>>> {
 
+        ArrayList<Float> distanceList = new ArrayList<>() ;
+
         @Override
         protected List<List<HashMap<String, String>>> doInBackground(String... jsonData) {
 
             JSONObject jObject;
             List<List<HashMap<String, String>>> routes = null;
+
 
             try{
                 jObject = new JSONObject(jsonData[0]);
@@ -391,6 +399,7 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
 
                 // Starts parsing data
                 routes = parser.parse(jObject);
+                this.distanceList = parser.getTravelDistance(jObject) ;
             }catch(Exception e){
                 e.printStackTrace();
             }
@@ -400,13 +409,16 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
         @Override
         protected void onPostExecute(List<List<HashMap<String, String>>> result) {
             ArrayList<LatLng> points = null;
-            PolylineOptions lineOptions = null;
+            PolylineOptions lineOptions[] = new PolylineOptions[5];
             MarkerOptions markerOptions = new MarkerOptions();
+
+            ArrayList<Float> tempDistance = this.distanceList ;
+            Collections.sort(tempDistance);
 
             // Traversing through all the routes
             for(int i=0;i<result.size();i++){
                 points = new ArrayList<LatLng>();
-                lineOptions = new PolylineOptions();
+                lineOptions[i] = new PolylineOptions();
 
                 // Fetching i-th route
                 List<HashMap<String, String>> path = result.get(i);
@@ -423,16 +435,31 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
                 }
 
                 // Adding all the points in the route to LineOptions
-                lineOptions.addAll(points);
-                lineOptions.width(10);
-                lineOptions.color(Color.BLUE);
+                lineOptions[i].addAll(points);
+                lineOptions[i].width(10);
+                if (this.distanceList.get(i) == tempDistance.get(0)){
+                    lineOptions[i].color(Color.GREEN);
+                }else if (this.distanceList.get(i) == tempDistance.get(tempDistance.size()-1)){
+                    lineOptions[i].color(Color.RED);
+                }else{
+                    lineOptions[i].color(Color.BLUE);
+                }
+
             }
 
             // Drawing polyline in the Google Map for the i-th route
-            if (pl != null){
-                pl.remove();
+            for (int i=0 ; i < pl.length ; i++){
+                if (pl[i] != null ){
+                    pl[i].remove();
+                }
             }
-            pl = mMap.addPolyline(lineOptions);
+
+            int count = 0 ;
+            while (lineOptions[count] != null){
+                pl[count] = mMap.addPolyline(lineOptions[count]);
+                count++ ;
+            }
+
         }
     }
 
