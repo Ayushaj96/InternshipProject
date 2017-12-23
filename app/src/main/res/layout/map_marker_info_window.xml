@@ -10,8 +10,6 @@
     <RelativeLayout
         android:layout_width="160dp"
         android:layout_height="100dp"
-
-
         >
 
         <de.hdodenhof.circleimageview.CircleImageView
