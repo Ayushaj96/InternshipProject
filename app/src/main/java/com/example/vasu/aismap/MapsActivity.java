@@ -15,6 +15,7 @@ import android.view.View;
 import android.widget.Toast;
 
 import com.example.vasu.aismap.Models.ClusteringItem;
+import com.example.vasu.aismap.Models.OwnClusterIconRendered;
 import com.google.android.gms.common.ConnectionResult;
 import com.google.android.gms.common.api.GoogleApiClient;
 import com.google.android.gms.common.api.PendingResult;
@@ -31,11 +32,10 @@ import com.google.android.gms.maps.model.Circle;
 import com.google.android.gms.maps.model.LatLng;
 import com.google.android.gms.maps.model.Marker;
 import com.google.android.gms.maps.model.MarkerOptions;
+import com.google.maps.android.clustering.Cluster;
 import com.google.maps.android.clustering.ClusterManager;
 
 import org.json.JSONException;
-
-import de.hdodenhof.circleimageview.CircleImageView;
 
 public class MapsActivity extends FragmentActivity implements OnMapReadyCallback,
         LocationListener,
@@ -63,10 +63,10 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
     SharedPreferences sharedPreferences ;
     float zoom = 15.0f ;
     float radius = 100.0f ;
+    boolean moveMyLocCamera = true ;
 
     private ClusterManager<ClusteringItem> mClusterManager;
 
-    CircleImageView circleImageView;
 
     protected void createLocationRequest() {
         mLocationRequest = new LocationRequest();
@@ -105,7 +105,7 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
         }
         if (mGoogleApiClient != null) {
             mGoogleApiClient.connect();
-        }
+        }  
 
 
 
@@ -118,6 +118,8 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
 
     @Override
     public void onMapReady(GoogleMap googleMap) {
+
+
         mMap = googleMap;
         mMap.setOnCameraIdleListener(new GoogleMap.OnCameraIdleListener() {
             @Override
@@ -134,6 +136,9 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
 
         mClusterManager = new ClusterManager<ClusteringItem>(this, mMap);
 
+        mMap.setOnMarkerClickListener(mClusterManager);
+        mMap.setOnInfoWindowClickListener(mClusterManager);
+
         mMap.setOnCameraIdleListener(mClusterManager);
         try {
             readItems();
@@ -141,17 +146,38 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
             Toast.makeText(this, "Problem reading list of markers.", Toast.LENGTH_LONG).show();
         }
 
-       circleImageView =(CircleImageView) findViewById(R.id.GetDirections);
+        mClusterManager.setOnClusterClickListener(new ClusterManager.OnClusterClickListener<ClusteringItem>() {
+            @Override
+            public boolean onClusterClick(Cluster<ClusteringItem> cluster) {
+                mMap.animateCamera(CameraUpdateFactory.newLatLngZoom(
+                        cluster.getPosition(), (float) Math.floor(mMap.getCameraPosition().zoom + 1)), 300, null);
+                return true;
+            }
+        });
 
-        circleImageView.setOnClickListener(new View.OnClickListener() {
-        @Override
-        public void onClick(View v) {
+        mClusterManager.setRenderer(new OwnClusterIconRendered(this.getApplicationContext(), mMap, mClusterManager));
 
-        }
-});
+        MarkerInfoWindowAdapter markerInfoWindowAdapter = new MarkerInfoWindowAdapter(getApplicationContext());
+        mMap.setInfoWindowAdapter(markerInfoWindowAdapter);
+
+        floatingActionButton=(FloatingActionButton)findViewById(R.id.imageButton);
+        floatingActionButton.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                updateUI();
+            }
+        });
+
+         /* mMap.setOnMarkerClickListener(new GoogleMap.OnMarkerClickListener() {
+            @Override
+            public boolean onMarkerClick(Marker marker) {
+                Toast.makeText(MapsActivity.this, "Marker", Toast.LENGTH_SHORT).show();
+                return false;
+            }
+        }); */
 
         // Setting a custom info window adapter for the google map
-       MarkerInfoWindowAdapter markerInfoWindowAdapter = new MarkerInfoWindowAdapter(getApplicationContext());
+       /*MarkerInfoWindowAdapter markerInfoWindowAdapter = new MarkerInfoWindowAdapter(getApplicationContext());
         mMap.setInfoWindowAdapter(markerInfoWindowAdapter);
 
         // Adding and showing marker when the map is touched
@@ -166,7 +192,7 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
                 marker.showInfoWindow();
                 marker.remove();
             }
-        });
+        }); */
     }
 
 
@@ -210,8 +236,14 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
     @Override
     public void onLocationChanged(Location location) {
         mCurrentLocation = location;
-       updateUI();
+        updateUI();
+
+
     }
+
+
+
+
 
     private void updateUI() {
         Log.d(TAG, "UI update initiated .............");
@@ -225,9 +257,13 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
 
             LatLng ll = new LatLng(lat, lng);
 
-            mMap.animateCamera(CameraUpdateFactory.newLatLngZoom(ll, zoom));
+            if (moveMyLocCamera) {
+                mMap.animateCamera(CameraUpdateFactory.newLatLngZoom(ll, zoom));
+                moveMyLocCamera = false ;
+            }
 
-            markerOptionsMyLoc = new MarkerOptions().position(ll).title("My Location");
+
+            markerOptionsMyLoc = new MarkerOptions().position(ll);
             if (mPrevLocMarker != null){
                 mPrevLocMarker.remove();
             }
@@ -235,7 +271,7 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
                 mPrevCircle.remove();
             }*/
 
-            myCurrentLocMarker = mMap.addMarker(markerOptionsMyLoc.flat(true).rotation(mCurrentLocation.getBearing()).icon(BitmapDescriptorFactory.fromResource(R.drawable.marker)));
+            myCurrentLocMarker = mMap.addMarker(markerOptionsMyLoc.flat(true).title("You are Here").rotation(mCurrentLocation.getBearing()).icon(BitmapDescriptorFactory.fromResource(R.drawable.marker)));
             mPrevLocMarker = myCurrentLocMarker ;
             /*CircleOptions circleOptions = new CircleOptions().center(ll).radius(radius).fillColor(shadeColor).strokeColor(strokeColor).strokeWidth(3);
             mCircle = mMap.addCircle(circleOptions);
