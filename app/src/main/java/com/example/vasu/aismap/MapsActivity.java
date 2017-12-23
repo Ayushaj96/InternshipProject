@@ -125,7 +125,7 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
             mGoogleApiClient.connect();
         }
 
-        floatingActionButton=(FloatingActionButton)findViewById(R.id.GetDirections);
+        floatingActionButton=(FloatingActionButton)findViewById(R.id.floatbutton);
         floatingActionButton.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
