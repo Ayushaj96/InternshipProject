@@ -50,8 +50,10 @@ import java.io.InputStreamReader;
 import java.net.HttpURLConnection;
 import java.net.URL;
 import java.util.ArrayList;
+import java.util.Collection;
 import java.util.Collections;
 import java.util.HashMap;
+import java.util.Iterator;
 import java.util.List;
 
 public class MapsActivity extends FragmentActivity implements OnMapReadyCallback,
@@ -129,7 +131,7 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
         floatingActionButton.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-
+                getNearestMachine();
             }
         });
 
@@ -150,11 +152,6 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
             }
         });
         googleMap.moveCamera(CameraUpdateFactory.newLatLngZoom(position, 16));
-        this.mMap.addMarker(new MarkerOptions().position(position).icon(BitmapDescriptorFactory.fromResource(R.drawable.machine)).title("Machine"));
-
-        /* while (data.moveToNext()) {
-            show_machines_on_map(new LatLng(Double.parseDouble(data.getString(2)) , Double.parseDouble(data.getString(1))));
-        } */
 
         mClusterManager = new ClusterManager<ClusteringItem>(this, mMap);
 
@@ -186,6 +183,10 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
             @Override
             public boolean onClusterItemClick(ClusteringItem clusteringItem) {
 
+                if (clusteringItem.getPosition().latitude == mCurrentLocation.getLatitude()){
+                    Toast.makeText(MapsActivity.this, ""+mCurrentLocation, Toast.LENGTH_SHORT).show();
+                }
+
                 LatLng origin = new LatLng(mCurrentLocation.getLatitude(),mCurrentLocation.getLongitude()) ;
                 String url = getDirectionsUrl(origin, clusteringItem.getPosition());
                 DownloadTask downloadTask = new DownloadTask();
@@ -215,11 +216,13 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
         }
     }
     
-    public LatLng getNearestMachine(){
+    public void getNearestMachine(){
         data.moveToFirst();
         float[] directDistance = new float[2] ; 
         float minDis = Float.MAX_VALUE ;
         LatLng minLL = null;
+        final boolean[] cameraAnimating = {false};
+
         while (data.moveToNext()){
             Location.distanceBetween(mCurrentLocation.getLatitude() , mCurrentLocation.getLongitude() , 
                     Double.parseDouble(data.getString(2)) , Double.parseDouble(data.getString(1)) , directDistance );
@@ -230,8 +233,32 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
             }
             
         }
-        
-        return minLL ;
+
+        Toast.makeText(this, ""+minDis+" m", Toast.LENGTH_SHORT).show();
+
+        mMap.animateCamera(CameraUpdateFactory.newLatLngZoom(minLL, 18));
+
+        Collection<Marker> mm = mClusterManager.getMarkerCollection().getMarkers();
+        Iterator<Marker> itr = mm.iterator();
+
+        while (itr.hasNext()) {
+            Marker marker = itr.next();
+            if (minLL.latitude == marker.getPosition().latitude && minLL.longitude == marker.getPosition().longitude) {
+                marker.showInfoWindow();
+                break;
+            }
+
+        }
+
+
+
+
+
+        LatLng origin = new LatLng(mCurrentLocation.getLatitude(),mCurrentLocation.getLongitude()) ;
+        String url = getDirectionsUrl(origin,minLL);
+        DownloadTask downloadTask = new DownloadTask();
+        downloadTask.execute(url);
+
         
     }
 
