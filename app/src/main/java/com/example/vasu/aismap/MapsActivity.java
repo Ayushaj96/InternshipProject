@@ -185,7 +185,7 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
 
                 if (clusteringItem.getPosition().latitude == mCurrentLocation.getLatitude()){
                     Toast.makeText(MapsActivity.this, ""+mCurrentLocation, Toast.LENGTH_SHORT).show();
-                }  
+                }
 
                 LatLng origin = new LatLng(mCurrentLocation.getLatitude(),mCurrentLocation.getLongitude()) ;
                 String url = getDirectionsUrl(origin, clusteringItem.getPosition());
@@ -329,7 +329,7 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
             mPrevCircle = mCircle ;
  */
 
-
+  
         } else {
             Log.d(TAG, "location is null ...............");
         }
