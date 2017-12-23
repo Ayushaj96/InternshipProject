@@ -176,6 +176,8 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
 
         mClusterManager.setRenderer(new OwnClusterIconRendered(this.getApplicationContext(), mMap, mClusterManager));
 
+
+
         MarkerInfoWindowAdapter markerInfoWindowAdapter = new MarkerInfoWindowAdapter(getApplicationContext());
         mMap.setInfoWindowAdapter(markerInfoWindowAdapter);
 
@@ -185,6 +187,7 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
 
                 if (clusteringItem.getPosition().latitude == mCurrentLocation.getLatitude()){
                     Toast.makeText(MapsActivity.this, ""+mCurrentLocation, Toast.LENGTH_SHORT).show();
+
                 }
 
                 LatLng origin = new LatLng(mCurrentLocation.getLatitude(),mCurrentLocation.getLongitude()) ;
@@ -221,7 +224,7 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
         float[] directDistance = new float[2] ; 
         float minDis = Float.MAX_VALUE ;
         LatLng minLL = null;
-        final boolean[] cameraAnimating = {false};
+        final boolean[] cameraAnimating = {false};  
 
         while (data.moveToNext()){
             Location.distanceBetween(mCurrentLocation.getLatitude() , mCurrentLocation.getLongitude() , 
@@ -249,11 +252,6 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
             }
 
         }
-
-
-
-
-
         LatLng origin = new LatLng(mCurrentLocation.getLatitude(),mCurrentLocation.getLongitude()) ;
         String url = getDirectionsUrl(origin,minLL);
         DownloadTask downloadTask = new DownloadTask();
@@ -486,7 +484,7 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
 
                 // Adding all the points in the route to LineOptions
                 lineOptions[i].addAll(points);
-                lineOptions[i].width(10);
+                lineOptions[i].width(11);
                 if (this.distanceList.get(i) == tempDistance.get(0)){
                     lineOptions[i].color(Color.GREEN);
                 }else if (this.distanceList.get(i) == tempDistance.get(tempDistance.size()-1)){
