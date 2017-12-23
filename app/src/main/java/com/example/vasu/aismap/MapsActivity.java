@@ -11,7 +11,6 @@ import android.support.design.widget.FloatingActionButton;
 import android.support.v4.app.ActivityCompat;
 import android.support.v4.app.FragmentActivity;
 import android.util.Log;
-import android.view.View;
 import android.widget.Toast;
 
 import com.example.vasu.aismap.Models.ClusteringItem;
@@ -118,8 +117,6 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
 
     @Override
     public void onMapReady(GoogleMap googleMap) {
-
-
         mMap = googleMap;
         mMap.setOnCameraIdleListener(new GoogleMap.OnCameraIdleListener() {
             @Override
@@ -159,14 +156,6 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
 
         MarkerInfoWindowAdapter markerInfoWindowAdapter = new MarkerInfoWindowAdapter(getApplicationContext());
         mMap.setInfoWindowAdapter(markerInfoWindowAdapter);
-
-        floatingActionButton=(FloatingActionButton)findViewById(R.id.imageButton);
-        floatingActionButton.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-                updateUI();
-            }
-        });
 
          /* mMap.setOnMarkerClickListener(new GoogleMap.OnMarkerClickListener() {
             @Override
@@ -236,14 +225,8 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
     @Override
     public void onLocationChanged(Location location) {
         mCurrentLocation = location;
-        updateUI();
-
-
+       updateUI();
     }
-
-
-
-
 
     private void updateUI() {
         Log.d(TAG, "UI update initiated .............");
@@ -263,7 +246,7 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
             }
 
 
-            markerOptionsMyLoc = new MarkerOptions().position(ll);
+            markerOptionsMyLoc = new MarkerOptions().position(ll).title("My Location");
             if (mPrevLocMarker != null){
                 mPrevLocMarker.remove();
             }
@@ -271,7 +254,7 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
                 mPrevCircle.remove();
             }*/
 
-            myCurrentLocMarker = mMap.addMarker(markerOptionsMyLoc.flat(true).title("You are Here").rotation(mCurrentLocation.getBearing()).icon(BitmapDescriptorFactory.fromResource(R.drawable.marker)));
+            myCurrentLocMarker = mMap.addMarker(markerOptionsMyLoc.flat(true).rotation(mCurrentLocation.getBearing()).icon(BitmapDescriptorFactory.fromResource(R.drawable.marker)));
             mPrevLocMarker = myCurrentLocMarker ;
             /*CircleOptions circleOptions = new CircleOptions().center(ll).radius(radius).fillColor(shadeColor).strokeColor(strokeColor).strokeWidth(3);
             mCircle = mMap.addCircle(circleOptions);
