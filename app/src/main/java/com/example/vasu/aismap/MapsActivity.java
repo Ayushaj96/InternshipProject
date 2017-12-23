@@ -50,8 +50,10 @@ import java.io.InputStreamReader;
 import java.net.HttpURLConnection;
 import java.net.URL;
 import java.util.ArrayList;
+import java.util.Collection;
 import java.util.Collections;
 import java.util.HashMap;
+import java.util.Iterator;
 import java.util.List;
 
 public class MapsActivity extends FragmentActivity implements OnMapReadyCallback,
@@ -129,7 +131,7 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
         floatingActionButton.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                
+                getNearestMachine() ;
             }
         });
 
@@ -143,6 +145,9 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
     @Override
     public void onMapReady(GoogleMap googleMap) {
         mMap = googleMap;
+        mMap.getUiSettings().setMapToolbarEnabled(false);
+        mMap.getUiSettings().setZoomControlsEnabled(false);
+
         mMap.setOnCameraIdleListener(new GoogleMap.OnCameraIdleListener() {
             @Override
             public void onCameraIdle() {
@@ -150,7 +155,7 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
             }
         });
         googleMap.moveCamera(CameraUpdateFactory.newLatLngZoom(position, 16));
-        this.mMap.addMarker(new MarkerOptions().position(position).icon(BitmapDescriptorFactory.fromResource(R.drawable.machine)).title("Machine"));
+        //this.mMap.addMarker(new MarkerOptions().position(position).icon(BitmapDescriptorFactory.fromResource(R.drawable.machine)).title("Machine"));
 
         /* while (data.moveToNext()) {
             show_machines_on_map(new LatLng(Double.parseDouble(data.getString(2)) , Double.parseDouble(data.getString(1))));
@@ -230,7 +235,14 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
             }
             
         }
-        
+
+        Collection<Marker> mm = mClusterManager.getMarkerCollection().getMarkers() ;
+        Iterator<Marker> itr = mm.iterator();
+
+        while (itr.hasNext()) {
+            Toast.makeText(this, "value= " + itr.next(), Toast.LENGTH_SHORT).show();
+        }
+
         return minLL ;
         
     }
