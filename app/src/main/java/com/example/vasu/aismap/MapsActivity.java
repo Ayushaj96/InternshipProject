@@ -1,10 +1,14 @@
 package com.example.vasu.aismap;
 
 import android.Manifest;
+import android.content.Intent;
 import android.content.SharedPreferences;
 import android.content.pm.PackageManager;
 import android.database.Cursor;
+import android.graphics.Color;
 import android.location.Location;
+import android.net.Uri;
+import android.os.AsyncTask;
 import android.os.Bundle;
 import android.support.annotation.NonNull;
 import android.support.design.widget.FloatingActionButton;
@@ -14,6 +18,8 @@ import android.util.Log;
 import android.widget.Toast;
 
 import com.example.vasu.aismap.Models.ClusteringItem;
+import com.example.vasu.aismap.Models.DirectionJSONParser;
+import com.example.vasu.aismap.Models.GetLinePath;
 import com.example.vasu.aismap.Models.OwnClusterIconRendered;
 import com.google.android.gms.common.ConnectionResult;
 import com.google.android.gms.common.api.GoogleApiClient;
@@ -31,10 +37,23 @@ import com.google.android.gms.maps.model.Circle;
 import com.google.android.gms.maps.model.LatLng;
 import com.google.android.gms.maps.model.Marker;
 import com.google.android.gms.maps.model.MarkerOptions;
+import com.google.android.gms.maps.model.Polyline;
+import com.google.android.gms.maps.model.PolylineOptions;
 import com.google.maps.android.clustering.Cluster;
 import com.google.maps.android.clustering.ClusterManager;
 
 import org.json.JSONException;
+import org.json.JSONObject;
+
+import java.io.BufferedReader;
+import java.io.IOException;
+import java.io.InputStream;
+import java.io.InputStreamReader;
+import java.net.HttpURLConnection;
+import java.net.URL;
+import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.List;
 
 public class MapsActivity extends FragmentActivity implements OnMapReadyCallback,
         LocationListener,
@@ -66,6 +85,7 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
 
     private ClusterManager<ClusteringItem> mClusterManager;
 
+    Polyline pl = null ;
 
     protected void createLocationRequest() {
         mLocationRequest = new LocationRequest();
@@ -157,6 +177,24 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
         MarkerInfoWindowAdapter markerInfoWindowAdapter = new MarkerInfoWindowAdapter(getApplicationContext());
         mMap.setInfoWindowAdapter(markerInfoWindowAdapter);
 
+        mClusterManager.setOnClusterItemClickListener(new ClusterManager.OnClusterItemClickListener<ClusteringItem>() {
+            @Override
+            public boolean onClusterItemClick(ClusteringItem clusteringItem) {
+
+                Toast.makeText(MapsActivity.this, ""+mCurrentLocation.getLatitude(), Toast.LENGTH_SHORT).show();
+                LatLng origin = new LatLng(mCurrentLocation.getLatitude(),mCurrentLocation.getLongitude()) ;
+                 GetLinePath glp = new GetLinePath() ;
+                glp.origin = origin ;
+                glp.dest = clusteringItem.getPosition() ;
+                glp.getDirectionsUrl();
+                if (pl != null){
+                    pl.remove();
+                }
+                pl = mMap.addPolyline(glp.polyOpt);
+                return false;
+            }
+        });
+
          /* mMap.setOnMarkerClickListener(new GoogleMap.OnMarkerClickListener() {
             @Override
             public boolean onMarkerClick(Marker marker) {
@@ -165,23 +203,6 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
             }
         }); */
 
-        // Setting a custom info window adapter for the google map
-       /*MarkerInfoWindowAdapter markerInfoWindowAdapter = new MarkerInfoWindowAdapter(getApplicationContext());
-        mMap.setInfoWindowAdapter(markerInfoWindowAdapter);
-
-        // Adding and showing marker when the map is touched
-        mMap.setOnMapClickListener(new GoogleMap.OnMapClickListener() {
-            @Override
-            public void onMapClick(LatLng arg0) {
-
-                MarkerOptions markerOptions = new MarkerOptions();
-                markerOptions.position(arg0);
-                mMap.animateCamera(CameraUpdateFactory.newLatLng(arg0));
-                Marker marker = mMap.addMarker(markerOptions);
-                marker.showInfoWindow();
-                marker.remove();
-            }
-        }); */
     }
 
 
@@ -232,6 +253,8 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
         Log.d(TAG, "UI update initiated .............");
         if (null != mCurrentLocation) {
 
+            Toast.makeText(this, ""+mCurrentLocation.getLatitude(), Toast.LENGTH_SHORT).show();
+
             int strokeColor = 0xffff0000; //red outline
             int shadeColor = 0x44ff0000; //opaque red fill
 
@@ -269,6 +292,8 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
         }
 
     }
+
+
 
 
 
