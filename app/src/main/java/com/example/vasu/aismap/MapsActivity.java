@@ -14,6 +14,7 @@ import android.util.Log;
 import android.widget.Toast;
 
 import com.example.vasu.aismap.Models.ClusteringItem;
+import com.example.vasu.aismap.Models.OwnClusterIconRendered;
 import com.google.android.gms.common.ConnectionResult;
 import com.google.android.gms.common.api.GoogleApiClient;
 import com.google.android.gms.common.api.PendingResult;
@@ -34,9 +35,6 @@ import com.google.maps.android.clustering.Cluster;
 import com.google.maps.android.clustering.ClusterManager;
 
 import org.json.JSONException;
-
-import java.io.InputStream;
-import java.util.List;
 
 public class MapsActivity extends FragmentActivity implements OnMapReadyCallback,
         LocationListener,
@@ -64,6 +62,7 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
     SharedPreferences sharedPreferences ;
     float zoom = 15.0f ;
     float radius = 100.0f ;
+    boolean moveMyLocCamera = true ;
 
     private ClusterManager<ClusteringItem> mClusterManager;
 
@@ -134,6 +133,9 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
 
         mClusterManager = new ClusterManager<ClusteringItem>(this, mMap);
 
+        mMap.setOnMarkerClickListener(mClusterManager);
+        mMap.setOnInfoWindowClickListener(mClusterManager);
+
         mMap.setOnCameraIdleListener(mClusterManager);
         try {
             readItems();
@@ -141,9 +143,30 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
             Toast.makeText(this, "Problem reading list of markers.", Toast.LENGTH_LONG).show();
         }
 
+        mClusterManager.setOnClusterClickListener(new ClusterManager.OnClusterClickListener<ClusteringItem>() {
+            @Override
+            public boolean onClusterClick(Cluster<ClusteringItem> cluster) {
+                mMap.animateCamera(CameraUpdateFactory.newLatLngZoom(
+                        cluster.getPosition(), (float) Math.floor(mMap.getCameraPosition().zoom + 1)), 300, null);
+                return true;
+            }
+        });
+
+        mClusterManager.setRenderer(new OwnClusterIconRendered(this.getApplicationContext(), mMap, mClusterManager));
+
+        MarkerInfoWindowAdapter markerInfoWindowAdapter = new MarkerInfoWindowAdapter(getApplicationContext());
+        mMap.setInfoWindowAdapter(markerInfoWindowAdapter);
+
+         /* mMap.setOnMarkerClickListener(new GoogleMap.OnMarkerClickListener() {
+            @Override
+            public boolean onMarkerClick(Marker marker) {
+                Toast.makeText(MapsActivity.this, "Marker", Toast.LENGTH_SHORT).show();
+                return false;
+            }
+        }); */
 
         // Setting a custom info window adapter for the google map
-       MarkerInfoWindowAdapter markerInfoWindowAdapter = new MarkerInfoWindowAdapter(getApplicationContext());
+       /*MarkerInfoWindowAdapter markerInfoWindowAdapter = new MarkerInfoWindowAdapter(getApplicationContext());
         mMap.setInfoWindowAdapter(markerInfoWindowAdapter);
 
         // Adding and showing marker when the map is touched
@@ -158,7 +181,7 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
                 marker.showInfoWindow();
                 marker.remove();
             }
-        });
+        }); */
     }
 
 
@@ -217,7 +240,11 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
 
             LatLng ll = new LatLng(lat, lng);
 
-            mMap.animateCamera(CameraUpdateFactory.newLatLngZoom(ll, zoom));
+            if (moveMyLocCamera) {
+                mMap.animateCamera(CameraUpdateFactory.newLatLngZoom(ll, zoom));
+                moveMyLocCamera = false ;
+            }
+
 
             markerOptionsMyLoc = new MarkerOptions().position(ll).title("My Location");
             if (mPrevLocMarker != null){
