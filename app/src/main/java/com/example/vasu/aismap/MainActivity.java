@@ -6,7 +6,6 @@ import android.content.SharedPreferences;
 import android.os.AsyncTask;
 import android.os.Bundle;
 import android.support.v7.app.AppCompatActivity;
-import android.util.Log;
 import android.view.View;
 import android.widget.Button;
 import android.widget.EditText;
@@ -45,12 +44,12 @@ public class MainActivity extends AppCompatActivity {
 
         machineDatabase = new MachineDatabase(this) ;
 
-        sharedPreferences=getApplicationContext().getSharedPreferences("MyPref", MODE_PRIVATE);
+/*        sharedPreferences=getApplicationContext().getSharedPreferences("MyPref", MODE_PRIVATE);
         SharedPreferences.Editor editor = sharedPreferences.edit();
         editor.putInt("Zoom",12);
         editor.putInt("distance",1000);
         editor.apply();
-
+*/
         b1.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
@@ -177,7 +176,7 @@ public class MainActivity extends AppCompatActivity {
                     double latitude = object.getDouble("latitude");
                     double longitude = object.getDouble("longitude");
                     machineDatabase.addData(latitude,longitude);
-                    Log.i("myapp"," "+latitude+" "+longitude);
+                   // Log.i("myapp"," "+latitude+" "+longitude);
                 }
             } catch (Exception e) {
 
