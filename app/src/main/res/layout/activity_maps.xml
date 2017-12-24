@@ -33,7 +33,8 @@
         app:pv_progressMode="indeterminate"
         app:pv_progressStyle="@style/Material.Drawable.LinearProgress"
         android:layout_width="match_parent"
-        android:layout_height="30dp" />
+        android:layout_height="30dp"
+        android:layout_alignParentBottom="true"/>
 
     <include
         layout="@layout/search_bar"
