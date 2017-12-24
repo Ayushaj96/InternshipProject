@@ -1,4 +1,4 @@
-package com.example.vasu.aismap.Models;
+package com.example.vasu.aismap.Directions;
 
 import android.util.Log;
 import android.widget.Toast;

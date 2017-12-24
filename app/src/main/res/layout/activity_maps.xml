@@ -3,7 +3,8 @@
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    tools:context="com.example.vasu.aismap.MapsActivity" >
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    tools:context="com.example.vasu.aismap.MapsActivity">
 
     <fragment
         android:id="@+id/map"
@@ -11,18 +12,36 @@
         android:layout_width="match_parent"
         android:layout_height="match_parent" />
 
-
-    <android.support.design.widget.FloatingActionButton
-        android:id="@+id/floatbutton"
+    <ImageButton
+        android:id="@+id/myLocation"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:layout_alignParentBottom="true"
         android:layout_alignParentEnd="true"
         android:layout_alignParentRight="true"
-        android:layout_margin="30dp"
-        android:background="@android:color/transparent"
-        android:clickable="true"
-        android:backgroundTint="#ffffff"
-        android:src="@drawable/machine"/>
+        android:layout_marginBottom="50sp"
+        android:layout_marginRight="25sp"
+        android:background="@drawable/location_button"
+        android:elevation="7sp"
+        android:padding="10sp"
+        android:src="@drawable/ic_my_location_black_24dp" />
+
+    <com.rey.material.widget.ProgressView
+        android:id="@+id/progressData"
+        app:pv_autostart="true"
+        app:pv_circular="false"
+        app:pv_progressMode="indeterminate"
+        app:pv_progressStyle="@style/Material.Drawable.LinearProgress"
+        android:layout_width="match_parent"
+        android:layout_height="30dp"
+        android:layout_alignParentBottom="true"/>
+
+    <include
+        layout="@layout/search_bar"
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:visibility="invisible"
+        android:id="@+id/includeBar" />
+
 
 </RelativeLayout>

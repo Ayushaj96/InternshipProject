@@ -3,8 +3,6 @@ package com.example.vasu.aismap;
 import android.Manifest;
 import android.content.SharedPreferences;
 import android.content.pm.PackageManager;
-import android.database.Cursor;
-import android.graphics.Color;
 import android.location.Location;
 import android.os.AsyncTask;
 import android.os.Bundle;
@@ -14,10 +12,15 @@ import android.support.v4.app.ActivityCompat;
 import android.support.v4.app.FragmentActivity;
 import android.util.Log;
 import android.view.View;
+import android.widget.GridView;
 import android.widget.Toast;
-
+ 
+import com.example.vasu.aismap.CustomAdapter.NearMachinesAdapter;
+import com.example.vasu.aismap.Directions.AsyncResponseDownload;
+import com.example.vasu.aismap.Directions.DownloadTask;
+import com.example.vasu.aismap.Directions.DownloadUrl;
 import com.example.vasu.aismap.Models.ClusteringItem;
-import com.example.vasu.aismap.Models.DirectionJSONParser;
+import com.example.vasu.aismap.Models.NearMachines;
 import com.example.vasu.aismap.Models.OwnClusterIconRendered;
 import com.google.android.gms.common.ConnectionResult;
 import com.google.android.gms.common.api.GoogleApiClient;
@@ -40,21 +43,19 @@ import com.google.android.gms.maps.model.PolylineOptions;
 import com.google.maps.android.clustering.Cluster;
 import com.google.maps.android.clustering.ClusterManager;
 
-import org.json.JSONException;
+import org.json.JSONArray;
 import org.json.JSONObject;
 
 import java.io.BufferedReader;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.InputStreamReader;
+import java.io.OutputStreamWriter;
 import java.net.HttpURLConnection;
+import java.net.MalformedURLException;
 import java.net.URL;
+import java.net.URLEncoder;
 import java.util.ArrayList;
-import java.util.Collection;
-import java.util.Collections;
-import java.util.HashMap;
-import java.util.Iterator;
-import java.util.List;
 
 public class MapsActivity extends FragmentActivity implements OnMapReadyCallback,
         LocationListener,
@@ -64,7 +65,7 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
     private GoogleMap mMap;
     LocationRequest mLocationRequest;
     GoogleApiClient mGoogleApiClient;
-    Location mCurrentLocation;
+    Location mCurrentLocation = new Location("My Location");
 
     FloatingActionButton floatingActionButton;
     private static final String TAG = "LocationActivity";
@@ -74,12 +75,14 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
     LatLng position = new LatLng(28.6291027, 77.207133);
     MarkerOptions markerOptionsMyLoc;
     Marker myCurrentLocMarker, mPrevLocMarker;
+    Marker[] markerArray ;
     Circle mCircle , mPrevCircle;
 
-    MachineDatabase machineDatabase;
-    Cursor data ;
+    //MachineDatabase machineDatabase;
+    //Cursor data ;
 
-    SharedPreferences sharedPreferences ;
+    SharedPreferences sharedPreferences ,sharedPreferencesLocation ;
+    SharedPreferences.Editor editorLocation ;
     float zoom = 15.0f ;
     float radius = 100.0f ;
     boolean moveMyLocCamera = true ;
@@ -87,6 +90,10 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
     private ClusterManager<ClusteringItem> mClusterManager;
 
     Polyline pl[] = new Polyline[5] ;
+
+    boolean locationUpdated = false ;
+    boolean nearMachineExecuted = false ;
+    GridView gvNear ;
 
     protected void createLocationRequest() {
         mLocationRequest = new LocationRequest();
@@ -99,21 +106,17 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_maps);
-        // Obtain the SupportMapFragment and get notified when the map is ready to be used.
-        SupportMapFragment mapFragment = (SupportMapFragment) getSupportFragmentManager()
-                .findFragmentById(R.id.map);
+        SupportMapFragment mapFragment = (SupportMapFragment) getSupportFragmentManager().findFragmentById(R.id.map);
         mapFragment.getMapAsync(this);
 
-        Log.d(TAG, "onCreate ...............................");
-
-
-        machineDatabase = new MachineDatabase(this);
-        data = machineDatabase.getListContents();
+        View includedLayout = findViewById(R.id.includeBar);
+        gvNear = (GridView) includedLayout.findViewById(R.id.gvNearMachines);
 
         sharedPreferences =getApplicationContext().getSharedPreferences("MyPref", MODE_PRIVATE);
+        sharedPreferencesLocation =getApplicationContext().getSharedPreferences("MyLocation", MODE_PRIVATE);
+        editorLocation = sharedPreferencesLocation.edit();
         zoom = Float.parseFloat(sharedPreferences.getString("Zoom" , "15.0"));
         radius = Float.parseFloat(sharedPreferences.getString("Radius" , "100.0"));
-
 
         createLocationRequest();
         if (mGoogleApiClient == null) {
@@ -127,13 +130,6 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
             mGoogleApiClient.connect();
         }
 
-        floatingActionButton=(FloatingActionButton)findViewById(R.id.floatbutton);
-        floatingActionButton.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-                getNearestMachine();
-            }
-        });
 
     }
 
@@ -159,11 +155,6 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
         mMap.setOnInfoWindowClickListener(mClusterManager);
 
         mMap.setOnCameraIdleListener(mClusterManager);
-        try {
-            readItems();
-        } catch (JSONException e) {
-            Toast.makeText(this, "Problem reading list of markers.", Toast.LENGTH_LONG).show();
-        }
 
         mClusterManager.setOnClusterClickListener(new ClusterManager.OnClusterClickListener<ClusteringItem>() {
             @Override
@@ -188,12 +179,26 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
                 }
 
                 LatLng origin = new LatLng(mCurrentLocation.getLatitude(),mCurrentLocation.getLongitude()) ;
-                String url = getDirectionsUrl(origin, clusteringItem.getPosition());
-                DownloadTask downloadTask = new DownloadTask();
+                LatLng destination = clusteringItem.getPosition() ;
+                DownloadUrl du = new DownloadUrl();
+                String url = du.getDirectionsUrl(origin,destination );
+                DownloadTask downloadTask = new DownloadTask(new AsyncResponseDownload() {
+                    @Override
+                    public void processFinish(PolylineOptions[] output) {
+                        drawPath(output);
+                    }
+                });
                 downloadTask.execute(url);
                 return false;
             }
         });
+
+        if(sharedPreferencesLocation.getFloat("Latitude" , 0.0f) != 0.0f){
+            LatLng ll = new LatLng((double) sharedPreferencesLocation.getFloat("Latitude" , 0.0f) , (double) sharedPreferencesLocation.getFloat("Longitude" , 0.0f));
+            mCurrentLocation.setLatitude(ll.latitude);
+            mCurrentLocation.setLongitude(ll.longitude);
+            new GetNearMachines().execute();
+        }
 
          /* mMap.setOnMarkerClickListener(new GoogleMap.OnMarkerClickListener() {
             @Override
@@ -205,56 +210,23 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
 
     }
 
+    
 
-    private void readItems() throws JSONException {
-        data.moveToFirst() ;
-        while (data.moveToNext()){
-            double lat = Double.parseDouble(data.getString(2)) ;
-            double lng = Double.parseDouble(data.getString(1)) ;
-            ClusteringItem offsetItem = new ClusteringItem(lat, lng);
-            mClusterManager.addItem(offsetItem);
+    private void drawPath(PolylineOptions[] output) {
+
+        for (int i=0 ; i < pl.length ; i++){
+            if (pl[i] != null ){
+                pl[i].remove();
+            }
+        }
+
+        int count = 0 ;
+        while (output[count] != null){
+            pl[count] = mMap.addPolyline(output[count]);
+            count++ ;
         }
     }
     
-    public void getNearestMachine(){
-        data.moveToFirst();
-        float[] directDistance = new float[2] ; 
-        float minDis = Float.MAX_VALUE ;
-        LatLng minLL = null;
-        final boolean[] cameraAnimating = {false};
-
-        while (data.moveToNext()){
-            Location.distanceBetween(mCurrentLocation.getLatitude() , mCurrentLocation.getLongitude() , 
-                    Double.parseDouble(data.getString(2)) , Double.parseDouble(data.getString(1)) , directDistance );
-            
-            if (directDistance[0] <= minDis){
-                minDis = directDistance[0] ;
-                minLL = new LatLng( Double.parseDouble(data.getString(2)) , Double.parseDouble(data.getString(1)) ) ;
-            }
-            
-        }
-
-        Toast.makeText(this, ""+minDis+" m", Toast.LENGTH_SHORT).show();
-
-        mMap.animateCamera(CameraUpdateFactory.newLatLngZoom(minLL, 18));
-
-        Collection<Marker> mm = mClusterManager.getMarkerCollection().getMarkers();
-        Iterator<Marker> itr = mm.iterator();
-
-        while (itr.hasNext()) {
-            Marker marker = itr.next();
-            if (minLL.latitude == marker.getPosition().latitude && minLL.longitude == marker.getPosition().longitude) {
-                marker.showInfoWindow();
-                break;
-            }
-
-        }
-
-        LatLng origin = new LatLng(mCurrentLocation.getLatitude(),mCurrentLocation.getLongitude()) ;
-        String url = getDirectionsUrl(origin,minLL);
-        DownloadTask downloadTask = new DownloadTask();
-        downloadTask.execute(url);
-    }
 
     @Override
     public void onConnected(Bundle bundle) {
@@ -285,7 +257,13 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
     @Override
     public void onLocationChanged(Location location) {
         mCurrentLocation = location;
-       updateUI();
+        editorLocation.putFloat("Latitude" , (float) mCurrentLocation.getLatitude());
+        editorLocation.putFloat("Longitude" , (float) mCurrentLocation.getLongitude());
+        editorLocation.commit();
+        if (!nearMachineExecuted){
+            new GetNearMachines().execute();
+        }
+        updateUI();
     }
 
     private void updateUI() {
@@ -317,188 +295,145 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
             myCurrentLocMarker = mMap.addMarker(markerOptionsMyLoc.flat(true).rotation(mCurrentLocation.getBearing()).icon(BitmapDescriptorFactory.fromResource(R.drawable.marker)));
 
             mPrevLocMarker = myCurrentLocMarker ;
+
             /*CircleOptions circleOptions = new CircleOptions().center(ll).radius(radius).fillColor(shadeColor).strokeColor(strokeColor).strokeWidth(3);
             mCircle = mMap.addCircle(circleOptions);
             mPrevCircle = mCircle ;
  */
+
+
         } else {
             Log.d(TAG, "location is null ...............");
         }
 
     }
 
-    private String getDirectionsUrl(LatLng origin,LatLng dest){
+    class GetNearMachines extends AsyncTask<String,String,String>{
 
-        // Origin of route
-        String str_origin = "origin="+origin.latitude+","+origin.longitude;
+        HttpURLConnection conn;
+        URL url = null;
+        public static final int CONNECTION_TIMEOUT = 10000;
+        public static final int READ_TIMEOUT = 15000;
+        ArrayList<NearMachines> nearList = new ArrayList<>();
+        double lat , lang ;
 
-        // Destination of route
-        String str_dest = "destination="+dest.latitude+","+dest.longitude;
-
-        // Sensor enabled
-        String sensor = "sensor=false";
-
-        String mode = "mode=walking" ;
-
-        String alternative = "alternatives=true" ;
-
-        // Building the parameters to the web service
-        String parameters = str_origin+"&"+str_dest+"&"+sensor+"&"+mode+"&"+alternative;
-
-        // Output format
-        String output = "json";
-
-        String url = "https://maps.googleapis.com/maps/api/directions/"+output+"?"+parameters;
-
-        return url;
-    }
-
-    private String downloadUrl(String strUrl) throws IOException{
-        String data = "";
-        InputStream iStream = null;
-        HttpURLConnection urlConnection = null;
-        try{
-            URL url = new URL(strUrl);
-
-            urlConnection = (HttpURLConnection) url.openConnection();
-
-            // Connecting to url
-            urlConnection.connect();
-
-            // Reading data from url
-            iStream = urlConnection.getInputStream();      
-
-            BufferedReader br = new BufferedReader(new InputStreamReader(iStream));
-
-            StringBuffer sb  = new StringBuffer();
-
-            String line = "";
-            while( ( line = br.readLine())  != null){
-                sb.append(line);
+        public GetNearMachines(){
+            if (mCurrentLocation != null){
+                this.lat = mCurrentLocation.getLatitude();
+                this.lang = mCurrentLocation.getLongitude();
+            }else{
+                this.lat = sharedPreferences.getFloat("Latitude" , 0.0f);
+                this.lang = sharedPreferences.getFloat("Longitude" , 0.0f);
             }
-
-            data = sb.toString();
-
-            br.close();
-
-        }catch(Exception e){
-            Toast.makeText(this, ""+e.toString(), Toast.LENGTH_SHORT).show();
-        }finally{
-            iStream.close();
-            urlConnection.disconnect();
         }
-        return data;
-    }
 
-    // Fetches data from url passed
-    private class DownloadTask extends AsyncTask<String, Void, String>{
-
-        // Downloading data in non-ui thread
         @Override
-        protected String doInBackground(String... url) {
+        protected String doInBackground(String... params) {
+            try {
 
-            // For storing data from web service
-            String data = "";
+                // Enter URL address where your json file resides
+                // Even you can make call to php file which returns json data
+                url = new URL("https://aiseraintern007.000webhostapp.com/AISERA/get_near_machines.php");
 
-            try{
-                // Fetching the data from web service
-                data = downloadUrl(url[0]);
-            }catch(Exception e){
-                Log.d("Background Task",e.toString());
+            } catch (MalformedURLException e) {
+                // TODO Auto-generated catch block
+                e.printStackTrace();
+                return e.toString();
             }
-            return data;
+            try {
+
+                String data = URLEncoder.encode("lat", "UTF-8")
+                        + "=" + URLEncoder.encode(String.valueOf(this.lat), "UTF-8");
+
+                data += "&" + URLEncoder.encode("lang", "UTF-8") + "="
+                        + URLEncoder.encode(String.valueOf(this.lang), "UTF-8");
+
+                data += "&" + URLEncoder.encode("km", "UTF-8") + "="
+                        + URLEncoder.encode(String.valueOf(5), "UTF-8");
+
+                // Setup HttpURLConnection class to send and receive data from php and mysql
+                conn = (HttpURLConnection) url.openConnection();
+                conn.setReadTimeout(READ_TIMEOUT);
+                conn.setConnectTimeout(CONNECTION_TIMEOUT);
+                conn.setRequestMethod("POST");
+
+                // setDoOutput to true as we recieve data from json file
+                conn.setDoOutput(true);
+
+                OutputStreamWriter wr = new OutputStreamWriter(conn.getOutputStream());
+                wr.write( data );
+                wr.flush();
+
+            } catch (IOException e1) {
+                // TODO Auto-generated catch block
+                e1.printStackTrace();
+                return e1.toString();
+            }
+
+            try {
+
+                int response_code = conn.getResponseCode();
+
+                // Check if successful connection made
+                if (response_code == HttpURLConnection.HTTP_OK) {
+
+                    // Read data sent from server
+                    InputStream input = conn.getInputStream();
+                    BufferedReader reader = new BufferedReader(new InputStreamReader(input));
+                    StringBuilder result = new StringBuilder();
+                    String line;
+
+                    while ((line = reader.readLine()) != null) {
+                        result.append(line);
+                    }
+
+                    // Pass data to onPostExecute method
+                    return (result.toString());
+
+                } else {
+
+                    return ("unsuccessful");
+                }
+
+            } catch (IOException e) {
+                return e.toString();
+            } finally {
+                conn.disconnect();
+            }
+
+
         }
 
-        // Executes in UI thread, after the execution of
-        // doInBackground()
         @Override
         protected void onPostExecute(String result) {
-            super.onPostExecute(result);   
 
-            ParserTask parserTask = new ParserTask();
+            try {
+                JSONArray jsonArray =new JSONArray(result);
+                mClusterManager.clearItems();
+                for (int i = 0; i < jsonArray.length(); i++) {
+                    if (i < 8){
+                        JSONObject object = jsonArray.getJSONObject(i);
+                        double latitude = object.getDouble("latitude");
+                        double longitude = object.getDouble("longitude");
+                        NearMachines nm = new NearMachines("M" , "Address" , new LatLng(latitude,longitude));
+                        nearList.add(nm);
 
-            // Invokes the thread for parsing the JSON data
-            parserTask.execute(result);
+
+                        ClusteringItem offsetItem = new ClusteringItem(latitude, longitude);
+                        mClusterManager.addItem(offsetItem);
+
+                    }
+                }
+            } catch (Exception e) {
+
+            }
+            nearMachineExecuted = true ;
+            NearMachinesAdapter nma = new NearMachinesAdapter(nearList,MapsActivity.this);
+            gvNear.setAdapter(nma);
+
+
         }
     }
 
-    private class ParserTask extends AsyncTask<String, Integer, List<List<HashMap<String,String>>>> {
 
-        ArrayList<Float> distanceList = new ArrayList<>() ;
-
-        @Override
-        protected List<List<HashMap<String, String>>> doInBackground(String... jsonData) {
-
-            JSONObject jObject;
-            List<List<HashMap<String, String>>> routes = null;
-
-
-            try{
-                jObject = new JSONObject(jsonData[0]);
-                DirectionJSONParser parser = new DirectionJSONParser();
-
-                // Starts parsing data
-                routes = parser.parse(jObject);
-                this.distanceList = parser.getTravelDistance(jObject) ;
-            }catch(Exception e){
-                e.printStackTrace();
-            }
-            return routes;
-        }
-
-        @Override
-        protected void onPostExecute(List<List<HashMap<String, String>>> result) {
-            ArrayList<LatLng> points = null;
-            PolylineOptions lineOptions[] = new PolylineOptions[5];
-            MarkerOptions markerOptions = new MarkerOptions();
-
-            ArrayList<Float> tempDistance = this.distanceList ;
-            Collections.sort(tempDistance);
-
-            // Traversing through all the routes
-            for(int i=0;i<result.size();i++){
-                points = new ArrayList<LatLng>();
-                lineOptions[i] = new PolylineOptions();
-
-                // Fetching i-th route
-                List<HashMap<String, String>> path = result.get(i);
-
-                // Fetching all the points in i-th route
-                for(int j=0;j<path.size();j++){
-                    HashMap<String,String> point = path.get(j);
-
-                    double lat = Double.parseDouble(point.get("lat"));
-                    double lng = Double.parseDouble(point.get("lng"));
-                    LatLng position = new LatLng(lat, lng);
-
-                    points.add(position);
-                }
-
-                // Adding all the points in the route to LineOptions
-                lineOptions[i].addAll(points);
-                lineOptions[i].width(10);
-                if (this.distanceList.get(i) == tempDistance.get(0)){
-                    lineOptions[i].color(Color.GREEN);
-                }else if (this.distanceList.get(i) == tempDistance.get(tempDistance.size()-1)){
-                    lineOptions[i].color(Color.RED);
-                }else{
-                    lineOptions[i].color(Color.BLUE);
-                }
-
-            }
-
-            // Drawing polyline in the Google Map for the i-th route
-            for (int i=0 ; i < pl.length ; i++){
-                if (pl[i] != null ){
-                    pl[i].remove();
-                }
-            }
-
-            int count = 0 ;
-            while (lineOptions[count] != null){
-                pl[count] = mMap.addPolyline(lineOptions[count]);
-                count++ ;
-            }
-
-        }
-    }}
+}
