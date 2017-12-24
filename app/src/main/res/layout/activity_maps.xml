@@ -11,7 +11,19 @@
         android:layout_width="match_parent"
         android:layout_height="match_parent" />
 
-
+    <ImageButton
+        android:id="@+id/myLocation"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_alignParentBottom="true"
+        android:layout_alignParentEnd="true"
+        android:layout_alignParentRight="true"
+        android:layout_marginBottom="50sp"
+        android:layout_marginRight="25sp"
+        android:background="@drawable/location_button"
+        android:elevation="7sp"
+        android:padding="10sp"
+        android:src="@drawable/ic_my_location_black_24dp" />
 
 
 </RelativeLayout>

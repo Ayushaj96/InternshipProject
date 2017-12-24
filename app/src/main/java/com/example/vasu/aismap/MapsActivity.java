@@ -210,7 +210,7 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
     }
 
     private void drawPath(PolylineOptions[] output) {
-        
+
         for (int i=0 ; i < pl.length ; i++){
             if (pl[i] != null ){
                 pl[i].remove();
