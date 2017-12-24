@@ -4,7 +4,6 @@ import android.graphics.Color;
 import android.os.AsyncTask;
 import android.util.Log;
 
-import com.example.vasu.aismap.Models.DirectionJSONParser;
 import com.google.android.gms.maps.model.LatLng;
 import com.google.android.gms.maps.model.MarkerOptions;
 import com.google.android.gms.maps.model.PolylineOptions;

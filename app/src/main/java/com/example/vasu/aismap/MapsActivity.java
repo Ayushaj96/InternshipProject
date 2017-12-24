@@ -1,10 +1,10 @@
 package com.example.vasu.aismap;
 
 import android.Manifest;
+import android.app.ProgressDialog;
 import android.content.SharedPreferences;
 import android.content.pm.PackageManager;
 import android.database.Cursor;
-import android.graphics.Color;
 import android.location.Location;
 import android.os.AsyncTask;
 import android.os.Bundle;
@@ -15,14 +15,17 @@ import android.support.v4.app.ActivityCompat;
 import android.support.v4.app.FragmentActivity;
 import android.util.Log;
 import android.view.View;
+import android.widget.GridView;
 import android.widget.Toast;
 
+import com.example.vasu.aismap.CustomAdapter.NearMachinesAdapter;
 import com.example.vasu.aismap.Directions.AsyncResponseDownload;
 import com.example.vasu.aismap.Directions.DownloadTask;
 import com.example.vasu.aismap.Directions.DownloadUrl;
 import com.example.vasu.aismap.Models.ClusteringItem;
-import com.example.vasu.aismap.Models.DirectionJSONParser;
+import com.example.vasu.aismap.Models.NearMachines;
 import com.example.vasu.aismap.Models.OwnClusterIconRendered;
+import com.example.vasu.aismap.Sqlite.MachineDatabase;
 import com.google.android.gms.common.ConnectionResult;
 import com.google.android.gms.common.api.GoogleApiClient;
 import com.google.android.gms.common.api.PendingResult;
@@ -44,6 +47,7 @@ import com.google.android.gms.maps.model.PolylineOptions;
 import com.google.maps.android.clustering.Cluster;
 import com.google.maps.android.clustering.ClusterManager;
 
+import org.json.JSONArray;
 import org.json.JSONException;
 import org.json.JSONObject;
 
@@ -51,14 +55,14 @@ import java.io.BufferedReader;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.InputStreamReader;
+import java.io.OutputStreamWriter;
 import java.net.HttpURLConnection;
+import java.net.MalformedURLException;
 import java.net.URL;
+import java.net.URLEncoder;
 import java.util.ArrayList;
 import java.util.Collection;
-import java.util.Collections;
-import java.util.HashMap;
 import java.util.Iterator;
-import java.util.List;
 
 public class MapsActivity extends FragmentActivity implements OnMapReadyCallback,
         LocationListener,
@@ -68,7 +72,7 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
     private GoogleMap mMap;
     LocationRequest mLocationRequest;
     GoogleApiClient mGoogleApiClient;
-    Location mCurrentLocation;
+    Location mCurrentLocation = new Location("My Location");
 
     FloatingActionButton floatingActionButton;
     private static final String TAG = "LocationActivity";
@@ -83,7 +87,8 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
     MachineDatabase machineDatabase;
     Cursor data ;
 
-    SharedPreferences sharedPreferences ;
+    SharedPreferences sharedPreferences ,sharedPreferencesLocation ;
+    SharedPreferences.Editor editorLocation ;
     float zoom = 15.0f ;
     float radius = 100.0f ;
     boolean moveMyLocCamera = true ;
@@ -91,6 +96,10 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
     private ClusterManager<ClusteringItem> mClusterManager;
 
     Polyline pl[] = new Polyline[5] ;
+
+    boolean locationUpdated = false ;
+    boolean nearMachineExecuted = false ;
+    GridView gvNear ;
 
     protected void createLocationRequest() {
         mLocationRequest = new LocationRequest();
@@ -103,21 +112,29 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_maps);
-        // Obtain the SupportMapFragment and get notified when the map is ready to be used.
-        SupportMapFragment mapFragment = (SupportMapFragment) getSupportFragmentManager()
-                .findFragmentById(R.id.map);
+        SupportMapFragment mapFragment = (SupportMapFragment) getSupportFragmentManager().findFragmentById(R.id.map);
         mapFragment.getMapAsync(this);
 
-        Log.d(TAG, "onCreate ...............................");
-
+        View includedLayout = findViewById(R.id.includeBar);
+        gvNear = (GridView) includedLayout.findViewById(R.id.gvNearMachines);
 
         machineDatabase = new MachineDatabase(this);
         data = machineDatabase.getListContents();
 
         sharedPreferences =getApplicationContext().getSharedPreferences("MyPref", MODE_PRIVATE);
+        sharedPreferencesLocation =getApplicationContext().getSharedPreferences("MyLocation", MODE_PRIVATE);
+        editorLocation = sharedPreferencesLocation.edit();
         zoom = Float.parseFloat(sharedPreferences.getString("Zoom" , "15.0"));
         radius = Float.parseFloat(sharedPreferences.getString("Radius" , "100.0"));
 
+        if(sharedPreferencesLocation.getFloat("Latitude" , 0.0f) != 0.0f){
+            LatLng ll = new LatLng((double) sharedPreferencesLocation.getFloat("Latitude" , 0.0f) , (double) sharedPreferencesLocation.getFloat("Longitude" , 0.0f));
+            mCurrentLocation.setLatitude(ll.latitude);
+            mCurrentLocation.setLongitude(ll.longitude);
+            new GetNearMachines().execute();
+        }
+
+        //new GetNearMachines().execute();
 
         createLocationRequest();
         if (mGoogleApiClient == null) {
@@ -321,7 +338,13 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
     @Override
     public void onLocationChanged(Location location) {
         mCurrentLocation = location;
-       updateUI();
+        editorLocation.putFloat("Latitude" , (float) mCurrentLocation.getLatitude());
+        editorLocation.putFloat("Longitude" , (float) mCurrentLocation.getLongitude());
+        editorLocation.commit();
+        if (!nearMachineExecuted){
+            new GetNearMachines().execute();
+        }
+        updateUI();
     }
 
     private void updateUI() {
@@ -365,32 +388,125 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
 
     }
 
-    private String getDirectionsUrl(LatLng origin,LatLng dest){
+    class GetNearMachines extends AsyncTask<String,String,String>{
 
-        // Origin of route
-        String str_origin = "origin="+origin.latitude+","+origin.longitude;
+        HttpURLConnection conn;
+        URL url = null;
+        public static final int CONNECTION_TIMEOUT = 10000;
+        public static final int READ_TIMEOUT = 15000;
+        ArrayList<NearMachines> nearList = new ArrayList<>();
+        double lat , lang ;
 
-        // Destination of route
-        String str_dest = "destination="+dest.latitude+","+dest.longitude;
+        public GetNearMachines(){
+            if (mCurrentLocation != null){
+                this.lat = mCurrentLocation.getLatitude();
+                this.lang = mCurrentLocation.getLongitude();
+            }else{
+                this.lat = sharedPreferences.getFloat("Latitude" , 0.0f);
+                this.lang = sharedPreferences.getFloat("Longitude" , 0.0f);
+            }
+        }
 
-        // Sensor enabled
-        String sensor = "sensor=false";
+        @Override
+        protected String doInBackground(String... params) {
+            try {
 
-        String mode = "mode=walking" ;
+                // Enter URL address where your json file resides
+                // Even you can make call to php file which returns json data
+                url = new URL("https://aiseraintern007.000webhostapp.com/AISERA/get_near_machines.php");
 
-        String alternative = "alternatives=true" ;
+            } catch (MalformedURLException e) {
+                // TODO Auto-generated catch block
+                e.printStackTrace();
+                return e.toString();
+            }
+            try {
 
-        // Building the parameters to the web service
-        String parameters = str_origin+"&"+str_dest+"&"+sensor+"&"+mode+"&"+alternative;
+                String data = URLEncoder.encode("lat", "UTF-8")
+                        + "=" + URLEncoder.encode(String.valueOf(this.lat), "UTF-8");
 
-        // Output format
-        String output = "json";
+                data += "&" + URLEncoder.encode("lang", "UTF-8") + "="
+                        + URLEncoder.encode(String.valueOf(this.lang), "UTF-8");
 
-        String url = "https://maps.googleapis.com/maps/api/directions/"+output+"?"+parameters;
+                data += "&" + URLEncoder.encode("km", "UTF-8") + "="
+                        + URLEncoder.encode(String.valueOf(5), "UTF-8");
 
-        return url;
+                // Setup HttpURLConnection class to send and receive data from php and mysql
+                conn = (HttpURLConnection) url.openConnection();
+                conn.setReadTimeout(READ_TIMEOUT);
+                conn.setConnectTimeout(CONNECTION_TIMEOUT);
+                conn.setRequestMethod("POST");
+
+                // setDoOutput to true as we recieve data from json file
+                conn.setDoOutput(true);
+
+                OutputStreamWriter wr = new OutputStreamWriter(conn.getOutputStream());
+                wr.write( data );
+                wr.flush();
+
+            } catch (IOException e1) {
+                // TODO Auto-generated catch block
+                e1.printStackTrace();
+                return e1.toString();
+            }
+
+            try {
+
+                int response_code = conn.getResponseCode();
+
+                // Check if successful connection made
+                if (response_code == HttpURLConnection.HTTP_OK) {
+
+                    // Read data sent from server
+                    InputStream input = conn.getInputStream();
+                    BufferedReader reader = new BufferedReader(new InputStreamReader(input));
+                    StringBuilder result = new StringBuilder();
+                    String line;
+
+                    while ((line = reader.readLine()) != null) {
+                        result.append(line);
+                    }
+
+                    // Pass data to onPostExecute method
+                    return (result.toString());
+
+                } else {
+
+                    return ("unsuccessful");
+                }
+
+            } catch (IOException e) {
+                return e.toString();
+            } finally {
+                conn.disconnect();
+            }
+
+
+        }
+
+        @Override
+        protected void onPostExecute(String result) {
+
+            try {
+                JSONArray jsonArray =new JSONArray(result);
+
+                for (int i = 0; i < jsonArray.length(); i++) {
+                    if (i < 8){
+                        JSONObject object = jsonArray.getJSONObject(i);
+                        double latitude = object.getDouble("latitude");
+                        double longitude = object.getDouble("longitude");
+                        NearMachines nm = new NearMachines("M" , "Address" , new LatLng(latitude,longitude));
+                        nearList.add(nm);
+                    }
+                }
+            } catch (Exception e) {
+
+            }
+            nearMachineExecuted = true ;
+            NearMachinesAdapter nma = new NearMachinesAdapter(nearList,MapsActivity.this);
+            gvNear.setAdapter(nma);
+        }
     }
-
 
 
 }

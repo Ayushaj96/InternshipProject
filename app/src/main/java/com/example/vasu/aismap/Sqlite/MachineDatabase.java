@@ -1,4 +1,4 @@
-package com.example.vasu.aismap;
+package com.example.vasu.aismap.Sqlite;
 
 import android.content.ContentValues;
 import android.content.Context;
