@@ -14,7 +14,7 @@ import android.util.Log;
 import android.view.View;
 import android.widget.GridView;
 import android.widget.Toast;
- 
+
 import com.example.vasu.aismap.CustomAdapter.NearMachinesAdapter;
 import com.example.vasu.aismap.Directions.AsyncResponseDownload;
 import com.example.vasu.aismap.Directions.DownloadTask;
@@ -95,12 +95,6 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
     boolean nearMachineExecuted = false ;
     GridView gvNear ;
 
-    protected void createLocationRequest() {
-        mLocationRequest = new LocationRequest();
-        mLocationRequest.setInterval(INTERVAL);
-        mLocationRequest.setFastestInterval(FASTEST_INTERVAL);
-        mLocationRequest.setPriority(LocationRequest.PRIORITY_HIGH_ACCURACY);
-    }
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -129,18 +123,22 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
         if (mGoogleApiClient != null) {
             mGoogleApiClient.connect();
         }
-
-
+    }
+    protected void createLocationRequest() {
+        mLocationRequest = new LocationRequest();
+        mLocationRequest.setInterval(INTERVAL);
+        mLocationRequest.setFastestInterval(FASTEST_INTERVAL);
+        mLocationRequest.setPriority(LocationRequest.PRIORITY_HIGH_ACCURACY);
     }
 
-   public void show_machines_on_map(LatLng latLng){
+    /*public void show_machines_on_map(LatLng latLng){
         this.mMap.addMarker(new MarkerOptions().position(latLng).icon(BitmapDescriptorFactory.fromResource(R.drawable.machine)).title("Machine"));
 
-    }
+    }*/
 
     @Override
     public void onMapReady(GoogleMap googleMap) {
-        mMap = googleMap; 
+        mMap = googleMap;
         mMap.setOnCameraIdleListener(new GoogleMap.OnCameraIdleListener() {
             @Override
             public void onCameraIdle() {
@@ -199,18 +197,7 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
             mCurrentLocation.setLongitude(ll.longitude);
             new GetNearMachines().execute();
         }
-
-         /* mMap.setOnMarkerClickListener(new GoogleMap.OnMarkerClickListener() {
-            @Override
-            public boolean onMarkerClick(Marker marker) {
-                Toast.makeText(MapsActivity.this, "Marker", Toast.LENGTH_SHORT).show();
-                return false;
-            }
-        }); */
-
     }
-
-    
 
     private void drawPath(PolylineOptions[] output) {
 
@@ -226,7 +213,7 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
             count++ ;
         }
     }
-    
+
 
     @Override
     public void onConnected(Bundle bundle) {
@@ -270,9 +257,8 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
         Log.d(TAG, "UI update initiated .............");
         if (null != mCurrentLocation) {
 
-            int strokeColor = 0xffff0000; //red outline
-            int shadeColor = 0x44ff0000; //opaque red fill
-
+    //        int strokeColor = 0xffff0000; //red outline
+      //      int shadeColor = 0x44ff0000; //opaque red fill
             Double lat = mCurrentLocation.getLatitude();
             Double lng = mCurrentLocation.getLongitude();
 
@@ -288,19 +274,9 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
             if (mPrevLocMarker != null){
                 mPrevLocMarker.remove();
             }
-            /*if (mPrevCircle != null){
-                mPrevCircle.remove();
-            }*/
-
             myCurrentLocMarker = mMap.addMarker(markerOptionsMyLoc.flat(true).rotation(mCurrentLocation.getBearing()).icon(BitmapDescriptorFactory.fromResource(R.drawable.marker)));
 
             mPrevLocMarker = myCurrentLocMarker ;
-
-            /*CircleOptions circleOptions = new CircleOptions().center(ll).radius(radius).fillColor(shadeColor).strokeColor(strokeColor).strokeWidth(3);
-            mCircle = mMap.addCircle(circleOptions);
-            mPrevCircle = mCircle ;
- */
-
 
         } else {
             Log.d(TAG, "location is null ...............");
