@@ -250,18 +250,11 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
 
         }
 
-
-
-
-
         LatLng origin = new LatLng(mCurrentLocation.getLatitude(),mCurrentLocation.getLongitude()) ;
         String url = getDirectionsUrl(origin,minLL);
         DownloadTask downloadTask = new DownloadTask();
         downloadTask.execute(url);
-
-        
     }
-
 
     @Override
     public void onConnected(Bundle bundle) {
@@ -328,8 +321,6 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
             mCircle = mMap.addCircle(circleOptions);
             mPrevCircle = mCircle ;
  */
-
-  
         } else {
             Log.d(TAG, "location is null ...............");
         }
@@ -422,7 +413,7 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
         // doInBackground()
         @Override
         protected void onPostExecute(String result) {
-            super.onPostExecute(result);
+            super.onPostExecute(result);   
 
             ParserTask parserTask = new ParserTask();
 
@@ -430,7 +421,6 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
             parserTask.execute(result);
         }
     }
-
 
     private class ParserTask extends AsyncTask<String, Integer, List<List<HashMap<String,String>>>> {
 
@@ -511,8 +501,4 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
             }
 
         }
-    }
-
-
-
-}
+    }}
