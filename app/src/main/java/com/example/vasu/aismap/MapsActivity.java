@@ -271,7 +271,6 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
         DownloadTask downloadTask = new DownloadTask();
         downloadTask.execute(url);
 
-        
     }
 
 
