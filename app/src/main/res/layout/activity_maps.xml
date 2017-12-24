@@ -12,17 +12,6 @@
         android:layout_height="match_parent" />
 
 
-    <android.support.design.widget.FloatingActionButton
-        android:id="@+id/floatbutton"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:layout_alignParentBottom="true"
-        android:layout_alignParentEnd="true"
-        android:layout_alignParentRight="true"
-        android:layout_margin="30dp"
-        android:background="@android:color/transparent"
-        android:clickable="true"
-        android:backgroundTint="#ffffff"
-        android:src="@drawable/machine"/>
+
 
 </RelativeLayout>
