@@ -255,7 +255,7 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
 
     private void updateUI() {
         Log.d(TAG, "UI update initiated .............");
-        if (null != mCurrentLocation) {
+        if (mCurrentLocation!=null) {
 
     //        int strokeColor = 0xffff0000; //red outline
       //      int shadeColor = 0x44ff0000; //opaque red fill
@@ -268,8 +268,6 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
                 mMap.animateCamera(CameraUpdateFactory.newLatLngZoom(ll, zoom));
                 moveMyLocCamera = false ;
             }
-
-
             markerOptionsMyLoc = new MarkerOptions().position(ll).title("My Location");
             if (mPrevLocMarker != null){
                 mPrevLocMarker.remove();
