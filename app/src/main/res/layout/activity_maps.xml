@@ -89,20 +89,23 @@
             android:padding="10sp"
             android:weightSum="1">
 
-            <EditText
-                android:id="@+id/searchBar"
+            <com.example.vasu.aismap.DelayAutoCompleteTextView
+                android:id="@+id/geo_autocomplete"
                 android:layout_width="wrap_content"
                 android:layout_height="35sp"
                 android:layout_marginLeft="5sp"
                 android:layout_marginRight="5sp"
                 android:layout_weight="0.8"
                 android:background="@drawable/search_bar"
+                android:dropDownWidth="fill_parent"
                 android:gravity="center_vertical"
+                android:hint="Search"
+                android:imeOptions="flagNoExtractUi|actionSearch"
+                android:inputType="textCapSentences"
                 android:maxLines="1"
                 android:paddingLeft="10sp"
                 android:textSize="15sp"
-                tools:text="dsvdsvds"
-                android:hint="Search"/>
+                tools:text="dsvdsvds" />
 
             <ImageButton
                 android:id="@+id/search_close"
@@ -131,11 +134,11 @@
                 android:id="@+id/textView"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
+                android:layout_marginBottom="5sp"
                 android:layout_marginLeft="10sp"
                 android:padding="10sp"
                 android:text="Machines Near You"
-                android:textSize="15sp"
-                android:layout_marginBottom="5sp"/>
+                android:textSize="15sp" />
 
             <GridView
                 android:id="@+id/gvNearMachines"
@@ -162,11 +165,11 @@
                 android:id="@+id/textView2"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
+                android:layout_marginBottom="5sp"
                 android:layout_marginLeft="10sp"
                 android:padding="10sp"
                 android:text="Search History"
-                android:textSize="15sp"
-                android:layout_marginBottom="5sp"/>
+                android:textSize="15sp" />
 
             <GridView
                 android:id="@+id/lvHistory"
