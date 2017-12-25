@@ -1,12 +1,16 @@
-package com.example.vasu.aismap;
+package com.example.vasu.aismap.InfoWindow;
 
 import android.content.Context;
 import android.location.Address;
 import android.location.Geocoder;
+import android.support.v4.content.ContextCompat;
+import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
+import android.widget.ImageView;
 import android.widget.TextView;
 
+import com.example.vasu.aismap.R;
 import com.google.android.gms.maps.GoogleMap;
 import com.google.android.gms.maps.model.LatLng;
 import com.google.android.gms.maps.model.Marker;
@@ -18,7 +22,9 @@ import de.hdodenhof.circleimageview.CircleImageView;
 
 
 public class MarkerInfoWindowAdapter implements GoogleMap.InfoWindowAdapter {
+
     private Context context;
+
     public MarkerInfoWindowAdapter(Context context) {
         this.context = context.getApplicationContext();
     }
@@ -35,10 +41,11 @@ public class MarkerInfoWindowAdapter implements GoogleMap.InfoWindowAdapter {
         View v = inflater.inflate(R.layout.map_marker_info_window, null);
 
         LatLng latLng = arg0.getPosition();
-
-        TextView place = (TextView) v.findViewById(R.id.text1);
-        CircleImageView green = (CircleImageView) v.findViewById(R.id.greendot);
-        CircleImageView red = (CircleImageView) v.findViewById(R.id.reddot);
+        ImageView ivavail = (ImageView) v.findViewById(R.id.ivAvailibility);
+        ImageView ivMachine = (ImageView) v.findViewById(R.id.imageViewMachine);
+        TextView place = (TextView) v.findViewById(R.id.tvPlace);
+        TextView access = (TextView) v.findViewById(R.id.tvAccess);
+        TextView directions = (TextView) v.findViewById(R.id.GetDirections);
 
         try {
             Geocoder geocoder;
@@ -49,18 +56,22 @@ public class MarkerInfoWindowAdapter implements GoogleMap.InfoWindowAdapter {
             String knownName = addresses.get(0).getFeatureName();
             place.setText(knownName);
 
-            if (latLng.latitude == 28.7389592 || latLng.latitude == 28.7399352 || latLng.latitude == 28.7389592) {
-                green.setVisibility(v.INVISIBLE);
-            } else
-
-            {
-                red.setVisibility(v.INVISIBLE);
-            }
-
-
         } catch (Exception e) {
 
         }
+
+        if (latLng.latitude == 28.7389592 || latLng.latitude == 28.7399352 || latLng.latitude == 28.7389592) {
+            ivavail.setBackgroundColor(ContextCompat.getColor(context, R.color.green));
+        } else{
+            ivavail.setBackgroundColor(ContextCompat.getColor(context, R.color.red));
+        }
+
+        directions.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                Log.i("DIRECTIONSCLICK" , "YES") ;
+            }
+        });
 
         return v;
     }}
