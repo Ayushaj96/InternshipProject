@@ -24,6 +24,7 @@ import com.example.vasu.aismap.CustomAdapter.NearMachinesAdapter;
 import com.example.vasu.aismap.Directions.AsyncResponseDownload;
 import com.example.vasu.aismap.Directions.DownloadTask;
 import com.example.vasu.aismap.Directions.DownloadUrl;
+import com.example.vasu.aismap.InfoWindow.MarkerInfoWindowAdapter;
 import com.example.vasu.aismap.Models.ClusteringItem;
 import com.example.vasu.aismap.Models.NearMachines;
 import com.example.vasu.aismap.Models.OwnClusterIconRendered;
