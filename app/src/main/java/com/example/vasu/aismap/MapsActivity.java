@@ -1,21 +1,23 @@
 package com.example.vasu.aismap;
 
 import android.Manifest;
-import android.app.ProgressDialog;
 import android.content.SharedPreferences;
 import android.content.pm.PackageManager;
-import android.database.Cursor;
 import android.location.Location;
 import android.os.AsyncTask;
 import android.os.Bundle;
-import android.os.Handler;
 import android.support.annotation.NonNull;
-import android.support.design.widget.FloatingActionButton;
 import android.support.v4.app.ActivityCompat;
 import android.support.v4.app.FragmentActivity;
 import android.util.Log;
 import android.view.View;
+import android.view.animation.Animation;
+import android.view.animation.AnimationUtils;
+import android.widget.EditText;
 import android.widget.GridView;
+import android.widget.ImageButton;
+import android.widget.LinearLayout;
+import android.widget.RelativeLayout;
 import android.widget.Toast;
 
 import com.example.vasu.aismap.CustomAdapter.NearMachinesAdapter;
@@ -25,7 +27,6 @@ import com.example.vasu.aismap.Directions.DownloadUrl;
 import com.example.vasu.aismap.Models.ClusteringItem;
 import com.example.vasu.aismap.Models.NearMachines;
 import com.example.vasu.aismap.Models.OwnClusterIconRendered;
-import com.example.vasu.aismap.Sqlite.MachineDatabase;
 import com.google.android.gms.common.ConnectionResult;
 import com.google.android.gms.common.api.GoogleApiClient;
 import com.google.android.gms.common.api.PendingResult;
@@ -50,7 +51,6 @@ import com.google.maps.android.clustering.algo.Algorithm;
 import com.google.maps.android.clustering.algo.NonHierarchicalDistanceBasedAlgorithm;
 
 import org.json.JSONArray;
-import org.json.JSONException;
 import org.json.JSONObject;
 
 import java.io.BufferedReader;
@@ -64,19 +64,17 @@ import java.net.URL;
 import java.net.URLEncoder;
 import java.util.ArrayList;
 import java.util.Collection;
-import java.util.Iterator;
 
 public class MapsActivity extends FragmentActivity implements OnMapReadyCallback,
         LocationListener,
         GoogleApiClient.ConnectionCallbacks,
-        GoogleApiClient.OnConnectionFailedListener {
+        GoogleApiClient.OnConnectionFailedListener{
 
     private GoogleMap mMap;
     LocationRequest mLocationRequest;
     GoogleApiClient mGoogleApiClient;
     Location mCurrentLocation = new Location("My Location");
 
-    FloatingActionButton floatingActionButton;
     private static final String TAG = "LocationActivity";
     private static final long INTERVAL = 1000 * 5;
     private static final long FASTEST_INTERVAL = 1000 * 5;
@@ -87,6 +85,8 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
     Marker[] markerArray ;
     Circle mCircle , mPrevCircle;
 
+    ImageButton ibMyLocation , ibSearch , ibNearest , ibIncludeMore , ibIncludeClose;
+
     //MachineDatabase machineDatabase;
     //Cursor data ;
 
@@ -96,13 +96,20 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
     float radius = 100.0f ;
     boolean moveMyLocCamera = true ;
 
+
+    private Algorithm<ClusteringItem> clusterManagerAlgorithm;
     private ClusterManager<ClusteringItem> mClusterManager;
 
     Polyline pl[] = new Polyline[5] ;
 
     boolean locationUpdated = false ;
     boolean nearMachineExecuted = false ;
+    RelativeLayout mRoot ;
+    LinearLayout llSearchBar ;
+    EditText etSearch ;
     GridView gvNear ;
+
+    Animation slide_down , slide_up ;
 
     protected void createLocationRequest() {
         mLocationRequest = new LocationRequest();
@@ -118,8 +125,21 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
         SupportMapFragment mapFragment = (SupportMapFragment) getSupportFragmentManager().findFragmentById(R.id.map);
         mapFragment.getMapAsync(this);
 
-        View includedLayout = findViewById(R.id.includeBar);
-        gvNear = (GridView) includedLayout.findViewById(R.id.gvNearMachines);
+        clusterManagerAlgorithm = new NonHierarchicalDistanceBasedAlgorithm();
+
+        ibMyLocation = (ImageButton) findViewById(R.id.myLocation);
+        ibSearch = (ImageButton) findViewById(R.id.searchButton);
+        ibNearest = (ImageButton) findViewById(R.id.findNearest);
+        ibIncludeMore = (ImageButton) findViewById(R.id.search_more);
+        ibIncludeClose = (ImageButton) findViewById(R.id.search_close);
+
+        mRoot = (RelativeLayout) findViewById(R.id.rlMaps);
+        llSearchBar = (LinearLayout) findViewById(R.id.includeBar);
+        etSearch = (EditText) findViewById(R.id.searchBar);
+        gvNear = (GridView) findViewById(R.id.gvNearMachines);
+
+        slide_down = AnimationUtils.loadAnimation(getApplicationContext(), R.anim.slide_down);
+        slide_up = AnimationUtils.loadAnimation(getApplicationContext(), R.anim.slide_up);
 
         sharedPreferences =getApplicationContext().getSharedPreferences("MyPref", MODE_PRIVATE);
         sharedPreferencesLocation =getApplicationContext().getSharedPreferences("MyLocation", MODE_PRIVATE);
@@ -139,17 +159,63 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
             mGoogleApiClient.connect();
         }
 
+        ibMyLocation.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                if (mCurrentLocation != null) {
+                    LatLng ll = new LatLng(mCurrentLocation.getLatitude(),mCurrentLocation.getLongitude());
+                    mMap.animateCamera(CameraUpdateFactory.newLatLngZoom(ll, zoom));
+                    moveMyLocCamera = false;
+                }else {
+                    Toast.makeText(MapsActivity.this, "Please wait while fetching your lcoation", Toast.LENGTH_SHORT).show();
+                }
+
+            }
+        });
+        ibSearch.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                if (llSearchBar.getVisibility() == View.GONE){
+                    llSearchBar.setVisibility(View.VISIBLE);
+                    llSearchBar.startAnimation(slide_up);
+                }
+            }
+        });
+
+        ibNearest.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+
+            }
+        });
+
+        ibIncludeMore.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+
+            }
+        });
+
+        ibIncludeClose.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                if (llSearchBar.getVisibility() == View.VISIBLE){
+                    llSearchBar.startAnimation(slide_down);
+                    llSearchBar.setVisibility(View.GONE);
+                }
+            }
+        });
 
     }
 
-   public void show_machines_on_map(LatLng latLng){
+    /*public void show_machines_on_map(LatLng latLng){
         this.mMap.addMarker(new MarkerOptions().position(latLng).icon(BitmapDescriptorFactory.fromResource(R.drawable.machine)).title("Machine"));
 
-    }
+    }*/
 
     @Override
     public void onMapReady(GoogleMap googleMap) {
-        mMap = googleMap; 
+        mMap = googleMap;
         mMap.setOnCameraIdleListener(new GoogleMap.OnCameraIdleListener() {
             @Override
             public void onCameraIdle() {
@@ -164,6 +230,7 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
         mMap.setOnInfoWindowClickListener(mClusterManager);
 
         mMap.setOnCameraIdleListener(mClusterManager);
+        mClusterManager.setAlgorithm(clusterManagerAlgorithm);
 
         mClusterManager.setOnClusterClickListener(new ClusterManager.OnClusterClickListener<ClusteringItem>() {
             @Override
@@ -206,20 +273,10 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
             LatLng ll = new LatLng((double) sharedPreferencesLocation.getFloat("Latitude" , 0.0f) , (double) sharedPreferencesLocation.getFloat("Longitude" , 0.0f));
             mCurrentLocation.setLatitude(ll.latitude);
             mCurrentLocation.setLongitude(ll.longitude);
+            nearMachineExecuted = true ;
             new GetNearMachines().execute();
         }
-
-         /* mMap.setOnMarkerClickListener(new GoogleMap.OnMarkerClickListener() {
-            @Override
-            public boolean onMarkerClick(Marker marker) {
-                Toast.makeText(MapsActivity.this, "Marker", Toast.LENGTH_SHORT).show();
-                return false;
-            }
-        }); */
-
     }
-
-    
 
     private void drawPath(PolylineOptions[] output) {
 
@@ -235,7 +292,7 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
             count++ ;
         }
     }
-    
+
 
     @Override
     public void onConnected(Bundle bundle) {
@@ -270,6 +327,7 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
         editorLocation.putFloat("Longitude" , (float) mCurrentLocation.getLongitude());
         editorLocation.commit();
         if (!nearMachineExecuted){
+            nearMachineExecuted = true ;
             new GetNearMachines().execute();
         }
         updateUI();
@@ -279,9 +337,8 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
         Log.d(TAG, "UI update initiated .............");
         if (null != mCurrentLocation) {
 
-            int strokeColor = 0xffff0000; //red outline
-            int shadeColor = 0x44ff0000; //opaque red fill
-
+    //        int strokeColor = 0xffff0000; //red outline
+      //      int shadeColor = 0x44ff0000; //opaque red fill
             Double lat = mCurrentLocation.getLatitude();
             Double lng = mCurrentLocation.getLongitude();
 
@@ -297,25 +354,16 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
             if (mPrevLocMarker != null){
                 mPrevLocMarker.remove();
             }
-            /*if (mPrevCircle != null){
-                mPrevCircle.remove();
-            }*/
-
             myCurrentLocMarker = mMap.addMarker(markerOptionsMyLoc.flat(true).rotation(mCurrentLocation.getBearing()).icon(BitmapDescriptorFactory.fromResource(R.drawable.marker)));
 
             mPrevLocMarker = myCurrentLocMarker ;
-
-            /*CircleOptions circleOptions = new CircleOptions().center(ll).radius(radius).fillColor(shadeColor).strokeColor(strokeColor).strokeWidth(3);
-            mCircle = mMap.addCircle(circleOptions);
-            mPrevCircle = mCircle ;
- */
-
 
         } else {
             Log.d(TAG, "location is null ...............");
         }
 
     }
+
 
     class GetNearMachines extends AsyncTask<String,String,String>{
 
@@ -424,11 +472,15 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
                         JSONObject object = jsonArray.getJSONObject(i);
                         double latitude = object.getDouble("latitude");
                         double longitude = object.getDouble("longitude");
-                        NearMachines nm = new NearMachines("M" , "Address" , new LatLng(latitude,longitude));
+                        LatLng ll = new LatLng(latitude,longitude) ;
+                        Marker marker = mMap.addMarker(new MarkerOptions().position(ll).title("Marker"));
+                        NearMachines nm = new NearMachines("M" , "Address" , ll );
                         nearList.add(nm);
 
 
                         ClusteringItem offsetItem = new ClusteringItem(latitude, longitude);
+                        offsetItem.setmMarker(marker);
+                        marker.remove();
                         mClusterManager.addItem(offsetItem);
 
                     }
@@ -436,7 +488,15 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
             } catch (Exception e) {
 
             }
-            nearMachineExecuted = true ;
+
+            Collection<ClusteringItem> items = clusterManagerAlgorithm.getItems();
+
+            for (ClusteringItem it : items){
+                Marker mar = it.getmMarker();
+                Log.i("MARKERS" , mar.toString());
+
+            }
+
             NearMachinesAdapter nma = new NearMachinesAdapter(nearList,MapsActivity.this);
             gvNear.setAdapter(nma);
 
