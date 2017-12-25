@@ -6,6 +6,7 @@ import android.content.pm.PackageManager;
 import android.location.Location;
 import android.os.AsyncTask;
 import android.os.Bundle;
+import android.os.Handler;
 import android.support.annotation.NonNull;
 import android.support.v4.app.ActivityCompat;
 import android.support.v4.app.FragmentActivity;
@@ -70,6 +71,7 @@ import java.net.URLEncoder;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Collections;
+import java.util.Iterator;
 
 public class MapsActivity extends FragmentActivity implements OnMapReadyCallback,
         LocationListener,
@@ -396,23 +398,12 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
                     double latitude = object.getDouble("latitude");
                     double longitude = object.getDouble("longitude");
                     LatLng ll = new LatLng(latitude,longitude) ;
-                    Marker marker = mMap.addMarker(new MarkerOptions().position(ll).title("Marker"));
 
                     ClusteringItem offsetItem = new ClusteringItem(latitude, longitude);
-                    offsetItem.setmMarker(marker);
-                    marker.remove();
                     mClusterManager.addItem(offsetItem);
 
             }
         } catch (Exception e) {
-
-        }
-
-        Collection<ClusteringItem> items = clusterManagerAlgorithm.getItems();
-
-        for (ClusteringItem it : items){
-            Marker mar = it.getmMarker();
-            Log.i("MARKERS" , mar.toString());
 
         }
     }
@@ -461,18 +452,32 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
         } catch (Exception e) {
         }
 
-        Collection<ClusteringItem> items = clusterManagerAlgorithm.getItems();
+        final LatLng minLL = new LatLng(minLat,minLong) ;
+        mMap.animateCamera(CameraUpdateFactory.newLatLngZoom(minLL, 18),300 , new GoogleMap.CancelableCallback() {
+            @Override
+            public void onFinish() {
+                new Handler().postDelayed(new Runnable() {
+                    @Override
+                    public void run() {
+                        Collection<Marker> mm = mClusterManager.getMarkerCollection().getMarkers();
+                        Iterator<Marker> itr = mm.iterator();
 
-        for (ClusteringItem it : items){
-            Marker mar = it.getmMarker();
-            if (minLat == it.getPosition().latitude && minLong == it.getPosition().longitude){
-                Toast.makeText(this, ""+it.getmMarker(), Toast.LENGTH_SHORT).show();
-                //mMap.animateCamera(CameraUpdateFactory.newLatLngZoom(new LatLng(it.getPosition().latitude,it.getPosition().longitude), 18));
-                mar.showInfoWindow();
-                break;
+                        while (itr.hasNext()) {
+                            Marker marker = itr.next();
+                            if (minLL.latitude == marker.getPosition().latitude && minLL.longitude == marker.getPosition().longitude) {
+                                marker.showInfoWindow();
+                                //break outer;
+                            }
+                        }
+                    }
+                }, 500);
             }
 
-        }
+            @Override
+            public void onCancel() {
+
+            }
+        });
 
     }
 
