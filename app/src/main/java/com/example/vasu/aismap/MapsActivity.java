@@ -24,6 +24,10 @@ import com.example.vasu.aismap.CustomAdapter.NearMachinesAdapter;
 import com.example.vasu.aismap.Directions.AsyncResponseDownload;
 import com.example.vasu.aismap.Directions.DownloadTask;
 import com.example.vasu.aismap.Directions.DownloadUrl;
+import com.example.vasu.aismap.FetchPHP.AsyncResponseFindAll;
+import com.example.vasu.aismap.FetchPHP.AsyncResponseFindNear;
+import com.example.vasu.aismap.FetchPHP.FindAllMachines;
+import com.example.vasu.aismap.FetchPHP.FindNearMachines;
 import com.example.vasu.aismap.InfoWindow.MarkerInfoWindowAdapter;
 import com.example.vasu.aismap.Models.ClusteringItem;
 import com.example.vasu.aismap.Models.NearMachines;
@@ -65,6 +69,7 @@ import java.net.URL;
 import java.net.URLEncoder;
 import java.util.ArrayList;
 import java.util.Collection;
+import java.util.Collections;
 
 public class MapsActivity extends FragmentActivity implements OnMapReadyCallback,
         LocationListener,
@@ -186,6 +191,18 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
         ibNearest.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
+                if (mCurrentLocation != null){
+                    Toast.makeText(MapsActivity.this, "Finding Nearest Machine", Toast.LENGTH_SHORT).show();
+                    FindNearMachines fnm = new FindNearMachines(MapsActivity.this , mCurrentLocation , new AsyncResponseFindNear(){
+                        @Override
+                        public void processFinish(String output) {
+                            pointToNearest(output);
+                        }
+                    });
+                    fnm.execute() ;
+                }else{
+                    Toast.makeText(MapsActivity.this, "Getting your location..", Toast.LENGTH_SHORT).show();
+                }
 
             }
         });
@@ -270,13 +287,13 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
             }
         });
 
-        if(sharedPreferencesLocation.getFloat("Latitude" , 0.0f) != 0.0f){
-            LatLng ll = new LatLng((double) sharedPreferencesLocation.getFloat("Latitude" , 0.0f) , (double) sharedPreferencesLocation.getFloat("Longitude" , 0.0f));
-            mCurrentLocation.setLatitude(ll.latitude);
-            mCurrentLocation.setLongitude(ll.longitude);
-            nearMachineExecuted = true ;
-            new GetNearMachines().execute();
-        }
+        FindAllMachines fam = new FindAllMachines(MapsActivity.this , mCurrentLocation , new AsyncResponseFindAll(){
+            @Override
+            public void processFinish(String output) {
+                addToClusters(output);
+            }
+        });
+        fam.execute() ;
     }
 
     private void drawPath(PolylineOptions[] output) {
@@ -327,10 +344,14 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
         editorLocation.putFloat("Latitude" , (float) mCurrentLocation.getLatitude());
         editorLocation.putFloat("Longitude" , (float) mCurrentLocation.getLongitude());
         editorLocation.commit();
-        if (!nearMachineExecuted){
-            nearMachineExecuted = true ;
-            new GetNearMachines().execute();
-        }
+
+        FindNearMachines fnm = new FindNearMachines(MapsActivity.this , mCurrentLocation , new AsyncResponseFindNear(){
+            @Override
+            public void processFinish(String output) {
+                addToNearGrid(output);
+            }
+        });
+        fnm.execute() ;
         updateUI();
     }
 
@@ -366,144 +387,104 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
     }
 
 
-    class GetNearMachines extends AsyncTask<String,String,String>{
+    public void addToClusters(String result){
+        try {
+            JSONArray jsonArray =new JSONArray(result);
+            mClusterManager.clearItems();
+            for (int i = 0; i < jsonArray.length(); i++) {
+                    JSONObject object = jsonArray.getJSONObject(i);
+                    double latitude = object.getDouble("latitude");
+                    double longitude = object.getDouble("longitude");
+                    LatLng ll = new LatLng(latitude,longitude) ;
+                    Marker marker = mMap.addMarker(new MarkerOptions().position(ll).title("Marker"));
 
-        HttpURLConnection conn;
-        URL url = null;
-        public static final int CONNECTION_TIMEOUT = 10000;
-        public static final int READ_TIMEOUT = 15000;
-        ArrayList<NearMachines> nearList = new ArrayList<>();
-        double lat , lang ;
+                    ClusteringItem offsetItem = new ClusteringItem(latitude, longitude);
+                    offsetItem.setmMarker(marker);
+                    marker.remove();
+                    mClusterManager.addItem(offsetItem);
 
-        public GetNearMachines(){
-            if (mCurrentLocation != null){
-                this.lat = mCurrentLocation.getLatitude();
-                this.lang = mCurrentLocation.getLongitude();
-            }else{
-                this.lat = sharedPreferences.getFloat("Latitude" , 0.0f);
-                this.lang = sharedPreferences.getFloat("Longitude" , 0.0f);
             }
-        }
-
-        @Override
-        protected String doInBackground(String... params) {
-            try {
-
-                // Enter URL address where your json file resides
-                // Even you can make call to php file which returns json data
-                url = new URL("https://aiseraintern007.000webhostapp.com/AISERA/get_near_machines.php");
-
-            } catch (MalformedURLException e) {
-                // TODO Auto-generated catch block
-                e.printStackTrace();
-                return e.toString();
-            }
-            try {
-
-                String data = URLEncoder.encode("lat", "UTF-8")
-                        + "=" + URLEncoder.encode(String.valueOf(this.lat), "UTF-8");
-
-                data += "&" + URLEncoder.encode("lang", "UTF-8") + "="
-                        + URLEncoder.encode(String.valueOf(this.lang), "UTF-8");
-
-                data += "&" + URLEncoder.encode("km", "UTF-8") + "="
-                        + URLEncoder.encode(String.valueOf(5), "UTF-8");
-
-                // Setup HttpURLConnection class to send and receive data from php and mysql
-                conn = (HttpURLConnection) url.openConnection();
-                conn.setReadTimeout(READ_TIMEOUT);
-                conn.setConnectTimeout(CONNECTION_TIMEOUT);
-                conn.setRequestMethod("POST");
-
-                // setDoOutput to true as we recieve data from json file
-                conn.setDoOutput(true);
-
-                OutputStreamWriter wr = new OutputStreamWriter(conn.getOutputStream());
-                wr.write( data );
-                wr.flush();
-
-            } catch (IOException e1) {
-                // TODO Auto-generated catch block
-                e1.printStackTrace();
-                return e1.toString();
-            }
-
-            try {
-
-                int response_code = conn.getResponseCode();
-
-                // Check if successful connection made
-                if (response_code == HttpURLConnection.HTTP_OK) {
-
-                    // Read data sent from server
-                    InputStream input = conn.getInputStream();
-                    BufferedReader reader = new BufferedReader(new InputStreamReader(input));
-                    StringBuilder result = new StringBuilder();
-                    String line;
-
-                    while ((line = reader.readLine()) != null) {
-                        result.append(line);
-                    }
-
-                    // Pass data to onPostExecute method
-                    return (result.toString());
-
-                } else {
-
-                    return ("unsuccessful");
-                }
-
-            } catch (IOException e) {
-                return e.toString();
-            } finally {
-                conn.disconnect();
-            }
-
+        } catch (Exception e) {
 
         }
 
-        @Override
-        protected void onPostExecute(String result) {
+        Collection<ClusteringItem> items = clusterManagerAlgorithm.getItems();
 
-            try {
-                JSONArray jsonArray =new JSONArray(result);
-                mClusterManager.clearItems();
-                for (int i = 0; i < jsonArray.length(); i++) {
-                    if (i < 8){
-                        JSONObject object = jsonArray.getJSONObject(i);
-                        double latitude = object.getDouble("latitude");
-                        double longitude = object.getDouble("longitude");
-                        LatLng ll = new LatLng(latitude,longitude) ;
-                        Marker marker = mMap.addMarker(new MarkerOptions().position(ll).title("Marker"));
-                        NearMachines nm = new NearMachines("M" , "Address" , ll );
-                        nearList.add(nm);
-
-
-                        ClusteringItem offsetItem = new ClusteringItem(latitude, longitude);
-                        offsetItem.setmMarker(marker);
-                        marker.remove();
-                        mClusterManager.addItem(offsetItem);
-
-                    }
-                }
-            } catch (Exception e) {
-
-            }
-
-            Collection<ClusteringItem> items = clusterManagerAlgorithm.getItems();
-
-            for (ClusteringItem it : items){
-                Marker mar = it.getmMarker();
-                Log.i("MARKERS" , mar.toString());
-
-            }
-
-            NearMachinesAdapter nma = new NearMachinesAdapter(nearList,MapsActivity.this);
-            gvNear.setAdapter(nma);
-
+        for (ClusteringItem it : items){
+            Marker mar = it.getmMarker();
+            Log.i("MARKERS" , mar.toString());
 
         }
     }
 
+    public void addToNearGrid(String result){
+        ArrayList<NearMachines> nearList = new ArrayList<>();
+        try {
+            JSONArray jsonArray =new JSONArray(result);
+            for (int i = 0; i < jsonArray.length(); i++) {
+                if (i < 8){
+                    JSONObject object = jsonArray.getJSONObject(i);
+                    double latitude = object.getDouble("latitude");
+                    double longitude = object.getDouble("longitude");
+                    LatLng ll = new LatLng(latitude,longitude) ;
+                    NearMachines nm = new NearMachines("M" , "Address" , ll );
+                    nearList.add(nm);
+                }
+            }
+        } catch (Exception e) {
+        }
 
+        NearMachinesAdapter nma = new NearMachinesAdapter(nearList,MapsActivity.this);
+        gvNear.setAdapter(nma);
+    }
+
+    public void pointToNearest(String result){
+
+        float minDist = Float.MAX_VALUE;
+        double minLat = 0 ;
+        double minLong = 0;
+        try {
+            JSONArray jsonArray =new JSONArray(result);
+            for (int i = 0; i < jsonArray.length(); i++) {
+                JSONObject object = jsonArray.getJSONObject(i);
+                double latitude = object.getDouble("latitude");
+                double longitude = object.getDouble("longitude");
+                float[] dist = new float[2] ;
+                Location.distanceBetween(mCurrentLocation.getLatitude() , mCurrentLocation.getLongitude() ,
+                        latitude , longitude , dist);
+                if (dist[0] <= minDist){
+                    minDist = dist[0] ;
+                    minLat = latitude ;
+                    minLong = longitude ;
+                }
+            }
+        } catch (Exception e) {
+        }
+
+        Collection<ClusteringItem> items = clusterManagerAlgorithm.getItems();
+
+        for (ClusteringItem it : items){
+            Marker mar = it.getmMarker();
+            if (minLat == it.getPosition().latitude && minLong == it.getPosition().longitude){
+                Toast.makeText(this, ""+it.getmMarker(), Toast.LENGTH_SHORT).show();
+                //mMap.animateCamera(CameraUpdateFactory.newLatLngZoom(new LatLng(it.getPosition().latitude,it.getPosition().longitude), 18));
+                mar.showInfoWindow();
+                break;
+            }
+
+        }
+
+    }
+
+    @Override
+    public void onBackPressed() {
+        if (llSearchBar.getVisibility() == View.VISIBLE){
+            llSearchBar.startAnimation(slide_down);
+            llSearchBar.setVisibility(View.GONE);
+        }else{
+            super.onBackPressed();
+        }
+
+
+    }
 }
