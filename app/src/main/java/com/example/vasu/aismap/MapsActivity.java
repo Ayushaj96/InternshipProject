@@ -4,7 +4,6 @@ import android.Manifest;
 import android.content.SharedPreferences;
 import android.content.pm.PackageManager;
 import android.location.Location;
-import android.os.AsyncTask;
 import android.os.Bundle;
 import android.support.annotation.NonNull;
 import android.support.v4.app.ActivityCompat;
@@ -58,18 +57,8 @@ import com.google.maps.android.clustering.algo.NonHierarchicalDistanceBasedAlgor
 import org.json.JSONArray;
 import org.json.JSONObject;
 
-import java.io.BufferedReader;
-import java.io.IOException;
-import java.io.InputStream;
-import java.io.InputStreamReader;
-import java.io.OutputStreamWriter;
-import java.net.HttpURLConnection;
-import java.net.MalformedURLException;
-import java.net.URL;
-import java.net.URLEncoder;
 import java.util.ArrayList;
 import java.util.Collection;
-import java.util.Collections;
 
 public class MapsActivity extends FragmentActivity implements OnMapReadyCallback,
         LocationListener,
@@ -248,11 +237,8 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
 
         mMap.setOnMarkerClickListener(mClusterManager);
         mMap.setOnInfoWindowClickListener(mClusterManager);
-
         mMap.setOnCameraIdleListener(mClusterManager);
-
         mClusterManager.setAlgorithm(clusterManagerAlgorithm);
-
         mClusterManager.setOnClusterClickListener(new ClusterManager.OnClusterClickListener<ClusteringItem>() {
             @Override
             public boolean onClusterClick(Cluster<ClusteringItem> cluster) {
@@ -384,8 +370,8 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
     }
 
     @Override
-    public void onInfoWindowClick(Marker marker) {
-      Toast.makeText(MapsActivity.this,"Clicked   by user",Toast.LENGTH_LONG).show();
+        public void onInfoWindowClick(Marker marker) {
+          Toast.makeText(MapsActivity.this,"Clicked   by user",Toast.LENGTH_LONG).show();
 
     }
 
