@@ -76,7 +76,8 @@ import java.util.Iterator;
 public class MapsActivity extends FragmentActivity implements OnMapReadyCallback,
         LocationListener,
         GoogleApiClient.ConnectionCallbacks,
-        GoogleApiClient.OnConnectionFailedListener{
+        GoogleApiClient.OnConnectionFailedListener
+        ,GoogleMap.OnInfoWindowClickListener{
 
     private GoogleMap mMap;
     LocationRequest mLocationRequest;
@@ -132,6 +133,7 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
         setContentView(R.layout.activity_maps);
         SupportMapFragment mapFragment = (SupportMapFragment) getSupportFragmentManager().findFragmentById(R.id.map);
         mapFragment.getMapAsync(this);
+
 
         clusterManagerAlgorithm = new NonHierarchicalDistanceBasedAlgorithm();
 
@@ -250,6 +252,7 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
         mMap.setOnInfoWindowClickListener(mClusterManager);
 
         mMap.setOnCameraIdleListener(mClusterManager);
+
         mClusterManager.setAlgorithm(clusterManagerAlgorithm);
 
         mClusterManager.setOnClusterClickListener(new ClusterManager.OnClusterClickListener<ClusteringItem>() {
@@ -265,14 +268,10 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
 
         MarkerInfoWindowAdapter markerInfoWindowAdapter = new MarkerInfoWindowAdapter(getApplicationContext());
         mMap.setInfoWindowAdapter(markerInfoWindowAdapter);
-
+        mMap.setOnInfoWindowClickListener(this);
         mClusterManager.setOnClusterItemClickListener(new ClusterManager.OnClusterItemClickListener<ClusteringItem>() {
             @Override
             public boolean onClusterItemClick(ClusteringItem clusteringItem) {
-
-                if (clusteringItem.getPosition().latitude == mCurrentLocation.getLatitude()){
-                    Toast.makeText(MapsActivity.this, ""+mCurrentLocation, Toast.LENGTH_SHORT).show();
-                }
 
                 LatLng origin = new LatLng(mCurrentLocation.getLatitude(),mCurrentLocation.getLongitude()) ;
                 LatLng destination = clusteringItem.getPosition() ;
@@ -359,7 +358,7 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
 
     private void updateUI() {
         Log.d(TAG, "UI update initiated .............");
-        if (null != mCurrentLocation) {
+        if (mCurrentLocation!=null) {
 
     //        int strokeColor = 0xffff0000; //red outline
       //      int shadeColor = 0x44ff0000; //opaque red fill
@@ -372,8 +371,6 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
                 mMap.animateCamera(CameraUpdateFactory.newLatLngZoom(ll, zoom));
                 moveMyLocCamera = false ;
             }
-
-
             markerOptionsMyLoc = new MarkerOptions().position(ll).title("My Location");
             if (mPrevLocMarker != null){
                 mPrevLocMarker.remove();
@@ -385,6 +382,12 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
         } else {
             Log.d(TAG, "location is null ...............");
         }
+
+    }
+
+    @Override
+    public void onInfoWindowClick(Marker marker) {
+      Toast.makeText(MapsActivity.this,"Clicked   by user",Toast.LENGTH_LONG).show();
 
     }
 
