@@ -18,10 +18,8 @@ import com.google.android.gms.maps.model.Marker;
 import java.util.List;
 import java.util.Locale;
 
-import de.hdodenhof.circleimageview.CircleImageView;
 
-
-public class MarkerInfoWindowAdapter implements GoogleMap.InfoWindowAdapter {
+public class MarkerInfoWindowAdapter implements GoogleMap.InfoWindowAdapter ,GoogleMap.OnInfoWindowClickListener{
 
     private Context context;
 
@@ -36,6 +34,7 @@ public class MarkerInfoWindowAdapter implements GoogleMap.InfoWindowAdapter {
 
     @Override
     public View getInfoContents(Marker arg0) {
+
 
         LayoutInflater inflater = (LayoutInflater) context.getSystemService(Context.LAYOUT_INFLATER_SERVICE);
         View v = inflater.inflate(R.layout.map_marker_info_window, null);
@@ -66,12 +65,14 @@ public class MarkerInfoWindowAdapter implements GoogleMap.InfoWindowAdapter {
             ivavail.setBackgroundColor(ContextCompat.getColor(context, R.color.red));
         }
 
-        directions.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View view) {
-                Log.i("DIRECTIONSCLICK" , "YES") ;
-            }
-        });
+
 
         return v;
-    }}
+    }
+
+    @Override
+    public void onInfoWindowClick(Marker marker) {
+        //Toast.makeText(, "Please wait while fetching your lcoation", Toast.LENGTH_SHORT).show();
+        Log.i("DIRECTIONSCLICK" , "YES") ;
+    }
+}
