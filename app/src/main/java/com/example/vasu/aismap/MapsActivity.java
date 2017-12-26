@@ -8,7 +8,6 @@ import android.location.Address;
 import android.location.Geocoder;
 import android.location.Location;
 import android.os.Bundle;
-import android.os.Handler;
 import android.support.annotation.NonNull;
 import android.support.v4.app.ActivityCompat;
 import android.support.v4.app.FragmentActivity;
@@ -29,14 +28,10 @@ import com.example.vasu.aismap.CustomAdapter.NearMachinesAdapter;
 import com.example.vasu.aismap.Directions.AsyncResponseDownload;
 import com.example.vasu.aismap.Directions.DownloadTask;
 import com.example.vasu.aismap.Directions.DownloadUrl;
-import com.example.vasu.aismap.FetchPHP.AsyncResponseFindAll;
 import com.example.vasu.aismap.FetchPHP.AsyncResponseFindNear;
-import com.example.vasu.aismap.FetchPHP.FindAllMachines;
 import com.example.vasu.aismap.FetchPHP.FindNearMachines;
 import com.example.vasu.aismap.InfoWindow.MarkerInfoWindowAdapter;
-import com.example.vasu.aismap.Models.ClusteringItem;
 import com.example.vasu.aismap.Models.NearMachines;
-import com.example.vasu.aismap.Models.OwnClusterIconRendered;
 import com.google.android.gms.common.ConnectionResult;
 import com.google.android.gms.common.api.GoogleApiClient;
 import com.google.android.gms.common.api.PendingResult;
@@ -49,23 +44,17 @@ import com.google.android.gms.maps.GoogleMap;
 import com.google.android.gms.maps.OnMapReadyCallback;
 import com.google.android.gms.maps.SupportMapFragment;
 import com.google.android.gms.maps.model.BitmapDescriptorFactory;
+import com.google.android.gms.maps.model.Circle;
 import com.google.android.gms.maps.model.LatLng;
 import com.google.android.gms.maps.model.Marker;
 import com.google.android.gms.maps.model.MarkerOptions;
 import com.google.android.gms.maps.model.Polyline;
 import com.google.android.gms.maps.model.PolylineOptions;
-import com.google.maps.android.clustering.Cluster;
-import com.google.maps.android.clustering.ClusterManager;
-import com.google.maps.android.clustering.algo.Algorithm;
-import com.google.maps.android.clustering.algo.NonHierarchicalDistanceBasedAlgorithm;
 
 import org.json.JSONArray;
 import org.json.JSONObject;
-
 import java.io.IOException;
 import java.util.ArrayList;
-import java.util.Collection;
-import java.util.Iterator;
 import java.util.List;
 
 public class MapsActivity extends FragmentActivity implements OnMapReadyCallback,
@@ -87,22 +76,20 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
     MarkerOptions markerOptionsMyLoc;
     Marker myCurrentLocMarker, mPrevLocMarker;
     Marker[] markerArray ;
-    //Circle mCircle , mPrevCircle;
+    Circle mCircle , mPrevCircle;
 
     ImageButton ibMyLocation , ibSearch , ibNearest , ibIncludeMore , ibIncludeClose;
 
     //MachineDatabase machineDatabase;
     //Cursor data ;
 
+    ArrayList<Marker> nearMarkersList = new ArrayList<>() ;
+
     SharedPreferences sharedPreferences ,sharedPreferencesLocation ;
     SharedPreferences.Editor editorLocation ;
     float zoom = 15.0f ;
     float radius = 100.0f ;
     boolean moveMyLocCamera = true ;
-
-
-    private Algorithm<ClusteringItem> clusterManagerAlgorithm;
-    private ClusterManager<ClusteringItem> mClusterManager;
 
     Polyline pl[] = new Polyline[5] ;
 
@@ -128,9 +115,6 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
         setContentView(R.layout.activity_maps);
         SupportMapFragment mapFragment = (SupportMapFragment) getSupportFragmentManager().findFragmentById(R.id.map);
         mapFragment.getMapAsync(this);
-
-
-        clusterManagerAlgorithm = new NonHierarchicalDistanceBasedAlgorithm();
 
         ibMyLocation = (ImageButton) findViewById(R.id.myLocation);
         ibSearch = (ImageButton) findViewById(R.id.searchButton);
@@ -225,6 +209,7 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
 
         etSearch.setThreshold(2);
         etSearch.setAdapter(new GeoAutoCompleteAdapter(this)); // 'this' is Activity instance
+
         etSearch.setOnItemClickListener(new AdapterView.OnItemClickListener() {
             @Override
             public void onItemClick(AdapterView<?> adapterView, View view, int position, long id) {
@@ -277,55 +262,44 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
         });
         googleMap.moveCamera(CameraUpdateFactory.newLatLngZoom(position, 16));
 
-        mClusterManager = new ClusterManager<ClusteringItem>(this, mMap);
-
-        mMap.setOnMarkerClickListener(mClusterManager);
-        mMap.setOnInfoWindowClickListener(mClusterManager);
-
-        mMap.setOnCameraIdleListener(mClusterManager);
-
-        mClusterManager.setAlgorithm(clusterManagerAlgorithm);
-
-        mClusterManager.setOnClusterClickListener(new ClusterManager.OnClusterClickListener<ClusteringItem>() {
-            @Override
-            public boolean onClusterClick(Cluster<ClusteringItem> cluster) {
-                mMap.animateCamera(CameraUpdateFactory.newLatLngZoom(
-                        cluster.getPosition(), (float) Math.floor(mMap.getCameraPosition().zoom + 1)), 300, null);
-                return true;
-            }
-        });
-
-        mClusterManager.setRenderer(new OwnClusterIconRendered(this.getApplicationContext(), mMap, mClusterManager));
+        if (mCurrentLocation.getLatitude() == 0.0 && mCurrentLocation.getLongitude() == 0.0 ){
+            mCurrentLocation.setLatitude((double) sharedPreferencesLocation.getFloat("Latitude" , 0.0f));
+            mCurrentLocation.setLongitude((double) sharedPreferencesLocation.getFloat("Longitude" , 0.0f));
+        }else{
+        }
 
         MarkerInfoWindowAdapter markerInfoWindowAdapter = new MarkerInfoWindowAdapter(getApplicationContext());
         mMap.setInfoWindowAdapter(markerInfoWindowAdapter);
         mMap.setOnInfoWindowClickListener(this);
-        mClusterManager.setOnClusterItemClickListener(new ClusterManager.OnClusterItemClickListener<ClusteringItem>() {
+        mMap.setOnMarkerClickListener(new GoogleMap.OnMarkerClickListener() {
             @Override
-            public boolean onClusterItemClick(ClusteringItem clusteringItem) {
-
-                LatLng origin = new LatLng(mCurrentLocation.getLatitude(),mCurrentLocation.getLongitude()) ;
-                LatLng destination = clusteringItem.getPosition() ;
-                DownloadUrl du = new DownloadUrl();
-                String url = du.getDirectionsUrl(origin,destination );
-                DownloadTask downloadTask = new DownloadTask(new AsyncResponseDownload() {
-                    @Override
-                    public void processFinish(PolylineOptions[] output) {
-                        drawPath(output);
-                    }
-                });
-                downloadTask.execute(url);
+            public boolean onMarkerClick(Marker marker) {
+                if (marker.getPosition().latitude != mCurrentLocation.getLatitude()) {
+                    LatLng origin = new LatLng(mCurrentLocation.getLatitude(), mCurrentLocation.getLongitude());
+                    LatLng destination = marker.getPosition();
+                    DownloadUrl du = new DownloadUrl();
+                    String url = du.getDirectionsUrl(origin, destination);
+                    DownloadTask downloadTask = new DownloadTask(new AsyncResponseDownload() {
+                        @Override
+                        public void processFinish(PolylineOptions[] output) {
+                            drawPath(output);
+                        }
+                    });
+                    downloadTask.execute(url);
+                }
                 return false;
             }
         });
 
-        FindAllMachines fam = new FindAllMachines(MapsActivity.this , mCurrentLocation , new AsyncResponseFindAll(){
+        FindNearMachines fnm = new FindNearMachines(MapsActivity.this , mCurrentLocation , new AsyncResponseFindNear(){
             @Override
             public void processFinish(String output) {
-                addToClusters(output);
+                addToNearGrid(output);
+                findNear(output) ;
             }
         });
-        fam.execute() ;
+        fnm.execute() ;
+
     }
 
     private void drawPath(PolylineOptions[] output) {
@@ -376,14 +350,6 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
         editorLocation.putFloat("Latitude" , (float) mCurrentLocation.getLatitude());
         editorLocation.putFloat("Longitude" , (float) mCurrentLocation.getLongitude());
         editorLocation.commit();
-
-        FindNearMachines fnm = new FindNearMachines(MapsActivity.this , mCurrentLocation , new AsyncResponseFindNear(){
-            @Override
-            public void processFinish(String output) {
-                addToNearGrid(output);
-            }
-        });
-        fnm.execute() ;
         updateUI();
     }
 
@@ -421,25 +387,6 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
 
     }
 
-    public void addToClusters(String result){
-        try {
-            JSONArray jsonArray =new JSONArray(result);
-            mClusterManager.clearItems();
-            for (int i = 0; i < jsonArray.length(); i++) {
-                    JSONObject object = jsonArray.getJSONObject(i);
-                    double latitude = object.getDouble("latitude");
-                    double longitude = object.getDouble("longitude");
-                    LatLng ll = new LatLng(latitude,longitude) ;
-
-                    ClusteringItem offsetItem = new ClusteringItem(latitude, longitude);
-                    mClusterManager.addItem(offsetItem);
-
-            }
-        } catch (Exception e) {
-
-        }
-    }
-
     public void addToNearGrid(String result){
         ArrayList<NearMachines> nearList = new ArrayList<>();
         try {
@@ -459,6 +406,24 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
 
         NearMachinesAdapter nma = new NearMachinesAdapter(nearList,MapsActivity.this);
         gvNear.setAdapter(nma);
+    }
+
+    public void findNear(String result){
+        /*mMap.clear();
+        nearMarkersList.clear();*/
+        try {
+            JSONArray jsonArray =new JSONArray(result);
+            for (int i = 0; i < jsonArray.length(); i++) {
+                    JSONObject object = jsonArray.getJSONObject(i);
+                    double latitude = object.getDouble("latitude");
+                    double longitude = object.getDouble("longitude");
+                    LatLng ll = new LatLng(latitude,longitude) ;
+                    Marker m = mMap.addMarker(new MarkerOptions().title("Machine").position(ll).icon(BitmapDescriptorFactory.fromResource(R.drawable.machine))) ;
+                    nearMarkersList.add(m);
+            }
+        } catch (Exception e) {
+        }
+
     }
 
     public void pointToNearest(String result){
@@ -485,60 +450,16 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
         }
 
         final LatLng minLL = new LatLng(minLat,minLong) ;
-        mMap.animateCamera(CameraUpdateFactory.newLatLngZoom(minLL, 18),300 , new GoogleMap.CancelableCallback() {
-            @Override
-            public void onFinish() {
-                new Handler().postDelayed(new Runnable() {
-                    @Override
-                    public void run() {
-                        Collection<Marker> mm = mClusterManager.getMarkerCollection().getMarkers();
-                        Iterator<Marker> itr = mm.iterator();
 
-                        while (itr.hasNext()) {
-                            Marker marker = itr.next();
-                            if (minLL.latitude == marker.getPosition().latitude && minLL.longitude == marker.getPosition().longitude) {
-                                marker.showInfoWindow();
-                                //break outer;
-                            }
-                        }
-                    }
-                }, 500);
+        for (Marker m : nearMarkersList){
+            if (m.getPosition() == minLL){
+                mMap.animateCamera(CameraUpdateFactory.newLatLngZoom(minLL, 18)) ;
+                m.showInfoWindow();
             }
-
-            @Override
-            public void onCancel() {
-
-            }
-        });
-
-    }
-
-
-    public LatLng getLocationFromAddress(Context context, String strAddress) {
-
-        Geocoder coder = new Geocoder(context);
-        List<Address> address;
-        LatLng p1 = null;
-
-        try {
-            // May throw an IOException
-            address = coder.getFromLocationName(strAddress, 5);
-            if (address == null) {
-                return null;
-            }
-            Address location = address.get(0);
-            location.getLatitude();
-            location.getLongitude();
-
-            p1 = new LatLng(location.getLatitude(), location.getLongitude() );
-
-        } catch (IOException ex) {
-
-            ex.printStackTrace();
         }
 
-        return p1;
     }
+
 
     @Override
     public void onBackPressed() {
@@ -549,4 +470,6 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
             super.onBackPressed();
         }
     }
+
+
 }
