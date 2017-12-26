@@ -255,45 +255,19 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
             @Override
             public void onItemClick(AdapterView<?> adapterView, View view, int position, long id) {
                 hideKeyboard(MapsActivity.this);
-                final String address = adapterView.getItemAtPosition(position).toString() ;
-                final Marker[] m = new Marker[1];
-                Toast.makeText(MapsActivity.this, "Finding the address", Toast.LENGTH_SHORT).show();
-                etSearch.setText("");
-                if (llSearchBar.getVisibility() == View.VISIBLE){
-                    llSearchBar.startAnimation(slide_down);
-                    llSearchBar.setVisibility(View.GONE);
-                }
-                Date date = new Date();
-                SimpleDateFormat sdf = new SimpleDateFormat("hh:mm") ;
-                String time = sdf.format(date) ;
-                historyDatabase.addData("A Machine" , address , time) ;
-                GetSearchLocation gsl = new GetSearchLocation(MapsActivity.this, address, new AsyncResponseSearch() {
-                    @Override
-                    public void processFinish(LatLng output) {
-                        if (output != null){
-                            m[0] = mMap.addMarker(new MarkerOptions().position(output).title("Machine").icon(BitmapDescriptorFactory.fromResource(R.drawable.machine))) ;
-                            mMap.animateCamera(CameraUpdateFactory.newLatLngZoom(m[0].getPosition() , 16));
-                            m[0].showInfoWindow();
-                            Location temp = new Location(LocationManager.GPS_PROVIDER);
-                            temp.setLatitude(m[0].getPosition().latitude);
-                            temp.setLongitude(m[0].getPosition().longitude);
-                            FindNearMachines fnm = new FindNearMachines(MapsActivity.this , temp , new AsyncResponseFindNear(){
-                                @Override
-                                public void processFinish(String output) {
-                                    findSearchNear(output) ;
-                                }
-                            });
-                            fnm.execute() ;
-                        }else{
-                            Toast.makeText(MapsActivity.this, "Cant find Location ", Toast.LENGTH_SHORT).show();
-                        }
-
-                    }
-                });
-                gsl.execute() ;
+                String address = adapterView.getItemAtPosition(position).toString() ;
+                showSearchedMarker(address,position);
             }
         });
 
+        lvHistory.setOnItemClickListener(new AdapterView.OnItemClickListener() {
+            @Override
+            public void onItemClick(AdapterView<?> adapterView, View view, int i, long l) {
+                HistoryModel hm = (HistoryModel) adapterView.getItemAtPosition(i) ;
+                String address = hm.getAddress();
+                showSearchedMarker(address,i);
+            }
+        });
     }
 
     @Override
@@ -545,6 +519,44 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
         CustomHistoryAdapter cha = new CustomHistoryAdapter(MapsActivity.this , historyList) ;
         cha.notifyDataSetChanged();
         lvHistory.setAdapter(cha);
+    }
+
+    public void showSearchedMarker(String address , int position){
+        final Marker[] m = new Marker[1];
+        Toast.makeText(MapsActivity.this, "Finding the address", Toast.LENGTH_SHORT).show();
+        etSearch.setText("");
+        if (llSearchBar.getVisibility() == View.VISIBLE){
+            llSearchBar.startAnimation(slide_down);
+            llSearchBar.setVisibility(View.GONE);
+        }
+        Date date = new Date();
+        SimpleDateFormat sdf = new SimpleDateFormat("hh:mm") ;
+        String time = sdf.format(date) ;
+        historyDatabase.addData("A Machine" , address , time) ;
+        GetSearchLocation gsl = new GetSearchLocation(MapsActivity.this, address, new AsyncResponseSearch() {
+            @Override
+            public void processFinish(LatLng output) {
+                if (output != null){
+                    m[0] = mMap.addMarker(new MarkerOptions().position(output).title("Machine").icon(BitmapDescriptorFactory.fromResource(R.drawable.machine))) ;
+                    mMap.animateCamera(CameraUpdateFactory.newLatLngZoom(m[0].getPosition() , 16));
+                    m[0].showInfoWindow();
+                    Location temp = new Location(LocationManager.GPS_PROVIDER);
+                    temp.setLatitude(m[0].getPosition().latitude);
+                    temp.setLongitude(m[0].getPosition().longitude);
+                    FindNearMachines fnm = new FindNearMachines(MapsActivity.this , temp , new AsyncResponseFindNear(){
+                        @Override
+                        public void processFinish(String output) {
+                            findSearchNear(output) ;
+                        }
+                    });
+                    fnm.execute() ;
+                }else{
+                    Toast.makeText(MapsActivity.this, "Cant find Location ", Toast.LENGTH_SHORT).show();
+                }
+
+            }
+        });
+        gsl.execute() ;
     }
 
     public static void hideKeyboard(Activity activity) {
