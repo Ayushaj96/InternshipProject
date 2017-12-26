@@ -50,7 +50,7 @@ public class GetSearchLocation extends AsyncTask<String,String,String> {
     protected String doInBackground(String... params) {
         try {
             String temp = this.place.replace(" " , "+") ;
-            url = new URL("https://maps.googleapis.com/maps/api/geocode/json?address=" + temp);
+            url = new URL("https://maps.googleapis.com/maps/api/geocode/json?address=" + temp + "&key=AIzaSyDaea36hvrsM31qH6Q1-QHhbqPtEkLTro8");
         } catch (MalformedURLException e) {
             // TODO Auto-generated catch block
             e.printStackTrace();

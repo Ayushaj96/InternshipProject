@@ -17,14 +17,14 @@ import java.util.ArrayList;
  * Created by AYUSH on 12/26/2017.
  */
 
-public class CustomHistory extends ArrayAdapter<HistoryModel> {
+public class CustomHistoryAdapter extends ArrayAdapter<HistoryModel> {
 
 
     private final Context mContext;
     private final ArrayList<HistoryModel> mprevAddress;
 
 
-    public CustomHistory(Context context, ArrayList<HistoryModel> address) {
+    public CustomHistoryAdapter(Context context, ArrayList<HistoryModel> address) {
         super(context, R.layout.history_list_item, address);
         this.mContext = context;
         this.mprevAddress = new ArrayList<>(address);
@@ -33,8 +33,6 @@ public class CustomHistory extends ArrayAdapter<HistoryModel> {
     public int getCount() {
         return mprevAddress.size();
     }
-
-
 
     public long getItemId(int position) {
         return position;
@@ -48,7 +46,7 @@ public class CustomHistory extends ArrayAdapter<HistoryModel> {
         try {
             if (convertView == null) {
                 LayoutInflater inflater = ((Activity) mContext).getLayoutInflater();
-                convertView = inflater.inflate(R.layout.search_result_item, parent, false);
+                convertView = inflater.inflate(R.layout.history_list_item, parent, false);
             }
             TextView mname = (TextView) convertView.findViewById(R.id.machineName);
             TextView  mAddress= (TextView) convertView.findViewById(R.id.machineAddress);

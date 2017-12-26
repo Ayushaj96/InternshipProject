@@ -25,6 +25,7 @@ import android.widget.ListView;
 import android.widget.RelativeLayout;
 import android.widget.Toast;
 
+import com.example.vasu.aismap.CustomAdapter.CustomHistoryAdapter;
 import com.example.vasu.aismap.CustomAdapter.CustomSearchListAdapter;
 import com.example.vasu.aismap.CustomAdapter.NearMachinesAdapter;
 import com.example.vasu.aismap.Directions.AsyncResponseDownload;
@@ -35,6 +36,7 @@ import com.example.vasu.aismap.FetchPHP.AsyncResponseFindNear;
 import com.example.vasu.aismap.FetchPHP.FindAllSearchMachines;
 import com.example.vasu.aismap.FetchPHP.FindNearMachines;
 import com.example.vasu.aismap.InfoWindow.MarkerInfoWindowAdapter;
+import com.example.vasu.aismap.Models.HistoryModel;
 import com.example.vasu.aismap.Models.MarkerModel;
 import com.example.vasu.aismap.Models.NearMachines;
 import com.example.vasu.aismap.SearchPlace.AsyncResponseSearch;
@@ -255,7 +257,6 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
                 final String address = adapterView.getItemAtPosition(position).toString() ;
                 final Marker[] m = new Marker[1];
                 Toast.makeText(MapsActivity.this, "Finding the address", Toast.LENGTH_SHORT).show();
-                mMap.animateCamera(CameraUpdateFactory.newLatLngZoom(m[0].getPosition() , 16));
                 etSearch.setText("");
                 if (llSearchBar.getVisibility() == View.VISIBLE){
                     llSearchBar.startAnimation(slide_down);
@@ -268,17 +269,23 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
                 GetSearchLocation gsl = new GetSearchLocation(MapsActivity.this, address, new AsyncResponseSearch() {
                     @Override
                     public void processFinish(ArrayList<LatLng> output) {
-                        m[0] = mMap.addMarker(new MarkerOptions().position(output.get(0)).title("Machine")) ;
-                        Location temp = new Location(LocationManager.GPS_PROVIDER);
-                        temp.setLatitude(m[0].getPosition().latitude);
-                        temp.setLongitude(m[0].getPosition().longitude);
-                        FindNearMachines fnm = new FindNearMachines(MapsActivity.this , temp , new AsyncResponseFindNear(){
-                            @Override
-                            public void processFinish(String output) {
-                                findSearchNear(output) ;
-                            }
-                        });
-                        fnm.execute() ;
+                        if (output.size() > 0){
+                            m[0] = mMap.addMarker(new MarkerOptions().position(output.get(0)).title("Machine")) ;
+                            mMap.animateCamera(CameraUpdateFactory.newLatLngZoom(m[0].getPosition() , 16));
+                            Location temp = new Location(LocationManager.GPS_PROVIDER);
+                            temp.setLatitude(m[0].getPosition().latitude);
+                            temp.setLongitude(m[0].getPosition().longitude);
+                            FindNearMachines fnm = new FindNearMachines(MapsActivity.this , temp , new AsyncResponseFindNear(){
+                                @Override
+                                public void processFinish(String output) {
+                                    findSearchNear(output) ;
+                                }
+                            });
+                            fnm.execute() ;
+                        }else{
+                            Toast.makeText(MapsActivity.this, "Cant find Location "+output.get(0), Toast.LENGTH_SHORT).show();
+                        }
+
                     }
                 });
                 gsl.execute() ;
@@ -303,6 +310,8 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
             mCurrentLocation.setLongitude((double) sharedPreferencesLocation.getFloat("Longitude" , 0.0f));
         }else{
         }
+
+        showHistory();
 
         MarkerInfoWindowAdapter markerInfoWindowAdapter = new MarkerInfoWindowAdapter(getApplicationContext());
         mMap.setInfoWindowAdapter(markerInfoWindowAdapter);
@@ -386,6 +395,7 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
         editorLocation.putFloat("Latitude" , (float) mCurrentLocation.getLatitude());
         editorLocation.putFloat("Longitude" , (float) mCurrentLocation.getLongitude());
         editorLocation.commit();
+        showHistory();
         updateUI();
     }
 
@@ -521,7 +531,14 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
     }
 
     public void showHistory(){
-        
+        ArrayList<HistoryModel> historyList = new ArrayList<>();
+        data = historyDatabase.getListContents();
+        data.moveToFirst();
+        while (data.moveToNext()){
+            historyList.add(new HistoryModel(data.getString(1),data.getString(2),data.getString(3)));
+        }
+        CustomHistoryAdapter cha = new CustomHistoryAdapter(MapsActivity.this , historyList) ;
+        lvHistory.setAdapter(cha);
     }
 
 
