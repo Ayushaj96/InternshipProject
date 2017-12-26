@@ -24,7 +24,7 @@ import java.util.ArrayList;
 /**
  * Created by Vasu on 25-12-2017.
  */
-
+ 
 public class GetSearchLocation extends AsyncTask<String,String,String> {
 
     HttpURLConnection conn;

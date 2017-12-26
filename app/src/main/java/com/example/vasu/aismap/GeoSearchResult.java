@@ -15,21 +15,21 @@ public class GeoSearchResult {
         this.address = address;
     }
 
-    public String getAddress(){
+            public String getAddress(){
 
-        String display_address = "";
+            String display_address = "";
 
-        display_address += address.getAddressLine(0) + "\n";
+            display_address += address.getAddressLine(0) + "\n";
 
-        for(int i = 1; i < address.getMaxAddressLineIndex(); i++)
-        {
-            display_address += address.getAddressLine(i) + ", ";
+            for(int i = 1; i < address.getMaxAddressLineIndex(); i++)
+            {
+                display_address += address.getAddressLine(i) + ", ";
+            }
+
+            display_address = display_address.substring(0, display_address.length() - 2);
+
+            return display_address;
         }
-
-        display_address = display_address.substring(0, display_address.length() - 2);
-
-        return display_address;
-    }
 
     public String toString(){
         String display_address = "";

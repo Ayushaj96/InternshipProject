@@ -43,7 +43,6 @@ import com.google.android.gms.maps.GoogleMap;
 import com.google.android.gms.maps.OnMapReadyCallback;
 import com.google.android.gms.maps.SupportMapFragment;
 import com.google.android.gms.maps.model.BitmapDescriptorFactory;
-import com.google.android.gms.maps.model.Circle;
 import com.google.android.gms.maps.model.LatLng;
 import com.google.android.gms.maps.model.Marker;
 import com.google.android.gms.maps.model.MarkerOptions;
@@ -74,7 +73,6 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
     MarkerOptions markerOptionsMyLoc;
     Marker myCurrentLocMarker, mPrevLocMarker;
     Marker[] markerArray ;
-    Circle mCircle , mPrevCircle;
 
     ImageButton ibMyLocation , ibSearch , ibNearest , ibIncludeMore , ibIncludeClose;
 
@@ -406,6 +404,22 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
                     Marker m = mMap.addMarker(new MarkerOptions().title("Machine").position(ll).icon(BitmapDescriptorFactory.fromResource(R.drawable.machine))) ;
                     MarkerModel mm = new MarkerModel(m,address,"yes");
                     nearMarkersList.add(mm);
+            }
+        } catch (Exception e) {
+        }
+
+    }
+
+    public void findAllMachines(String result){
+
+        try {
+            JSONArray jsonArray =new JSONArray(result);
+            for (int i = 0; i < jsonArray.length(); i++) {
+                JSONObject object = jsonArray.getJSONObject(i);
+                double latitude = object.getDouble("latitude");
+                double longitude = object.getDouble("longitude");
+                String address = object.getString("address");
+                LatLng ll = new LatLng(latitude,longitude) ;
             }
         } catch (Exception e) {
         }
