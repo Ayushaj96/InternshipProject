@@ -228,7 +228,8 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
                 FindAllSearchMachines fasm = new FindAllSearchMachines(MapsActivity.this, etSearch.getText().toString(), new AsyncResponseFindAllSearches() {
                     @Override
                     public void processFinish(ArrayList<String> output) {
-
+                        CustomSearchListAdapter csla = new CustomSearchListAdapter(MapsActivity.this , output);
+                        etSearch.setAdapter(csla);
                     }
                 });
                 fasm.execute() ;
@@ -240,7 +241,10 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
         etSearch.setOnItemClickListener(new AdapterView.OnItemClickListener() {
             @Override
             public void onItemClick(AdapterView<?> adapterView, View view, int position, long id) {
-                GeoSearchResult result = (GeoSearchResult) adapterView.getItemAtPosition(position);
+
+                Toast.makeText(MapsActivity.this, ""+adapterView.getItemAtPosition(position), Toast.LENGTH_SHORT).show();
+
+                /*GeoSearchResult result = (GeoSearchResult) adapterView.getItemAtPosition(position);
                 final String address = result.getAddress() ;
                 final Marker[] m = new Marker[1];
                 GetSearchLocation gsl = new GetSearchLocation(MapsActivity.this, address, new AsyncResponseSearch() {
@@ -265,9 +269,7 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
                         fnm.execute() ;
                     }
                 });
-                gsl.execute() ;
-
-
+                gsl.execute() ; */
             }
         });
 
