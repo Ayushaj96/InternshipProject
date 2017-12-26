@@ -10,7 +10,6 @@ public class ClusteringItem implements ClusterItem {
     private final LatLng mPosition;
     private String mTitle;
     private String mSnippet;
-    private Marker mMarker;
 
     public ClusteringItem(double lat, double lng) {
         mPosition = new LatLng(lat, lng);
@@ -51,12 +50,5 @@ public class ClusteringItem implements ClusterItem {
         mSnippet = snippet;
     }
 
-    public Marker getmMarker() {
-        return mMarker;
-    }
-
-    public void setmMarker(Marker mMarker) {
-        this.mMarker = mMarker;
-    }
 
 }

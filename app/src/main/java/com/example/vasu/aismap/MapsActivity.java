@@ -1,17 +1,26 @@
 package com.example.vasu.aismap;
 
 import android.Manifest;
+import android.content.Context;
 import android.content.SharedPreferences;
 import android.content.pm.PackageManager;
+import android.location.Address;
+import android.location.Geocoder;
 import android.location.Location;
+import android.os.AsyncTask;
 import android.os.Bundle;
+import android.os.Handler;
 import android.support.annotation.NonNull;
 import android.support.v4.app.ActivityCompat;
 import android.support.v4.app.FragmentActivity;
+import android.text.Editable;
+import android.text.TextWatcher;
 import android.util.Log;
+import android.view.KeyEvent;
 import android.view.View;
 import android.view.animation.Animation;
 import android.view.animation.AnimationUtils;
+import android.widget.AdapterView;
 import android.widget.EditText;
 import android.widget.GridView;
 import android.widget.ImageButton;
@@ -19,6 +28,7 @@ import android.widget.LinearLayout;
 import android.widget.RelativeLayout;
 import android.widget.Toast;
 
+import com.example.vasu.aismap.CustomAdapter.GeoAutoCompleteAdapter;
 import com.example.vasu.aismap.CustomAdapter.NearMachinesAdapter;
 import com.example.vasu.aismap.Directions.AsyncResponseDownload;
 import com.example.vasu.aismap.Directions.DownloadTask;
@@ -57,8 +67,21 @@ import com.google.maps.android.clustering.algo.NonHierarchicalDistanceBasedAlgor
 import org.json.JSONArray;
 import org.json.JSONObject;
 
+import java.io.BufferedReader;
+import java.io.IOException;
+import java.io.InputStream;
+import java.io.InputStreamReader;
+import java.io.OutputStreamWriter;
+import java.net.HttpURLConnection;
+import java.net.MalformedURLException;
+import java.net.URL;
+import java.net.URLEncoder;
 import java.util.ArrayList;
 import java.util.Collection;
+import java.util.Collections;
+import java.util.Iterator;
+import java.util.List;
+import java.util.Map;
 
 public class MapsActivity extends FragmentActivity implements OnMapReadyCallback,
         LocationListener,
@@ -102,7 +125,7 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
     boolean nearMachineExecuted = false ;
     RelativeLayout mRoot ;
     LinearLayout llSearchBar ;
-    EditText etSearch ;
+    DelayAutoCompleteTextView etSearch ;
     GridView gvNear ;
 
     Animation slide_down , slide_up ;
@@ -132,7 +155,7 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
 
         mRoot = (RelativeLayout) findViewById(R.id.rlMaps);
         llSearchBar = (LinearLayout) findViewById(R.id.includeBar);
-        etSearch = (EditText) findViewById(R.id.searchBar);
+        etSearch = (DelayAutoCompleteTextView) findViewById(R.id.geo_autocomplete);
         gvNear = (GridView) findViewById(R.id.gvNearMachines);
 
         slide_down = AnimationUtils.loadAnimation(getApplicationContext(), R.anim.slide_down);
@@ -215,6 +238,43 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
             }
         });
 
+        etSearch.setThreshold(2);
+        etSearch.setAdapter(new GeoAutoCompleteAdapter(this)); // 'this' is Activity instance
+
+        etSearch.setOnItemClickListener(new AdapterView.OnItemClickListener() {
+            @Override
+            public void onItemClick(AdapterView<?> adapterView, View view, int position, long id) {
+                GeoSearchResult result = (GeoSearchResult) adapterView.getItemAtPosition(position);
+                String address = result.getAddress() ;
+                LatLng addLl = getLocationFromAddress(MapsActivity.this , address) ;
+                Marker m = mMap.addMarker(new MarkerOptions().position(addLl).title(address)) ;
+                mMap.animateCamera(CameraUpdateFactory.newLatLngZoom(addLl , 16));
+                etSearch.setText("");
+                if (llSearchBar.getVisibility() == View.VISIBLE){
+                    llSearchBar.startAnimation(slide_down);
+                    llSearchBar.setVisibility(View.GONE);
+                }
+            }
+        });
+
+        etSearch.setOnKeyListener(new View.OnKeyListener() {
+            public boolean onKey(View v, int keyCode, KeyEvent event) {
+                if ((event.getAction() == KeyEvent.ACTION_DOWN) && (keyCode == KeyEvent.KEYCODE_ENTER)) {
+                    String address = etSearch.getText().toString() ;
+                    LatLng addLl = getLocationFromAddress(MapsActivity.this , address) ;
+                    Marker m = mMap.addMarker(new MarkerOptions().position(addLl).title(address)) ;
+                    mMap.animateCamera(CameraUpdateFactory.newLatLngZoom(addLl , 16));
+                    etSearch.setText("");
+                    if (llSearchBar.getVisibility() == View.VISIBLE){
+                        llSearchBar.startAnimation(slide_down);
+                        llSearchBar.setVisibility(View.GONE);
+                    }
+                    return true;
+                }
+                return false;
+            }
+        });
+
     }
 
     /*public void show_machines_on_map(LatLng latLng){
@@ -237,8 +297,11 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
 
         mMap.setOnMarkerClickListener(mClusterManager);
         mMap.setOnInfoWindowClickListener(mClusterManager);
+
         mMap.setOnCameraIdleListener(mClusterManager);
+
         mClusterManager.setAlgorithm(clusterManagerAlgorithm);
+
         mClusterManager.setOnClusterClickListener(new ClusterManager.OnClusterClickListener<ClusteringItem>() {
             @Override
             public boolean onClusterClick(Cluster<ClusteringItem> cluster) {
@@ -366,15 +429,13 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
         } else {
             Log.d(TAG, "location is null ...............");
         }
-
     }
 
     @Override
-        public void onInfoWindowClick(Marker marker) {
-          Toast.makeText(MapsActivity.this,"Clicked   by user",Toast.LENGTH_LONG).show();
+    public void onInfoWindowClick(Marker marker) {
+      Toast.makeText(MapsActivity.this,"Clicked by user",Toast.LENGTH_LONG).show();
 
     }
-
 
     public void addToClusters(String result){
         try {
@@ -385,23 +446,12 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
                     double latitude = object.getDouble("latitude");
                     double longitude = object.getDouble("longitude");
                     LatLng ll = new LatLng(latitude,longitude) ;
-                    Marker marker = mMap.addMarker(new MarkerOptions().position(ll).title("Marker"));
 
                     ClusteringItem offsetItem = new ClusteringItem(latitude, longitude);
-                    offsetItem.setmMarker(marker);
-                    marker.remove();
                     mClusterManager.addItem(offsetItem);
 
             }
         } catch (Exception e) {
-
-        }
-
-        Collection<ClusteringItem> items = clusterManagerAlgorithm.getItems();
-
-        for (ClusteringItem it : items){
-            Marker mar = it.getmMarker();
-            Log.i("MARKERS" , mar.toString());
 
         }
     }
@@ -450,19 +500,60 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
         } catch (Exception e) {
         }
 
-        Collection<ClusteringItem> items = clusterManagerAlgorithm.getItems();
+        final LatLng minLL = new LatLng(minLat,minLong) ;
+        mMap.animateCamera(CameraUpdateFactory.newLatLngZoom(minLL, 18),300 , new GoogleMap.CancelableCallback() {
+            @Override
+            public void onFinish() {
+                new Handler().postDelayed(new Runnable() {
+                    @Override
+                    public void run() {
+                        Collection<Marker> mm = mClusterManager.getMarkerCollection().getMarkers();
+                        Iterator<Marker> itr = mm.iterator();
 
-        for (ClusteringItem it : items){
-            Marker mar = it.getmMarker();
-            if (minLat == it.getPosition().latitude && minLong == it.getPosition().longitude){
-                Toast.makeText(this, ""+it.getmMarker(), Toast.LENGTH_SHORT).show();
-                //mMap.animateCamera(CameraUpdateFactory.newLatLngZoom(new LatLng(it.getPosition().latitude,it.getPosition().longitude), 18));
-                mar.showInfoWindow();
-                break;
+                        while (itr.hasNext()) {
+                            Marker marker = itr.next();
+                            if (minLL.latitude == marker.getPosition().latitude && minLL.longitude == marker.getPosition().longitude) {
+                                marker.showInfoWindow();
+                                //break outer;
+                            }
+                        }
+                    }
+                }, 500);
             }
 
+            @Override
+            public void onCancel() {
+
+            }
+        });
+
+    }
+
+
+    public LatLng getLocationFromAddress(Context context, String strAddress) {
+
+        Geocoder coder = new Geocoder(context);
+        List<Address> address;
+        LatLng p1 = null;
+
+        try {
+            // May throw an IOException
+            address = coder.getFromLocationName(strAddress, 5);
+            if (address == null) {
+                return null;
+            }
+            Address location = address.get(0);
+            location.getLatitude();
+            location.getLongitude();
+
+            p1 = new LatLng(location.getLatitude(), location.getLongitude() );
+
+        } catch (IOException ex) {
+
+            ex.printStackTrace();
         }
 
+        return p1;
     }
 
     @Override
@@ -473,7 +564,7 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
         }else{
             super.onBackPressed();
         }
-
-
     }
+
+
 }
