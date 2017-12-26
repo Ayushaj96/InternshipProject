@@ -21,6 +21,6 @@
     string in this file.
     AIzaSyBEVh55mn_Kww4CAqnszmxm8oHW7DDdCcU
     -->
-    <string name="geocoding">AIzaSyBEVh55mn_Kww4CAqnszmxm8oHW7DDdCcU</string>
+
     <string name="google_maps_key" templateMergeStrategy="preserve" translatable="false">AIzaSyDaea36hvrsM31qH6Q1-QHhbqPtEkLTro8</string>
 </resources>
