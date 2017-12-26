@@ -11,7 +11,6 @@ import android.widget.TextView;
 import com.example.vasu.aismap.R;
 
 import java.util.ArrayList;
-import java.util.List;
 
 /**
  * Created by AYUSH on 12/26/2017.

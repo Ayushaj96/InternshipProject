@@ -269,7 +269,7 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
                 GetSearchLocation gsl = new GetSearchLocation(MapsActivity.this, address, new AsyncResponseSearch() {
                     @Override
                     public void processFinish(ArrayList<LatLng> output) {
-                        if (output.size() > 0){
+                        if (output.size()>0){
                             m[0] = mMap.addMarker(new MarkerOptions().position(output.get(0)).title("Machine")) ;
                             mMap.animateCamera(CameraUpdateFactory.newLatLngZoom(m[0].getPosition() , 16));
                             Location temp = new Location(LocationManager.GPS_PROVIDER);
