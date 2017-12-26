@@ -86,7 +86,7 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
     LatLng position = new LatLng(28.6291027, 77.207133);
     MarkerOptions markerOptionsMyLoc;
     Marker myCurrentLocMarker, mPrevLocMarker;
-    Marker[] markerArray ;
+    Marker[] markerArray ; 
     Circle mCircle , mPrevCircle;
 
     ImageButton ibMyLocation , ibSearch , ibNearest , ibIncludeMore , ibIncludeClose;
