@@ -3,6 +3,7 @@ package com.example.vasu.aismap;
 import android.Manifest;
 import android.content.SharedPreferences;
 import android.content.pm.PackageManager;
+import android.database.Cursor;
 import android.location.Location;
 import android.location.LocationManager;
 import android.os.Bundle;
@@ -20,6 +21,7 @@ import android.widget.AutoCompleteTextView;
 import android.widget.GridView;
 import android.widget.ImageButton;
 import android.widget.LinearLayout;
+import android.widget.ListView;
 import android.widget.RelativeLayout;
 import android.widget.Toast;
 
@@ -37,6 +39,7 @@ import com.example.vasu.aismap.Models.MarkerModel;
 import com.example.vasu.aismap.Models.NearMachines;
 import com.example.vasu.aismap.SearchPlace.AsyncResponseSearch;
 import com.example.vasu.aismap.SearchPlace.GetSearchLocation;
+import com.example.vasu.aismap.Sqlite.SearchHistory;
 import com.google.android.gms.common.ConnectionResult;
 import com.google.android.gms.common.api.GoogleApiClient;
 import com.google.android.gms.common.api.PendingResult;
@@ -59,7 +62,9 @@ import com.google.android.gms.maps.model.PolylineOptions;
 import org.json.JSONArray;
 import org.json.JSONObject;
 
+import java.text.SimpleDateFormat;
 import java.util.ArrayList;
+import java.util.Date;
 
 public class MapsActivity extends FragmentActivity implements OnMapReadyCallback,
         LocationListener,
@@ -84,8 +89,8 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
 
     ImageButton ibMyLocation , ibSearch , ibNearest , ibIncludeMore , ibIncludeClose;
 
-    //MachineDatabase machineDatabase;
-    //Cursor data ;
+    SearchHistory historyDatabase ;
+    Cursor data ;
 
     ArrayList<MarkerModel> nearMarkersList = new ArrayList<>() ;
     ArrayList<MarkerModel> nearSearchMarkersList = new ArrayList<>() ;
@@ -104,6 +109,7 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
     LinearLayout llSearchBar ;
     AutoCompleteTextView etSearch ;
     GridView gvNear ;
+    ListView lvHistory ;
 
     Animation slide_down , slide_up ;
 
@@ -131,6 +137,7 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
         llSearchBar = (LinearLayout) findViewById(R.id.includeBar);
         etSearch = (AutoCompleteTextView) findViewById(R.id.geo_autocomplete);
         gvNear = (GridView) findViewById(R.id.gvNearMachines);
+        lvHistory = (ListView) findViewById(R.id.lvHistory);
 
         slide_down = AnimationUtils.loadAnimation(getApplicationContext(), R.anim.slide_down);
         slide_up = AnimationUtils.loadAnimation(getApplicationContext(), R.anim.slide_up);
@@ -140,6 +147,8 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
         editorLocation = sharedPreferencesLocation.edit();
         zoom = Float.parseFloat(sharedPreferences.getString("Zoom" , "15.0"));
         radius = Float.parseFloat(sharedPreferences.getString("Radius" , "100.0"));
+
+        historyDatabase = new SearchHistory(this) ;
 
         createLocationRequest();
         if (mGoogleApiClient == null) {
@@ -252,6 +261,10 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
                     llSearchBar.startAnimation(slide_down);
                     llSearchBar.setVisibility(View.GONE);
                 }
+                Date date = new Date();
+                SimpleDateFormat sdf = new SimpleDateFormat("hh:mm") ;
+                String time = sdf.format(date) ;
+                historyDatabase.addData("A Machine" , address , time) ;
                 GetSearchLocation gsl = new GetSearchLocation(MapsActivity.this, address, new AsyncResponseSearch() {
                     @Override
                     public void processFinish(ArrayList<LatLng> output) {
@@ -505,6 +518,10 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
             }
         }
 
+    }
+
+    public void showHistory(){
+        
     }
 
 

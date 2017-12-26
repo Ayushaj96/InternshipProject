@@ -173,19 +173,15 @@
                 android:text="Search History"
                 android:textSize="15sp" />
 
-            <GridView
+            <ListView
                 android:id="@+id/lvHistory"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:layout_alignParentLeft="true"
                 android:layout_alignParentStart="true"
-                android:layout_below="@+id/textView2"
-                android:gravity="center_horizontal"
-                android:numColumns="4"
-                android:stretchMode="columnWidth"
-                android:verticalSpacing="15sp">
+                android:layout_below="@+id/textView2">
 
-            </GridView>
+            </ListView>
 
         </RelativeLayout>
 
