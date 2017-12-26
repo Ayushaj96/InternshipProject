@@ -1,6 +1,7 @@
 package com.example.vasu.aismap;
 
 import android.Manifest;
+import android.app.Activity;
 import android.content.SharedPreferences;
 import android.content.pm.PackageManager;
 import android.database.Cursor;
@@ -16,6 +17,7 @@ import android.util.Log;
 import android.view.View;
 import android.view.animation.Animation;
 import android.view.animation.AnimationUtils;
+import android.view.inputmethod.InputMethodManager;
 import android.widget.AdapterView;
 import android.widget.AutoCompleteTextView;
 import android.widget.GridView;
@@ -252,7 +254,7 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
         etSearch.setOnItemClickListener(new AdapterView.OnItemClickListener() {
             @Override
             public void onItemClick(AdapterView<?> adapterView, View view, int position, long id) {
-
+                hideKeyboard(MapsActivity.this);
                 final String address = adapterView.getItemAtPosition(position).toString() ;
                 final Marker[] m = new Marker[1];
                 Toast.makeText(MapsActivity.this, "Finding the address", Toast.LENGTH_SHORT).show();
@@ -271,6 +273,7 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
                         if (output != null){
                             m[0] = mMap.addMarker(new MarkerOptions().position(output).title("Machine").icon(BitmapDescriptorFactory.fromResource(R.drawable.machine))) ;
                             mMap.animateCamera(CameraUpdateFactory.newLatLngZoom(m[0].getPosition() , 16));
+                            m[0].showInfoWindow();
                             Location temp = new Location(LocationManager.GPS_PROVIDER);
                             temp.setLatitude(m[0].getPosition().latitude);
                             temp.setLongitude(m[0].getPosition().longitude);
@@ -542,6 +545,15 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
         CustomHistoryAdapter cha = new CustomHistoryAdapter(MapsActivity.this , historyList) ;
         cha.notifyDataSetChanged();
         lvHistory.setAdapter(cha);
+    }
+
+    public static void hideKeyboard(Activity activity) {
+        InputMethodManager imm = (InputMethodManager) activity.getSystemService(Activity.INPUT_METHOD_SERVICE);
+        View view = activity.getCurrentFocus();
+        if (view == null) {
+            view = new View(activity);
+        }
+        imm.hideSoftInputFromWindow(view.getWindowToken(), 0);
     }
 
 
