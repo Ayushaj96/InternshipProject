@@ -4,10 +4,13 @@ import android.Manifest;
 import android.content.SharedPreferences;
 import android.content.pm.PackageManager;
 import android.location.Location;
+import android.location.LocationManager;
 import android.os.Bundle;
 import android.support.annotation.NonNull;
 import android.support.v4.app.ActivityCompat;
 import android.support.v4.app.FragmentActivity;
+import android.text.Editable;
+import android.text.TextWatcher;
 import android.util.Log;
 import android.view.View;
 import android.view.animation.Animation;
@@ -19,12 +22,13 @@ import android.widget.LinearLayout;
 import android.widget.RelativeLayout;
 import android.widget.Toast;
 
-import com.example.vasu.aismap.CustomAdapter.GeoAutoCompleteAdapter;
 import com.example.vasu.aismap.CustomAdapter.NearMachinesAdapter;
 import com.example.vasu.aismap.Directions.AsyncResponseDownload;
 import com.example.vasu.aismap.Directions.DownloadTask;
 import com.example.vasu.aismap.Directions.DownloadUrl;
+import com.example.vasu.aismap.FetchPHP.AsyncResponseFindAllSearches;
 import com.example.vasu.aismap.FetchPHP.AsyncResponseFindNear;
+import com.example.vasu.aismap.FetchPHP.FindAllSearchMachines;
 import com.example.vasu.aismap.FetchPHP.FindNearMachines;
 import com.example.vasu.aismap.InfoWindow.MarkerInfoWindowAdapter;
 import com.example.vasu.aismap.Models.MarkerModel;
@@ -82,6 +86,7 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
     //Cursor data ;
 
     ArrayList<MarkerModel> nearMarkersList = new ArrayList<>() ;
+    ArrayList<MarkerModel> nearSearchMarkersList = new ArrayList<>() ;
 
     SharedPreferences sharedPreferences ,sharedPreferencesLocation ;
     SharedPreferences.Editor editorLocation ;
@@ -206,7 +211,31 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
         });
 
         etSearch.setThreshold(2);
-        etSearch.setAdapter(new GeoAutoCompleteAdapter(this)); // 'this' is Activity instance
+
+        etSearch.addTextChangedListener(new TextWatcher() {
+            @Override
+            public void beforeTextChanged(CharSequence charSequence, int i, int i1, int i2) {
+
+            }
+
+            @Override
+            public void onTextChanged(CharSequence charSequence, int i, int i1, int i2) {
+
+            }
+
+            @Override
+            public void afterTextChanged(Editable editable) {
+                FindAllSearchMachines fasm = new FindAllSearchMachines(MapsActivity.this, etSearch.getText().toString(), new AsyncResponseFindAllSearches() {
+                    @Override
+                    public void processFinish(ArrayList<String> output) {
+
+                    }
+                });
+                fasm.execute() ;
+            }
+        });
+
+
 
         etSearch.setOnItemClickListener(new AdapterView.OnItemClickListener() {
             @Override
@@ -217,19 +246,28 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
                 GetSearchLocation gsl = new GetSearchLocation(MapsActivity.this, address, new AsyncResponseSearch() {
                     @Override
                     public void processFinish(ArrayList<LatLng> output) {
-                        for (LatLng ll : output){
-                            m[0] = mMap.addMarker(new MarkerOptions().position(ll).title("Machine")) ;
-
+                        m[0] = mMap.addMarker(new MarkerOptions().position(output.get(0)).title("Machine")) ;
+                        mMap.animateCamera(CameraUpdateFactory.newLatLngZoom(m[0].getPosition() , 16));
+                        etSearch.setText("");
+                        if (llSearchBar.getVisibility() == View.VISIBLE){
+                            llSearchBar.startAnimation(slide_down);
+                            llSearchBar.setVisibility(View.GONE);
                         }
+                        Location temp = new Location(LocationManager.GPS_PROVIDER);
+                        temp.setLatitude(m[0].getPosition().latitude);
+                        temp.setLongitude(m[0].getPosition().longitude);
+                        FindNearMachines fnm = new FindNearMachines(MapsActivity.this , temp , new AsyncResponseFindNear(){
+                            @Override
+                            public void processFinish(String output) {
+                                findSearchNear(output) ;
+                            }
+                        });
+                        fnm.execute() ;
                     }
                 });
                 gsl.execute() ;
-                mMap.animateCamera(CameraUpdateFactory.newLatLngZoom(m[0].getPosition() , 16));
-                etSearch.setText("");
-                if (llSearchBar.getVisibility() == View.VISIBLE){
-                    llSearchBar.startAnimation(slide_down);
-                    llSearchBar.setVisibility(View.GONE);
-                }
+
+
             }
         });
 
@@ -406,6 +444,28 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
                     Marker m = mMap.addMarker(new MarkerOptions().title("Machine").position(ll).icon(BitmapDescriptorFactory.fromResource(R.drawable.machine))) ;
                     MarkerModel mm = new MarkerModel(m,address,"yes");
                     nearMarkersList.add(mm);
+            }
+        } catch (Exception e) {
+        }
+
+    }
+
+    public void findSearchNear(String result){
+        for (MarkerModel mm : nearSearchMarkersList){
+            mm.getMarker().remove();
+        }
+        nearSearchMarkersList.clear();
+        try {
+            JSONArray jsonArray =new JSONArray(result);
+            for (int i = 0; i < jsonArray.length(); i++) {
+                JSONObject object = jsonArray.getJSONObject(i);
+                double latitude = object.getDouble("latitude");
+                double longitude = object.getDouble("longitude");
+                String address = object.getString("address");
+                LatLng ll = new LatLng(latitude,longitude) ;
+                Marker m = mMap.addMarker(new MarkerOptions().title("Machine").position(ll).icon(BitmapDescriptorFactory.fromResource(R.drawable.machine))) ;
+                MarkerModel mm = new MarkerModel(m,address,"yes");
+                nearSearchMarkersList.add(mm);
             }
         } catch (Exception e) {
         }
