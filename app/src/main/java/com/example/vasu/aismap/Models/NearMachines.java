@@ -16,7 +16,7 @@ public class NearMachines {
         this.name = name ;
         this.address = address ;
         this.position = position ;
-    } 
+    }
 
     public String getName() {
         return name;

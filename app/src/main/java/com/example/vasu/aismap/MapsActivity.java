@@ -7,21 +7,17 @@ import android.content.pm.PackageManager;
 import android.location.Address;
 import android.location.Geocoder;
 import android.location.Location;
-import android.os.AsyncTask;
 import android.os.Bundle;
 import android.os.Handler;
 import android.support.annotation.NonNull;
 import android.support.v4.app.ActivityCompat;
 import android.support.v4.app.FragmentActivity;
-import android.text.Editable;
-import android.text.TextWatcher;
 import android.util.Log;
 import android.view.KeyEvent;
 import android.view.View;
 import android.view.animation.Animation;
 import android.view.animation.AnimationUtils;
 import android.widget.AdapterView;
-import android.widget.EditText;
 import android.widget.GridView;
 import android.widget.ImageButton;
 import android.widget.LinearLayout;
@@ -53,7 +49,6 @@ import com.google.android.gms.maps.GoogleMap;
 import com.google.android.gms.maps.OnMapReadyCallback;
 import com.google.android.gms.maps.SupportMapFragment;
 import com.google.android.gms.maps.model.BitmapDescriptorFactory;
-import com.google.android.gms.maps.model.Circle;
 import com.google.android.gms.maps.model.LatLng;
 import com.google.android.gms.maps.model.Marker;
 import com.google.android.gms.maps.model.MarkerOptions;
@@ -67,21 +62,11 @@ import com.google.maps.android.clustering.algo.NonHierarchicalDistanceBasedAlgor
 import org.json.JSONArray;
 import org.json.JSONObject;
 
-import java.io.BufferedReader;
 import java.io.IOException;
-import java.io.InputStream;
-import java.io.InputStreamReader;
-import java.io.OutputStreamWriter;
-import java.net.HttpURLConnection;
-import java.net.MalformedURLException;
-import java.net.URL;
-import java.net.URLEncoder;
 import java.util.ArrayList;
 import java.util.Collection;
-import java.util.Collections;
 import java.util.Iterator;
 import java.util.List;
-import java.util.Map;
 
 public class MapsActivity extends FragmentActivity implements OnMapReadyCallback,
         LocationListener,
@@ -102,7 +87,7 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
     MarkerOptions markerOptionsMyLoc;
     Marker myCurrentLocMarker, mPrevLocMarker;
     Marker[] markerArray ;
-    Circle mCircle , mPrevCircle;
+    //Circle mCircle , mPrevCircle;
 
     ImageButton ibMyLocation , ibSearch , ibNearest , ibIncludeMore , ibIncludeClose;
 
@@ -240,7 +225,6 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
 
         etSearch.setThreshold(2);
         etSearch.setAdapter(new GeoAutoCompleteAdapter(this)); // 'this' is Activity instance
-
         etSearch.setOnItemClickListener(new AdapterView.OnItemClickListener() {
             @Override
             public void onItemClick(AdapterView<?> adapterView, View view, int position, long id) {
@@ -565,6 +549,4 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
             super.onBackPressed();
         }
     }
-
-
 }
