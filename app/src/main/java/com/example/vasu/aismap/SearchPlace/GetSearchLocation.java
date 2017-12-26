@@ -2,12 +2,8 @@ package com.example.vasu.aismap.SearchPlace ;
 
 import android.content.Context;
 import android.content.SharedPreferences;
-import android.location.Location;
 import android.os.AsyncTask;
-import android.util.Log;
 
-import com.example.vasu.aismap.CustomAdapter.NearMachinesAdapter;
-import com.example.vasu.aismap.MapsActivity;
 import com.example.vasu.aismap.Models.NearMachines;
 import com.google.android.gms.maps.model.LatLng;
 
@@ -19,14 +15,10 @@ import java.io.BufferedReader;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.InputStreamReader;
-import java.io.OutputStreamWriter;
 import java.net.HttpURLConnection;
 import java.net.MalformedURLException;
 import java.net.URL;
-import java.net.URLEncoder;
 import java.util.ArrayList;
-
-import static android.content.Context.MODE_PRIVATE;
 
 /**
  * Created by Vasu on 25-12-2017.
@@ -119,12 +111,15 @@ public class GetSearchLocation extends AsyncTask<String,String,String> {
 
         try {
             JSONObject obj1 = new JSONObject(result) ;
-            JSONArray arr1 = obj1.getJSONArray("result") ;
+            JSONArray arr = obj1.getJSONArray("results") ;
+            for(int i=0;i<arr.length();i++) {
 
-            double latitude = object.getDouble("latitude");
-            double longitude = object.getDouble("longitude");
-            LatLng ll = new LatLng(latitude,longitude) ;
-
+                JSONObject obj2 = arr.getJSONObject(i);
+                JSONObject obj3=obj2.getJSONObject("location");
+                double latitude = obj3.getDouble("lat");
+                double longitude = obj3.getDouble("lng");
+                LatLng ll = new LatLng(latitude, longitude);
+            }
         } catch (JSONException e) {
             e.printStackTrace();
         }

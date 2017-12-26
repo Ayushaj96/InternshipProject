@@ -2,9 +2,6 @@ package com.example.vasu.aismap.Models;
 
 import com.google.android.gms.maps.model.LatLng;
 
-/**
- * Created by Vasu on 24-12-2017.
- */
 
 public class NearMachines {
 
@@ -13,7 +10,6 @@ public class NearMachines {
     private LatLng position ;
 
     public NearMachines(){
-
     }
 
     public NearMachines(String name , String address , LatLng position){
