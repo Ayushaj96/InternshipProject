@@ -29,6 +29,8 @@ import com.example.vasu.aismap.FetchPHP.FindNearMachines;
 import com.example.vasu.aismap.InfoWindow.MarkerInfoWindowAdapter;
 import com.example.vasu.aismap.Models.MarkerModel;
 import com.example.vasu.aismap.Models.NearMachines;
+import com.example.vasu.aismap.SearchPlace.AsyncResponseSearch;
+import com.example.vasu.aismap.SearchPlace.GetSearchLocation;
 import com.google.android.gms.common.ConnectionResult;
 import com.google.android.gms.common.api.GoogleApiClient;
 import com.google.android.gms.common.api.PendingResult;
@@ -210,10 +212,19 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
             @Override
             public void onItemClick(AdapterView<?> adapterView, View view, int position, long id) {
                 GeoSearchResult result = (GeoSearchResult) adapterView.getItemAtPosition(position);
-                String address = result.getAddress() ;
-                LatLng addLl = getLocationFromAddress(MapsActivity.this , address) ;
-                Marker m = mMap.addMarker(new MarkerOptions().position(addLl).title(address)) ;
-                mMap.animateCamera(CameraUpdateFactory.newLatLngZoom(addLl , 16));
+                final String address = result.getAddress() ;
+                final Marker[] m = new Marker[1];
+                GetSearchLocation gsl = new GetSearchLocation(MapsActivity.this, address, new AsyncResponseSearch() {
+                    @Override
+                    public void processFinish(ArrayList<LatLng> output) {
+                        for (LatLng ll : output){
+                            m[0] = mMap.addMarker(new MarkerOptions().position(ll).title("Machine")) ;
+
+                        }
+                    }
+                });
+                gsl.execute() ;
+                mMap.animateCamera(CameraUpdateFactory.newLatLngZoom(m[0].getPosition() , 16));
                 etSearch.setText("");
                 if (llSearchBar.getVisibility() == View.VISIBLE){
                     llSearchBar.startAnimation(slide_down);
@@ -223,11 +234,6 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
         });
 
     }
-
-    /*public void show_machines_on_map(LatLng latLng){
-        this.mMap.addMarker(new MarkerOptions().position(latLng).icon(BitmapDescriptorFactory.fromResource(R.drawable.machine)).title("Machine"));
-
-    }*/
 
     @Override
     public void onMapReady(GoogleMap googleMap) {

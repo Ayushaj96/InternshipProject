@@ -3,6 +3,7 @@ package com.example.vasu.aismap.SearchPlace ;
 import android.content.Context;
 import android.content.SharedPreferences;
 import android.os.AsyncTask;
+import android.util.Log;
 
 import com.example.vasu.aismap.Models.NearMachines;
 import com.google.android.gms.maps.model.LatLng;
@@ -109,20 +110,26 @@ public class GetSearchLocation extends AsyncTask<String,String,String> {
     @Override
     protected void onPostExecute(String result) {
 
+        ArrayList<LatLng> locationList = new ArrayList<>() ;
+
         try {
             JSONObject obj1 = new JSONObject(result) ;
             JSONArray arr = obj1.getJSONArray("results") ;
             for(int i=0;i<arr.length();i++) {
 
                 JSONObject obj2 = arr.getJSONObject(i);
-                JSONObject obj3=obj2.getJSONObject("location");
-                double latitude = obj3.getDouble("lat");
-                double longitude = obj3.getDouble("lng");
+                JSONObject obj3=obj2.getJSONObject("geometry");
+                JSONObject obj4=obj3.getJSONObject("location");
+                double latitude = obj4.getDouble("lat");
+                double longitude = obj4.getDouble("lng");
                 LatLng ll = new LatLng(latitude, longitude);
+                locationList.add(ll);
             }
         } catch (JSONException e) {
-            e.printStackTrace();
+            Log.i("SEARCH" , e.toString());
         }
+
+        this.delegate.processFinish(locationList);
 
 
     }
