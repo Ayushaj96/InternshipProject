@@ -235,7 +235,7 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
             }
         });
 
-  
+
 
         etSearch.setOnItemClickListener(new AdapterView.OnItemClickListener() {
             @Override
