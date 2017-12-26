@@ -1,6 +1,5 @@
 package com.example.vasu.aismap.CustomAdapter;
 
-import android.app.Activity;
 import android.content.Context;
 import android.view.LayoutInflater;
 import android.view.View;
@@ -8,53 +7,61 @@ import android.view.ViewGroup;
 import android.widget.ArrayAdapter;
 import android.widget.TextView;
 
+import com.example.vasu.aismap.Models.NearMachines;
 import com.example.vasu.aismap.R;
 
 import java.util.ArrayList;
 
 /**
- * Created by AYUSH on 12/26/2017.
+ * Created by Vasu on 24-12-2017.
  */
 
-public class CustomSearchListAdapter extends ArrayAdapter<String> {
-    private final Context mContext;
-    private final ArrayList<String> mAddress;
+public class CustomSearchListAdapter extends ArrayAdapter<String>{
 
+    private ArrayList<String> dataSet;
+    Context mContext;
 
-    public CustomSearchListAdapter(Context context, ArrayList<String> address) {
-        super(context,R.layout.search_result_item, address);
-        this.mContext = context;
-        this.mAddress = new ArrayList<>(address);
-         }
-
-    public int getCount() {
-        return mAddress.size();
+    // View lookup cache
+    private static class ViewHolder {
+        TextView txtName;
     }
 
+    public CustomSearchListAdapter( Context context , ArrayList<String> data) {
+        super(context, R.layout.search_result_item, data);
+        this.dataSet = data;
+        this.mContext=context;
 
-
-    public long getItemId(int position) {
-        return position;
     }
+
+    private int lastPosition = -1;
 
     @Override
     public View getView(int position, View convertView, ViewGroup parent) {
+        // Get the data item for this position
+        String dataModel = getItem(position);
+        // Check if an existing view is being reused, otherwise inflate the view
+        ViewHolder viewHolder; // view lookup cache stored in tag
 
-        String temp = mAddress.get(position) ;
+        final View result;
 
-        try {
-            if (convertView == null) {
-                LayoutInflater inflater = ((Activity) mContext).getLayoutInflater();
-                convertView = inflater.inflate(R.layout.search_result_item, parent, false);
-            }
-            TextView name = (TextView) convertView.findViewById(R.id.search_result_text);
-            name.setText(temp);
+        if (convertView == null) {
 
-        } catch (Exception e) {
-            e.printStackTrace();
+            viewHolder = new ViewHolder();
+            LayoutInflater inflater = LayoutInflater.from(getContext());
+            convertView = inflater.inflate(R.layout.search_result_item, parent, false);
+            viewHolder.txtName = (TextView) convertView.findViewById(R.id.search_result_text);
+
+            result=convertView;
+
+            convertView.setTag(viewHolder);
+        } else {
+            viewHolder = (ViewHolder) convertView.getTag();
+            result=convertView;
         }
+
+        lastPosition = position;
+
+        viewHolder.txtName.setText(dataModel);
         return convertView;
     }
-
-
 }

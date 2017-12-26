@@ -9,5 +9,5 @@ import java.util.ArrayList;
  */
 
 public interface AsyncResponseSearch {
-    void processFinish(ArrayList<LatLng> output);
+    void processFinish(LatLng output);
 }

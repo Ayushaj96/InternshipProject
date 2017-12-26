@@ -233,10 +233,9 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
 
             @Override
             public void onTextChanged(CharSequence charSequence, int i, int i1, int i2) {
-                FindAllSearchMachines fasm = new FindAllSearchMachines(MapsActivity.this, etSearch.getText().toString(), new AsyncResponseFindAllSearches() {
+                FindAllSearchMachines fasm = new FindAllSearchMachines(MapsActivity.this, etSearch.getText().toString().trim(), new AsyncResponseFindAllSearches() {
                     @Override
                     public void processFinish(ArrayList<String> output) {
-
                         CustomSearchListAdapter csla = new CustomSearchListAdapter(MapsActivity.this , output);
                         etSearch.setAdapter(csla);
                     }
@@ -268,9 +267,9 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
                 historyDatabase.addData("A Machine" , address , time) ;
                 GetSearchLocation gsl = new GetSearchLocation(MapsActivity.this, address, new AsyncResponseSearch() {
                     @Override
-                    public void processFinish(ArrayList<LatLng> output) {
-                        if (output.size()>0){
-                            m[0] = mMap.addMarker(new MarkerOptions().position(output.get(0)).title("Machine")) ; 
+                    public void processFinish(LatLng output) {
+                        if (output != null){
+                            m[0] = mMap.addMarker(new MarkerOptions().position(output).title("Machine").icon(BitmapDescriptorFactory.fromResource(R.drawable.machine))) ;
                             mMap.animateCamera(CameraUpdateFactory.newLatLngZoom(m[0].getPosition() , 16));
                             Location temp = new Location(LocationManager.GPS_PROVIDER);
                             temp.setLatitude(m[0].getPosition().latitude);
@@ -283,7 +282,7 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
                             });
                             fnm.execute() ;
                         }else{
-                            Toast.makeText(MapsActivity.this, "Cant find Location "+output.get(0), Toast.LENGTH_SHORT).show();
+                            Toast.makeText(MapsActivity.this, "Cant find Location ", Toast.LENGTH_SHORT).show();
                         }
 
                     }
@@ -517,14 +516,17 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
                 }
             }
         } catch (Exception e) {
+            Toast.makeText(this, ""+e.getMessage(), Toast.LENGTH_SHORT).show();
         }
 
         final LatLng minLL = new LatLng(minLat,minLong) ;
 
         for (MarkerModel m : nearMarkersList){
-            if (m.getMarker().getPosition() == minLL){
+            if (m.getMarker().getPosition().latitude == minLL.latitude){
                 mMap.animateCamera(CameraUpdateFactory.newLatLngZoom(minLL, 18)) ;
                 m.getMarker().showInfoWindow();
+            }else {
+                //Toast.makeText(this, "NOT FOUND" + m.getMarker().getPosition(), Toast.LENGTH_SHORT).show();
             }
         }
 

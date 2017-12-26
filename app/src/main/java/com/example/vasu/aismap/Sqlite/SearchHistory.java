@@ -60,12 +60,6 @@ public class SearchHistory extends SQLiteOpenHelper {
         return data;
     }
 
-    public void deleteData () {
-        SQLiteDatabase db = this.getWritableDatabase();
-        //  return db.delete(TABLE_NAME, "ID = ?",new String[] {id});
-        db.execSQL("delete from "+ TABLE_NAME);
-    }
-
     public Integer deleteDataFromId (String id) {
         SQLiteDatabase db = this.getWritableDatabase();
         return db.delete(TABLE_NAME, "NAME = ?",new String[] {id});

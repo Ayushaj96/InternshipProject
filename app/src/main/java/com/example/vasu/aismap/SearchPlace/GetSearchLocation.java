@@ -50,7 +50,7 @@ public class GetSearchLocation extends AsyncTask<String,String,String> {
     protected String doInBackground(String... params) {
         try {
             String temp = this.place.replace(" " , "+") ;
-            url = new URL("https://maps.googleapis.com/maps/api/geocode/json?address=" + temp + "&key=");
+            url = new URL("https://maps.googleapis.com/maps/api/geocode/json?address=" + temp + "&key=AIzaSyBEVh55mn_Kww4CAqnszmxm8oHW7DDdCcU");
         } catch (MalformedURLException e) {
             // TODO Auto-generated catch block
             e.printStackTrace();
@@ -104,26 +104,23 @@ public class GetSearchLocation extends AsyncTask<String,String,String> {
     @Override
     protected void onPostExecute(String result) {
 
-        ArrayList<LatLng> locationList = new ArrayList<>() ;
-
         try {
             JSONObject obj1 = new JSONObject(result) ;
             JSONArray arr = obj1.getJSONArray("results") ;
-            for(int i=0;i<arr.length();i++) {
 
-                JSONObject obj2 = arr.getJSONObject(i);
-                JSONObject obj3=obj2.getJSONObject("geometry");
-                JSONObject obj4=obj3.getJSONObject("location");
-                double latitude = obj4.getDouble("lat");
-                double longitude = obj4.getDouble("lng");
-                LatLng ll = new LatLng(latitude, longitude);
-                locationList.add(ll);
-            }
+            JSONObject obj2 = arr.getJSONObject(0);
+            JSONObject obj3=obj2.getJSONObject("geometry");
+            JSONObject obj4=obj3.getJSONObject("location");
+            double latitude = obj4.getDouble("lat");
+            double longitude = obj4.getDouble("lng");
+            LatLng ll = new LatLng(latitude, longitude);
+            this.delegate.processFinish(ll);
+
         } catch (JSONException e) {
             Log.i("SEARCH" , "Error" + e.toString());
         }
 
-        this.delegate.processFinish(locationList);
+
 
 
     }
