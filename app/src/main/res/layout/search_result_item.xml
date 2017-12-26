@@ -9,6 +9,8 @@
     android:layout_height="wrap_content"
     android:layout_marginLeft="15sp"
     android:layout_marginRight="15sp"
-    android:padding="10dp" />
+    android:padding="10dp"
+    android:maxLines="2"
+    android:ellipsize="end"/>
 
 </RelativeLayout>

@@ -16,12 +16,14 @@ import android.view.View;
 import android.view.animation.Animation;
 import android.view.animation.AnimationUtils;
 import android.widget.AdapterView;
+import android.widget.AutoCompleteTextView;
 import android.widget.GridView;
 import android.widget.ImageButton;
 import android.widget.LinearLayout;
 import android.widget.RelativeLayout;
 import android.widget.Toast;
 
+import com.example.vasu.aismap.CustomAdapter.CustomSearchListAdapter;
 import com.example.vasu.aismap.CustomAdapter.NearMachinesAdapter;
 import com.example.vasu.aismap.Directions.AsyncResponseDownload;
 import com.example.vasu.aismap.Directions.DownloadTask;
@@ -100,7 +102,7 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
     boolean nearMachineExecuted = false ;
     RelativeLayout mRoot ;
     LinearLayout llSearchBar ;
-    DelayAutoCompleteTextView etSearch ;
+    AutoCompleteTextView etSearch ;
     GridView gvNear ;
 
     Animation slide_down , slide_up ;
@@ -127,7 +129,7 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
 
         mRoot = (RelativeLayout) findViewById(R.id.rlMaps);
         llSearchBar = (LinearLayout) findViewById(R.id.includeBar);
-        etSearch = (DelayAutoCompleteTextView) findViewById(R.id.geo_autocomplete);
+        etSearch = (AutoCompleteTextView) findViewById(R.id.geo_autocomplete);
         gvNear = (GridView) findViewById(R.id.gvNearMachines);
 
         slide_down = AnimationUtils.loadAnimation(getApplicationContext(), R.anim.slide_down);
@@ -228,6 +230,7 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
                 FindAllSearchMachines fasm = new FindAllSearchMachines(MapsActivity.this, etSearch.getText().toString(), new AsyncResponseFindAllSearches() {
                     @Override
                     public void processFinish(ArrayList<String> output) {
+
                         CustomSearchListAdapter csla = new CustomSearchListAdapter(MapsActivity.this , output);
                         etSearch.setAdapter(csla);
                     }
@@ -236,27 +239,23 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
             }
         });
 
-  
-
         etSearch.setOnItemClickListener(new AdapterView.OnItemClickListener() {
             @Override
             public void onItemClick(AdapterView<?> adapterView, View view, int position, long id) {
 
-                Toast.makeText(MapsActivity.this, ""+adapterView.getItemAtPosition(position), Toast.LENGTH_SHORT).show();
-
-                /*GeoSearchResult result = (GeoSearchResult) adapterView.getItemAtPosition(position);
-                final String address = result.getAddress() ;
+                final String address = adapterView.getItemAtPosition(position).toString() ;
                 final Marker[] m = new Marker[1];
+                Toast.makeText(MapsActivity.this, "Finding the address", Toast.LENGTH_SHORT).show();
+                mMap.animateCamera(CameraUpdateFactory.newLatLngZoom(m[0].getPosition() , 16));
+                etSearch.setText("");
+                if (llSearchBar.getVisibility() == View.VISIBLE){
+                    llSearchBar.startAnimation(slide_down);
+                    llSearchBar.setVisibility(View.GONE);
+                }
                 GetSearchLocation gsl = new GetSearchLocation(MapsActivity.this, address, new AsyncResponseSearch() {
                     @Override
                     public void processFinish(ArrayList<LatLng> output) {
                         m[0] = mMap.addMarker(new MarkerOptions().position(output.get(0)).title("Machine")) ;
-                        mMap.animateCamera(CameraUpdateFactory.newLatLngZoom(m[0].getPosition() , 16));
-                        etSearch.setText("");
-                        if (llSearchBar.getVisibility() == View.VISIBLE){
-                            llSearchBar.startAnimation(slide_down);
-                            llSearchBar.setVisibility(View.GONE);
-                        }
                         Location temp = new Location(LocationManager.GPS_PROVIDER);
                         temp.setLatitude(m[0].getPosition().latitude);
                         temp.setLongitude(m[0].getPosition().longitude);
@@ -269,7 +268,7 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
                         fnm.execute() ;
                     }
                 });
-                gsl.execute() ; */
+                gsl.execute() ;
             }
         });
 

@@ -4,6 +4,7 @@ import android.content.Context;
 import android.content.SharedPreferences;
 import android.location.Location;
 import android.os.AsyncTask;
+import android.util.Log;
 
 import com.example.vasu.aismap.Models.MarkerModel;
 import com.example.vasu.aismap.Models.NearMachines;
@@ -63,7 +64,7 @@ public class FindAllSearchMachines extends AsyncTask<String,String,String> {
         }
         try {
 
-            String data = URLEncoder.encode("address", "UTF-8")
+            String data = URLEncoder.encode("search", "UTF-8")
                     + "=" + URLEncoder.encode(this.search, "UTF-8");
 
             // Setup HttpURLConnection class to send and receive data from php and mysql

@@ -19,10 +19,10 @@ import java.util.List;
 
 public class CustomSearchListAdapter extends ArrayAdapter<String> {
     private final Context mContext;
-    private final List<String> mAddress;
+    private final ArrayList<String> mAddress;
 
 
-    public CustomSearchListAdapter(Context context, List<String> address) {
+    public CustomSearchListAdapter(Context context, ArrayList<String> address) {
         super(context,R.layout.search_result_item, address);
         this.mContext = context;
         this.mAddress = new ArrayList<>(address);
