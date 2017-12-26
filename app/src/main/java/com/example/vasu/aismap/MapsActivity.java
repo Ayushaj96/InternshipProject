@@ -86,7 +86,7 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
     LatLng position = new LatLng(28.6291027, 77.207133);
     MarkerOptions markerOptionsMyLoc;
     Marker myCurrentLocMarker, mPrevLocMarker;
-    Marker[] markerArray ; 
+    Marker[] markerArray ;
     Circle mCircle , mPrevCircle;
 
     ImageButton ibMyLocation , ibSearch , ibNearest , ibIncludeMore , ibIncludeClose;
@@ -233,11 +233,6 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
 
             @Override
             public void onTextChanged(CharSequence charSequence, int i, int i1, int i2) {
-
-            }
-
-            @Override
-            public void afterTextChanged(Editable editable) {
                 FindAllSearchMachines fasm = new FindAllSearchMachines(MapsActivity.this, etSearch.getText().toString(), new AsyncResponseFindAllSearches() {
                     @Override
                     public void processFinish(ArrayList<String> output) {
@@ -247,6 +242,11 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
                     }
                 });
                 fasm.execute() ;
+            }
+
+            @Override
+            public void afterTextChanged(Editable editable) {
+
             }
         });
 
@@ -531,13 +531,14 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
     }
 
     public void showHistory(){
+        Cursor data ;
         ArrayList<HistoryModel> historyList = new ArrayList<>();
         data = historyDatabase.getListContents();
-        data.moveToFirst();
         while (data.moveToNext()){
             historyList.add(new HistoryModel(data.getString(1),data.getString(2),data.getString(3)));
         }
         CustomHistoryAdapter cha = new CustomHistoryAdapter(MapsActivity.this , historyList) ;
+        cha.notifyDataSetChanged();
         lvHistory.setAdapter(cha);
     }
 
@@ -551,6 +552,5 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
             super.onBackPressed();
         }
     }
-
 
 }
