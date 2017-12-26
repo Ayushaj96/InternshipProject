@@ -50,7 +50,7 @@ public class GetSearchLocation extends AsyncTask<String,String,String> {
     protected String doInBackground(String... params) {
         try {
             String temp = this.place.replace(" " , "+") ;
-            url = new URL("https://maps.googleapis.com/maps/api/geocode/json?address=" + temp + "&key=AIzaSyDaea36hvrsM31qH6Q1-QHhbqPtEkLTro8");
+            url = new URL("https://maps.googleapis.com/maps/api/geocode/json?address=" + temp + "&key=");
         } catch (MalformedURLException e) {
             // TODO Auto-generated catch block
             e.printStackTrace();
@@ -77,10 +77,8 @@ public class GetSearchLocation extends AsyncTask<String,String,String> {
 
             int response_code = conn.getResponseCode();
 
-            // Check if successful connection made
             if (response_code == HttpURLConnection.HTTP_OK) {
 
-                // Read data sent from server
                 InputStream input = conn.getInputStream();
                 BufferedReader reader = new BufferedReader(new InputStreamReader(input));
                 StringBuilder result = new StringBuilder();
@@ -89,12 +87,8 @@ public class GetSearchLocation extends AsyncTask<String,String,String> {
                 while ((line = reader.readLine()) != null) {
                     result.append(line);
                 }
-
-                // Pass data to onPostExecute method
                 return (result.toString());
-
             } else {
-
                 return ("unsuccessful");
             }
 
@@ -126,7 +120,7 @@ public class GetSearchLocation extends AsyncTask<String,String,String> {
                 locationList.add(ll);
             }
         } catch (JSONException e) {
-            Log.i("SEARCH" , e.toString());
+            Log.i("SEARCH" , "Error" + e.toString());
         }
 
         this.delegate.processFinish(locationList);
