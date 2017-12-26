@@ -1,18 +1,14 @@
 package com.example.vasu.aismap;
 
 import android.Manifest;
-import android.content.Context;
 import android.content.SharedPreferences;
 import android.content.pm.PackageManager;
-import android.location.Address;
-import android.location.Geocoder;
 import android.location.Location;
 import android.os.Bundle;
 import android.support.annotation.NonNull;
 import android.support.v4.app.ActivityCompat;
 import android.support.v4.app.FragmentActivity;
 import android.util.Log;
-import android.view.KeyEvent;
 import android.view.View;
 import android.view.animation.Animation;
 import android.view.animation.AnimationUtils;
@@ -31,6 +27,7 @@ import com.example.vasu.aismap.Directions.DownloadUrl;
 import com.example.vasu.aismap.FetchPHP.AsyncResponseFindNear;
 import com.example.vasu.aismap.FetchPHP.FindNearMachines;
 import com.example.vasu.aismap.InfoWindow.MarkerInfoWindowAdapter;
+import com.example.vasu.aismap.Models.MarkerModel;
 import com.example.vasu.aismap.Models.NearMachines;
 import com.google.android.gms.common.ConnectionResult;
 import com.google.android.gms.common.api.GoogleApiClient;
@@ -53,9 +50,8 @@ import com.google.android.gms.maps.model.PolylineOptions;
 
 import org.json.JSONArray;
 import org.json.JSONObject;
-import java.io.IOException;
+
 import java.util.ArrayList;
-import java.util.List;
 
 public class MapsActivity extends FragmentActivity implements OnMapReadyCallback,
         LocationListener,
@@ -83,7 +79,7 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
     //MachineDatabase machineDatabase;
     //Cursor data ;
 
-    ArrayList<Marker> nearMarkersList = new ArrayList<>() ;
+    ArrayList<MarkerModel> nearMarkersList = new ArrayList<>() ;
 
     SharedPreferences sharedPreferences ,sharedPreferencesLocation ;
     SharedPreferences.Editor editorLocation ;
@@ -223,24 +219,6 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
                     llSearchBar.startAnimation(slide_down);
                     llSearchBar.setVisibility(View.GONE);
                 }
-            }
-        });
-
-        etSearch.setOnKeyListener(new View.OnKeyListener() {
-            public boolean onKey(View v, int keyCode, KeyEvent event) {
-                if ((event.getAction() == KeyEvent.ACTION_DOWN) && (keyCode == KeyEvent.KEYCODE_ENTER)) {
-                    String address = etSearch.getText().toString() ;
-                    LatLng addLl = getLocationFromAddress(MapsActivity.this , address) ;
-                    Marker m = mMap.addMarker(new MarkerOptions().position(addLl).title(address)) ;
-                    mMap.animateCamera(CameraUpdateFactory.newLatLngZoom(addLl , 16));
-                    etSearch.setText("");
-                    if (llSearchBar.getVisibility() == View.VISIBLE){
-                        llSearchBar.startAnimation(slide_down);
-                        llSearchBar.setVisibility(View.GONE);
-                    }
-                    return true;
-                }
-                return false;
             }
         });
 
@@ -417,9 +395,11 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
                     JSONObject object = jsonArray.getJSONObject(i);
                     double latitude = object.getDouble("latitude");
                     double longitude = object.getDouble("longitude");
+                    String address = object.getString("address");
                     LatLng ll = new LatLng(latitude,longitude) ;
                     Marker m = mMap.addMarker(new MarkerOptions().title("Machine").position(ll).icon(BitmapDescriptorFactory.fromResource(R.drawable.machine))) ;
-                    nearMarkersList.add(m);
+                    MarkerModel mm = new MarkerModel(m,address,"yes");
+                    nearMarkersList.add(mm);
             }
         } catch (Exception e) {
         }
@@ -451,10 +431,10 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
 
         final LatLng minLL = new LatLng(minLat,minLong) ;
 
-        for (Marker m : nearMarkersList){
-            if (m.getPosition() == minLL){
+        for (MarkerModel m : nearMarkersList){
+            if (m.getMarker().getPosition() == minLL){
                 mMap.animateCamera(CameraUpdateFactory.newLatLngZoom(minLL, 18)) ;
-                m.showInfoWindow();
+                m.getMarker().showInfoWindow();
             }
         }
 
