@@ -8,13 +8,10 @@ import android.view.ViewGroup;
 import android.widget.ArrayAdapter;
 import android.widget.TextView;
 
+import com.example.vasu.aismap.Models.HistoryModel;
 import com.example.vasu.aismap.R;
 
-import java.lang.reflect.Array;
 import java.util.ArrayList;
-import java.util.List;
-
-import static android.R.attr.name;
 
 /**
  * Created by AYUSH on 12/26/2017.
@@ -40,12 +37,13 @@ public class CustomHistory extends ArrayAdapter<HistoryModel> {
 
 
     public long getItemId(int position) {
-        return position; 
+        return position;
     }
 
     @Override
     public View getView(int position, View convertView, ViewGroup parent) {
 
+        HistoryModel historyModel=getItem(position);
 
         try {
             if (convertView == null) {
@@ -56,12 +54,13 @@ public class CustomHistory extends ArrayAdapter<HistoryModel> {
             TextView  mAddress= (TextView) convertView.findViewById(R.id.machineAddress);
             TextView mtime = (TextView) convertView.findViewById(R.id.time);
 
-            mname.setText(HistoryModel.getname());
-            mAddress.setText(HistoryModel.getaddress());
-            mtime.setText(HistoryModel.gettime());
+            mname.setText(historyModel.getName());
+            mAddress.setText(historyModel.getAddress());
+            mtime.setText(historyModel.getTime());
 
         } catch (Exception e) {
             e.printStackTrace();
         }
         return convertView;
     }
+}

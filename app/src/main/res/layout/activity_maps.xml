@@ -89,7 +89,7 @@
             android:padding="10sp"
             android:weightSum="1">
 
-            <com.example.vasu.aismap.DelayAutoCompleteTextView
+            <AutoCompleteTextView
                 android:id="@+id/geo_autocomplete"
                 android:layout_width="wrap_content"
                 android:layout_height="35sp"
@@ -104,8 +104,10 @@
                 android:inputType="textCapSentences"
                 android:maxLines="1"
                 android:paddingLeft="10sp"
+                android:paddingRight="10sp"
                 android:textSize="15sp"
-                tools:text="dsvdsvds" />
+                tools:text="dsvdsvds"
+                android:ellipsize="end"/>
 
             <ImageButton
                 android:id="@+id/search_close"
