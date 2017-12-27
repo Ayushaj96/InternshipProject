@@ -16,6 +16,7 @@ import android.support.v4.app.FragmentActivity;
 import android.text.Editable;
 import android.text.TextWatcher;
 import android.util.Log;
+import android.view.KeyEvent;
 import android.view.View;
 import android.view.animation.Animation;
 import android.view.animation.AnimationUtils;
@@ -65,6 +66,8 @@ import com.google.android.gms.maps.model.Marker;
 import com.google.android.gms.maps.model.MarkerOptions;
 import com.google.android.gms.maps.model.Polyline;
 import com.google.android.gms.maps.model.PolylineOptions;
+import com.orhanobut.dialogplus.DialogPlus;
+import com.orhanobut.dialogplus.OnItemClickListener;
 
 import org.json.JSONArray;
 import org.json.JSONObject;
@@ -244,42 +247,36 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
             }
         });
 
-        etSearch.setThreshold(2);
-
-        etSearch.addTextChangedListener(new TextWatcher() {
-
-            @Override
-            public void beforeTextChanged(CharSequence charSequence, int i, int i1, int i2) {
-
-            }
-
-            @Override
-            public void onTextChanged(CharSequence charSequence, int i, int i1, int i2) {
-                FindAllSearchMachines fasm = new FindAllSearchMachines(MapsActivity.this, etSearch.getText().toString().trim(), new AsyncResponseFindAllSearches() {
-                    @Override
-                    public void processFinish(ArrayList<String> output) {
-                        CustomSearchListAdapter csla = new CustomSearchListAdapter(MapsActivity.this , output);
-                        etSearch.setAdapter(csla);
-                    }
-                });
-                fasm.execute() ;
-            }
-
-            @Override
-            public void afterTextChanged(Editable editable) {
-
-            }
-
-        });
-
-        etSearch.setOnItemClickListener(new AdapterView.OnItemClickListener() {
-            @Override
-            public void onItemClick(AdapterView<?> adapterView, View view, int position, long id) {
-                hideKeyboard(MapsActivity.this);
-                String address = adapterView.getItemAtPosition(position).toString() ;
-                showSearchedMarker(address,position);
+        etSearch.setOnKeyListener(new View.OnKeyListener() {
+            public boolean onKey(View v, int keyCode, KeyEvent event) {
+                if ((event.getAction() == KeyEvent.ACTION_DOWN) && (keyCode == KeyEvent.KEYCODE_ENTER)) {
+                    FindAllSearchMachines fasm = new FindAllSearchMachines(MapsActivity.this, etSearch.getText().toString(), new AsyncResponseFindAllSearches() {
+                        @Override
+                        public void processFinish(ArrayList<String> output) {
+                            hideKeyboard(MapsActivity.this);
+                            CustomSearchListAdapter csla = new CustomSearchListAdapter(MapsActivity.this , output);
+                            DialogPlus dialog = DialogPlus.newDialog(MapsActivity.this)
+                                    .setAdapter(csla)
+                                    .setOnItemClickListener(new OnItemClickListener() {
+                                        @Override
+                                        public void onItemClick(DialogPlus dialog, Object item, View view, int position) {
+                                            dialog.dismiss();
+                                            String address = item.toString() ;
+                                            showSearchedMarker(address,position);
+                                        }
+                                    })
+                                    .setExpanded(true)  // This will enable the expand feature, (similar to android L share dialog)
+                                    .create();
+                            dialog.show();
+                        }
+                    });
+                    fasm.execute() ;
+                    return true;
+                }
+                return false;
             }
         });
+
 
         lvHistory.setOnItemClickListener(new AdapterView.OnItemClickListener() {
             @Override
