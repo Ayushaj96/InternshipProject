@@ -25,7 +25,7 @@
                 android:layout_height="match_parent">
 
                 <TextView
-                    android:id="@id/mserialno"
+                    android:id="@+id/mserialno"
                     android:layout_width="match_parent"
                     android:layout_height="25dp"
                     android:text="machines Serial no"
