@@ -364,6 +364,8 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
                     includeBasicInfo.setVisibility(View.GONE);
                 }
 
+                if (mCurrentLocation.getLatitude()!=marker.getPosition().latitude) {
+
                 if (includeBasicInfo.getVisibility() == View.GONE){
                     for (MarkerModel mm : nearMarkersList){
                         if ((String.valueOf(mm.getMarker())).equals(String.valueOf(marker))){
@@ -375,7 +377,7 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
                     }
                     includeBasicInfo.setVisibility(View.VISIBLE);
                     includeBasicInfo.startAnimation(slide_up);
-                }
+                }}
                 return false;
             }
         });
