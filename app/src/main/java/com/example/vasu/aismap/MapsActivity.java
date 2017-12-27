@@ -2,9 +2,11 @@ package com.example.vasu.aismap;
 
 import android.Manifest;
 import android.app.Activity;
+import android.content.Intent;
 import android.content.SharedPreferences;
 import android.content.pm.PackageManager;
 import android.database.Cursor;
+import android.graphics.Color;
 import android.location.Location;
 import android.location.LocationManager;
 import android.os.Bundle;
@@ -20,11 +22,13 @@ import android.view.animation.AnimationUtils;
 import android.view.inputmethod.InputMethodManager;
 import android.widget.AdapterView;
 import android.widget.AutoCompleteTextView;
+import android.widget.Button;
 import android.widget.GridView;
 import android.widget.ImageButton;
 import android.widget.LinearLayout;
 import android.widget.ListView;
 import android.widget.RelativeLayout;
+import android.widget.TextView;
 import android.widget.Toast;
 
 import com.example.vasu.aismap.CustomAdapter.CustomHistoryAdapter;
@@ -37,7 +41,6 @@ import com.example.vasu.aismap.FetchPHP.AsyncResponseFindAllSearches;
 import com.example.vasu.aismap.FetchPHP.AsyncResponseFindNear;
 import com.example.vasu.aismap.FetchPHP.FindAllSearchMachines;
 import com.example.vasu.aismap.FetchPHP.FindNearMachines;
-import com.example.vasu.aismap.InfoWindow.MarkerInfoWindowAdapter;
 import com.example.vasu.aismap.Models.HistoryModel;
 import com.example.vasu.aismap.Models.MarkerModel;
 import com.example.vasu.aismap.Models.NearMachines;
@@ -70,11 +73,12 @@ import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Date;
 
+import cn.pedant.SweetAlert.SweetAlertDialog;
+
 public class MapsActivity extends FragmentActivity implements OnMapReadyCallback,
         LocationListener,
         GoogleApiClient.ConnectionCallbacks,
-        GoogleApiClient.OnConnectionFailedListener
-        ,GoogleMap.OnInfoWindowClickListener{
+        GoogleApiClient.OnConnectionFailedListener {
 
     private GoogleMap mMap;
     LocationRequest mLocationRequest;
@@ -88,13 +92,10 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
     LatLng position = new LatLng(28.6291027, 77.207133);
     MarkerOptions markerOptionsMyLoc;
     Marker myCurrentLocMarker, mPrevLocMarker;
-    Marker[] markerArray ;
-    Circle mCircle , mPrevCircle;
 
     ImageButton ibMyLocation , ibSearch , ibNearest , ibIncludeMore , ibIncludeClose;
 
     SearchHistory historyDatabase ;
-    Cursor data ;
 
     ArrayList<MarkerModel> nearMarkersList = new ArrayList<>() ;
     ArrayList<MarkerModel> nearSearchMarkersList = new ArrayList<>() ;
@@ -116,6 +117,14 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
     ListView lvHistory ;
 
     Animation slide_down , slide_up ;
+
+    View includeBasicInfo ;
+    TextView tvBasicMachineSerial, tvBasicMachineAddress;
+    Button btnGetDirections , btnMoreInfo;
+
+    Marker selectedMarker ;
+
+    SweetAlertDialog pDialog ;
 
     protected void createLocationRequest() {
         mLocationRequest = new LocationRequest();
@@ -143,6 +152,12 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
         gvNear = (GridView) findViewById(R.id.gvNearMachines);
         lvHistory = (ListView) findViewById(R.id.lvHistory);
 
+        includeBasicInfo = (View) findViewById(R.id.includeBarBasicInfo);
+        tvBasicMachineSerial = includeBasicInfo.findViewById(R.id.machineSerialText) ;
+        tvBasicMachineAddress = includeBasicInfo.findViewById(R.id.machineAddressText) ;
+        btnGetDirections = includeBasicInfo.findViewById(R.id.directions) ;
+        btnMoreInfo = includeBasicInfo.findViewById(R.id.btnMoreInfo) ;
+
         slide_down = AnimationUtils.loadAnimation(getApplicationContext(), R.anim.slide_down);
         slide_up = AnimationUtils.loadAnimation(getApplicationContext(), R.anim.slide_up);
 
@@ -153,6 +168,10 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
         radius = Float.parseFloat(sharedPreferences.getString("Radius" , "100.0"));
 
         historyDatabase = new SearchHistory(this) ;
+
+        pDialog = new SweetAlertDialog(this, SweetAlertDialog.PROGRESS_TYPE);
+        pDialog.getProgressHelper().setBarColor(Color.parseColor("#A5DC86"));
+        pDialog.setCancelable(false);
 
         createLocationRequest();
         if (mGoogleApiClient == null) {
@@ -268,6 +287,35 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
                 showSearchedMarker(address,i);
             }
         });
+
+        btnGetDirections.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                if (selectedMarker.getPosition().latitude != mCurrentLocation.getLatitude()) {
+                    LatLng origin = new LatLng(mCurrentLocation.getLatitude(), mCurrentLocation.getLongitude());
+                    LatLng destination = selectedMarker.getPosition();
+                    DownloadUrl du = new DownloadUrl();
+                    String url = du.getDirectionsUrl(origin, destination);
+                    DownloadTask downloadTask = new DownloadTask(new AsyncResponseDownload() {
+                        @Override
+                        public void processFinish(PolylineOptions[] output) {
+                            drawPath(output);
+                            includeBasicInfo.startAnimation(slide_down);
+                            includeBasicInfo.setVisibility(View.GONE);
+                        }
+                    });
+                    downloadTask.execute(url);
+                }
+            }
+        });
+
+        btnMoreInfo.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                startActivity(new Intent(MapsActivity.this , DetailedMachineInfo.class));
+            }
+        });
+
     }
 
     @Override
@@ -289,24 +337,28 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
 
         showHistory();
 
-        MarkerInfoWindowAdapter markerInfoWindowAdapter = new MarkerInfoWindowAdapter(getApplicationContext());
-        mMap.setInfoWindowAdapter(markerInfoWindowAdapter);
-        mMap.setOnInfoWindowClickListener(this);
+        /*MarkerInfoWindowAdapter markerInfoWindowAdapter = new MarkerInfoWindowAdapter(getApplicationContext());
+        mMap.setInfoWindowAdapter(markerInfoWindowAdapter);*/
+
         mMap.setOnMarkerClickListener(new GoogleMap.OnMarkerClickListener() {
             @Override
             public boolean onMarkerClick(Marker marker) {
-                if (marker.getPosition().latitude != mCurrentLocation.getLatitude()) {
-                    LatLng origin = new LatLng(mCurrentLocation.getLatitude(), mCurrentLocation.getLongitude());
-                    LatLng destination = marker.getPosition();
-                    DownloadUrl du = new DownloadUrl();
-                    String url = du.getDirectionsUrl(origin, destination);
-                    DownloadTask downloadTask = new DownloadTask(new AsyncResponseDownload() {
-                        @Override
-                        public void processFinish(PolylineOptions[] output) {
-                            drawPath(output);
+                if(includeBasicInfo.getVisibility() == View.VISIBLE){
+                    includeBasicInfo.startAnimation(slide_down);
+                    includeBasicInfo.setVisibility(View.GONE);
+                }
+
+                if (includeBasicInfo.getVisibility() == View.GONE){
+                    for (MarkerModel mm : nearMarkersList){
+                        if ((String.valueOf(mm.getMarker())).equals(String.valueOf(marker))){
+                            tvBasicMachineSerial.setText(""+mm.getSerial_no().toString());
+                            tvBasicMachineAddress.setText(""+mm.getAddress());
+                            selectedMarker = marker ;
+                            break;
                         }
-                    });
-                    downloadTask.execute(url);
+                    }
+                    includeBasicInfo.setVisibility(View.VISIBLE);
+                    includeBasicInfo.startAnimation(slide_up);
                 }
                 return false;
             }
@@ -379,8 +431,6 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
         Log.d(TAG, "UI update initiated .............");
         if (mCurrentLocation!=null) {
 
-    //        int strokeColor = 0xffff0000; //red outline
-      //      int shadeColor = 0x44ff0000; //opaque red fill
             Double lat = mCurrentLocation.getLatitude();
             Double lng = mCurrentLocation.getLongitude();
 
@@ -403,14 +453,8 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
         }
     }
 
-    @Override
-    public void onInfoWindowClick(Marker marker) {
-      Toast.makeText(MapsActivity.this,"Clicked by user",Toast.LENGTH_LONG).show();
-
-    }
-
     public void addToNearGrid(String result){
-        ArrayList<NearMachines> nearList = new ArrayList<>();
+        ArrayList<MarkerModel> nearGridList = new ArrayList<>();
         try {
             JSONArray jsonArray =new JSONArray(result);
             for (int i = 0; i < jsonArray.length(); i++) {
@@ -418,15 +462,24 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
                     JSONObject object = jsonArray.getJSONObject(i);
                     double latitude = object.getDouble("latitude");
                     double longitude = object.getDouble("longitude");
+                    String address = object.getString("address");
+                    String address_tags = object.getString("address_tags");
+                    String machine_serial_no = object.getString("machine_serial_no");
+                    String access = object.getString("access");
+                    String status = object.getString("status");
+                    int quantity = object.getInt("quantity");
+                    String type = object.getString("type");
+                    float cost = (float) object.getDouble("cost");
+                    String company = object.getString("company");
                     LatLng ll = new LatLng(latitude,longitude) ;
-                    NearMachines nm = new NearMachines("M" , "Address" , ll );
-                    nearList.add(nm);
+                    MarkerModel mm = new MarkerModel(address,address_tags,machine_serial_no,access,status,quantity,type,cost,company);
+                    nearGridList.add(mm);
                 }
             }
         } catch (Exception e) {
         }
 
-        NearMachinesAdapter nma = new NearMachinesAdapter(nearList,MapsActivity.this);
+        NearMachinesAdapter nma = new NearMachinesAdapter(nearGridList,MapsActivity.this);
         gvNear.setAdapter(nma);
     }
 
@@ -437,12 +490,21 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
             JSONArray jsonArray =new JSONArray(result);
             for (int i = 0; i < jsonArray.length(); i++) {
                     JSONObject object = jsonArray.getJSONObject(i);
+                    Log.i("ARRAY" , String.valueOf(object)) ;
                     double latitude = object.getDouble("latitude");
                     double longitude = object.getDouble("longitude");
                     String address = object.getString("address");
+                    String address_tags = object.getString("address_tags");
+                    String machine_serial_no = object.getString("machine_serial_no");
+                    String access = object.getString("access");
+                    String status = object.getString("status");
+                    int quantity = object.getInt("quantity");
+                    String type = object.getString("type");
+                    float cost = (float) object.getDouble("cost");
+                    String company = object.getString("company");
                     LatLng ll = new LatLng(latitude,longitude) ;
-                    Marker m = mMap.addMarker(new MarkerOptions().title("Machine").position(ll).icon(BitmapDescriptorFactory.fromResource(R.drawable.machine))) ;
-                    MarkerModel mm = new MarkerModel(m,address,"yes");
+                    Marker m = mMap.addMarker(new MarkerOptions().title("Status : " + (status.equalsIgnoreCase("yes") ? "Working" : "Not Working")).snippet("Quantity : " + quantity).position(ll).icon(BitmapDescriptorFactory.fromResource(R.drawable.machine))) ;
+                    MarkerModel mm = new MarkerModel(m,address,address_tags,machine_serial_no,access,status,quantity,type,cost,company);
                     nearMarkersList.add(mm);
             }
         } catch (Exception e) {
@@ -462,9 +524,17 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
                 double latitude = object.getDouble("latitude");
                 double longitude = object.getDouble("longitude");
                 String address = object.getString("address");
+                String address_tags = object.getString("address_tags");
+                String machine_serial_no = object.getString("machine_serial_no");
+                String access = object.getString("access");
+                String status = object.getString("status");
+                int quantity = object.getInt("quantity");
+                String type = object.getString("type");
+                float cost = (float) object.getDouble("cost");
+                String company = object.getString("company");
                 LatLng ll = new LatLng(latitude,longitude) ;
-                Marker m = mMap.addMarker(new MarkerOptions().title("Machine").position(ll).icon(BitmapDescriptorFactory.fromResource(R.drawable.machine))) ;
-                MarkerModel mm = new MarkerModel(m,address,"yes");
+                Marker m = mMap.addMarker(new MarkerOptions().title("Status : " + (status.equalsIgnoreCase("yes") ? "Working" : "Not Working")).snippet("Quantity : " + quantity).position(ll).icon(BitmapDescriptorFactory.fromResource(R.drawable.machine))) ;
+                MarkerModel mm = new MarkerModel(m,address,address_tags,machine_serial_no,access,status,quantity,type,cost,company);
                 nearSearchMarkersList.add(mm);
             }
         } catch (Exception e) {
@@ -523,7 +593,8 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
 
     public void showSearchedMarker(String address , int position){
         final Marker[] m = new Marker[1];
-        Toast.makeText(MapsActivity.this, "Finding the address", Toast.LENGTH_SHORT).show();
+        pDialog.setTitleText("Finding the address");
+        pDialog.show();
         etSearch.setText("");
         if (llSearchBar.getVisibility() == View.VISIBLE){
             llSearchBar.startAnimation(slide_down);
@@ -536,10 +607,12 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
         GetSearchLocation gsl = new GetSearchLocation(MapsActivity.this, address, new AsyncResponseSearch() {
             @Override
             public void processFinish(LatLng output) {
+                pDialog.dismissWithAnimation();
                 if (output != null){
                     m[0] = mMap.addMarker(new MarkerOptions().position(output).title("Machine").icon(BitmapDescriptorFactory.fromResource(R.drawable.machine))) ;
                     mMap.animateCamera(CameraUpdateFactory.newLatLngZoom(m[0].getPosition() , 16));
                     m[0].showInfoWindow();
+                    selectedMarker = m[0] ;
                     Location temp = new Location(LocationManager.GPS_PROVIDER);
                     temp.setLatitude(m[0].getPosition().latitude);
                     temp.setLongitude(m[0].getPosition().longitude);
@@ -553,7 +626,6 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
                 }else{
                     Toast.makeText(MapsActivity.this, "Cant find Location ", Toast.LENGTH_SHORT).show();
                 }
-
             }
         });
         gsl.execute() ;
@@ -574,6 +646,9 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
         if (llSearchBar.getVisibility() == View.VISIBLE){
             llSearchBar.startAnimation(slide_down);
             llSearchBar.setVisibility(View.GONE);
+        }else if(includeBasicInfo.getVisibility() == View.VISIBLE){
+            includeBasicInfo.startAnimation(slide_down);
+            includeBasicInfo.setVisibility(View.GONE);
         }else{
             super.onBackPressed();
         }
