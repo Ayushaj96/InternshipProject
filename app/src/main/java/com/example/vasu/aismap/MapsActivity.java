@@ -13,8 +13,6 @@ import android.os.Bundle;
 import android.support.annotation.NonNull;
 import android.support.v4.app.ActivityCompat;
 import android.support.v4.app.FragmentActivity;
-import android.text.Editable;
-import android.text.TextWatcher;
 import android.util.Log;
 import android.view.KeyEvent;
 import android.view.View;
@@ -44,7 +42,6 @@ import com.example.vasu.aismap.FetchPHP.FindAllSearchMachines;
 import com.example.vasu.aismap.FetchPHP.FindNearMachines;
 import com.example.vasu.aismap.Models.HistoryModel;
 import com.example.vasu.aismap.Models.MarkerModel;
-import com.example.vasu.aismap.Models.NearMachines;
 import com.example.vasu.aismap.SearchPlace.AsyncResponseSearch;
 import com.example.vasu.aismap.SearchPlace.GetSearchLocation;
 import com.example.vasu.aismap.Sqlite.SearchHistory;
@@ -60,7 +57,6 @@ import com.google.android.gms.maps.GoogleMap;
 import com.google.android.gms.maps.OnMapReadyCallback;
 import com.google.android.gms.maps.SupportMapFragment;
 import com.google.android.gms.maps.model.BitmapDescriptorFactory;
-import com.google.android.gms.maps.model.Circle;
 import com.google.android.gms.maps.model.LatLng;
 import com.google.android.gms.maps.model.Marker;
 import com.google.android.gms.maps.model.MarkerOptions;
@@ -311,7 +307,28 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
         btnMoreInfo.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
-                startActivity(new Intent(MapsActivity.this , DetailedMachineInfo.class));
+                String company="",address="",serialno="",access="",status="",type="";
+                String cost= "";
+                for (MarkerModel mm : nearMarkersList) {
+                    if (mm.getMarker().getPosition().latitude == selectedMarker.getPosition().latitude) {
+                         address = mm.getAddress();
+                         serialno = mm.getSerial_no();
+                        access = mm.getAccess();
+                        status = mm.getStatus();
+                        type = mm.getType();
+                        cost = String.valueOf(mm.getCost());
+                        company = mm.getCompany();
+                    }}
+                    Intent intent = new Intent(MapsActivity.this, DetailedMachineInfo.class);
+                    intent.putExtra("Address",address);
+                    intent.putExtra("serialno",serialno);
+                    intent.putExtra("access",access);
+                        intent.putExtra("status",status);
+                        intent.putExtra("type",type);
+                        intent.putExtra("cost",cost);
+                        intent.putExtra("company",company);
+                    startActivity(intent);
+
             }
         });
 
@@ -347,6 +364,8 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
                     includeBasicInfo.setVisibility(View.GONE);
                 }
 
+                if (mCurrentLocation.getLatitude()!=marker.getPosition().latitude) {
+
                 if (includeBasicInfo.getVisibility() == View.GONE){
                     for (MarkerModel mm : nearMarkersList){
                         if ((String.valueOf(mm.getMarker())).equals(String.valueOf(marker))){
@@ -358,7 +377,7 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
                     }
                     includeBasicInfo.setVisibility(View.VISIBLE);
                     includeBasicInfo.startAnimation(slide_up);
-                }
+                }}
                 return false;
             }
         });
