@@ -70,15 +70,11 @@
                     android:layout_marginLeft="10sp"
                     android:textColor="@color/gray_dark"/>
 
-                <info.hoang8f.widget.FButton
+                <Button
                     android:id="@+id/directions"
                     android:layout_height="40sp"
                     android:layout_width="wrap_content"
-                    fbutton:buttonColor="@color/blue_light"
-                    fbutton:shadowColor="@color/blue_dark"
-                    fbutton:shadowEnabled="true"
-                    fbutton:shadowHeight="5dp"
-                    fbutton:cornerRadius="5dp"
+                    android:background="@color/blue_light"
                     android:layout_alignParentRight="true"
                     android:layout_marginRight="15sp"
                     android:text="   Directions"

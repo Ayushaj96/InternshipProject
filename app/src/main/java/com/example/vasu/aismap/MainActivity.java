@@ -70,7 +70,7 @@ public class MainActivity extends AppCompatActivity {
         b2.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-
+                startActivity(new Intent(MainActivity.this , PaymentActivty.class));
             }
         });
         b3.setOnClickListener(new View.OnClickListener() {
