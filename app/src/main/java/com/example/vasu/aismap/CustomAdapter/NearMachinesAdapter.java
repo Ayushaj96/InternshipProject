@@ -7,8 +7,10 @@ import android.view.ViewGroup;
 import android.widget.ArrayAdapter;
 import android.widget.TextView;
 
+import com.example.vasu.aismap.Models.MarkerModel;
 import com.example.vasu.aismap.Models.NearMachines;
 import com.example.vasu.aismap.R;
+import com.google.android.gms.maps.model.Marker;
 
 import java.util.ArrayList;
 
@@ -16,9 +18,9 @@ import java.util.ArrayList;
  * Created by Vasu on 24-12-2017.
  */
 
-public class NearMachinesAdapter extends ArrayAdapter<NearMachines>{
+public class NearMachinesAdapter extends ArrayAdapter<MarkerModel>{
 
-    private ArrayList<NearMachines> dataSet;
+    private ArrayList<MarkerModel> dataSet;
     Context mContext;
 
     // View lookup cache
@@ -26,7 +28,7 @@ public class NearMachinesAdapter extends ArrayAdapter<NearMachines>{
         TextView txtName;
     }
 
-    public NearMachinesAdapter(ArrayList<NearMachines> data, Context context) {
+    public NearMachinesAdapter(ArrayList<MarkerModel> data, Context context) {
         super(context, R.layout.list_item_for_near_machines, data);
         this.dataSet = data;
         this.mContext=context;
@@ -38,7 +40,7 @@ public class NearMachinesAdapter extends ArrayAdapter<NearMachines>{
     @Override
     public View getView(int position, View convertView, ViewGroup parent) {
         // Get the data item for this position
-        NearMachines dataModel = getItem(position);
+        MarkerModel dataModel = getItem(position);
         // Check if an existing view is being reused, otherwise inflate the view
         ViewHolder viewHolder; // view lookup cache stored in tag
 
@@ -61,7 +63,7 @@ public class NearMachinesAdapter extends ArrayAdapter<NearMachines>{
 
         lastPosition = position;
 
-        viewHolder.txtName.setText(dataModel.getName());
+        viewHolder.txtName.setText(""+dataModel.getAddress().charAt(0));
         return convertView;
     }
 }

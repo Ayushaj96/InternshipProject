@@ -74,7 +74,7 @@ public class FindNearMachines extends AsyncTask<String,String,String> {
                     + URLEncoder.encode(String.valueOf(this.lang), "UTF-8");
 
             data += "&" + URLEncoder.encode("km", "UTF-8") + "="
-                    + URLEncoder.encode(String.valueOf(0.5), "UTF-8");
+                    + URLEncoder.encode(String.valueOf(1), "UTF-8");
 
             // Setup HttpURLConnection class to send and receive data from php and mysql
             conn = (HttpURLConnection) url.openConnection();
