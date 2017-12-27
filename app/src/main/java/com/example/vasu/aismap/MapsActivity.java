@@ -308,7 +308,7 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
             @Override
             public void onClick(View view) {
                 String company="",address="",serialno="",access="",status="",type="";
-                float cost= 0;
+                String cost= "";
                 for (MarkerModel mm : nearMarkersList) {
                     if (mm.getMarker().getPosition().latitude == selectedMarker.getPosition().latitude) {
                          address = mm.getAddress();
@@ -316,7 +316,7 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
                         access = mm.getAccess();
                         status = mm.getStatus();
                         type = mm.getType();
-                        cost = mm.getCost();
+                        cost = String.valueOf(mm.getCost());
                         company = mm.getCompany();
                     }}
                     Intent intent = new Intent(MapsActivity.this, DetailedMachineInfo.class);
