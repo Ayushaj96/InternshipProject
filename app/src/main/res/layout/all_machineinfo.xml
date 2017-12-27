@@ -1,0 +1,160 @@
+<?xml version="1.0" encoding="utf-8"?>
+<RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
+android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+>
+
+    <android.support.v7.widget.CardView
+        android:id="@+id/card"
+
+        android:layout_width="match_parent"
+        android:layout_height="100sp"
+        android:layout_alignParentLeft="true"
+        android:layout_alignParentStart="true"
+        android:layout_alignParentTop="true"
+        android:layout_marginTop="153dp"
+        app:cardElevation="10sp">
+
+        <RelativeLayout
+            android:layout_width="match_parent"
+            android:layout_height="match_parent">
+
+            <TextView
+                android:id="@id/mserialno"
+                android:layout_width="match_parent"
+                android:layout_height="25dp"
+                android:text="machines Serial no"
+                android:textSize="18sp" />
+
+            <Button
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_alignParentEnd="true"
+                android:layout_alignParentRight="true"
+                android:layout_alignTop="@+id/maddress"
+                android:layout_marginEnd="16dp"
+                android:layout_marginRight="16dp"
+                android:id="@+id/mdirections"
+                android:text="Directions" />
+
+            <TextView
+                android:id="@+id/maddress"
+                android:layout_width="wrap_content"
+                android:layout_height="match_parent"
+                android:layout_below="@+id/mserialno"
+                android:layout_marginTop="8dp"
+                android:text="Address"
+                android:textSize="15sp"></TextView>
+        </RelativeLayout>
+
+    </android.support.v7.widget.CardView>
+
+    <ImageView
+        android:id="@+id/imageView"
+        android:layout_width="match_parent"
+        android:layout_height="150dp"
+        android:background="@drawable/pic2" />
+
+    <LinearLayout
+android:layout_below="@+id/card"
+        android:layout_width="match_parent"
+        android:layout_height="40dp"
+        android:orientation="horizontal"
+        android:id="@+id/card2"
+        >
+
+        <ImageView
+
+            android:id="@+id/imageView2"
+            android:layout_width="50dp"
+            android:layout_height="30dp"
+            android:layout_weight="1"
+            android:layout_marginTop="5dp"
+
+            app:srcCompat="@drawable/marker" />
+
+        <TextView
+            android:id="@+id/maccess"
+            android:layout_marginTop="5dp"
+            android:layout_marginLeft="30dp"
+            android:layout_width="match_parent"
+            android:layout_height="30dp"
+            android:layout_weight="1"
+            android:textSize="18sp"
+            android:text="PUBLIC" />
+
+    </LinearLayout>
+
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="40dp"
+        android:layout_below="@+id/card2"
+        android:padding="2dp"
+        android:layout_margin="2sp"
+        android:id="@+id/card3"
+        >
+
+        <TextView
+            android:id="@+id/mstatus"
+            android:layout_marginLeft="40dp"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_weight="1"
+            android:text="Status"
+
+            android:textSize="18sp"/>
+    </LinearLayout>
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="40dp"
+        android:layout_below="@+id/card3"
+        android:padding="2dp"
+        android:layout_margin="2dp"
+        android:id="@+id/card4"
+        >
+
+        <TextView
+            android:id="@+id/textView5"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_weight="1"
+            android:textSize="18sp"
+            android:text="AboutProduct" />
+    </LinearLayout>
+    <LinearLayout
+        android:layout_marginTop="3dp"
+        android:layout_below="@+id/card4"
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:orientation="vertical">
+
+        <TextView
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_weight="1"
+            android:text="TYPE"
+            android:textSize="17sp"
+            android:id="@+id/mtype"
+            android:layout_margin="2dp"/>
+
+        <TextView
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_weight="1"
+            android:text="COST"
+            android:id="@+id/mcost"
+            android:textSize="17sp"
+            android:layout_margin="2dp"/>
+
+        <TextView
+            android:id="@+id/mcompany"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_weight="1"
+            android:text="COMPANY"
+            android:textSize="17sp"
+
+            android:layout_margin="2dp"/>
+    </LinearLayout>
+</RelativeLayout>
