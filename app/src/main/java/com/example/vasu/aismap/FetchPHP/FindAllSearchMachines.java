@@ -55,6 +55,7 @@ public class FindAllSearchMachines extends AsyncTask<String,String,String> {
 
     @Override
     protected String doInBackground(String... params) {
+
         try {
             url = new URL("https://aiseraintern007.000webhostapp.com/AISERA/find_search_machines.php");
         } catch (MalformedURLException e) {
@@ -141,4 +142,5 @@ public class FindAllSearchMachines extends AsyncTask<String,String,String> {
         delegate.processFinish(addressList);
 
     }
+
 }

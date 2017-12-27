@@ -247,6 +247,7 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
         etSearch.setThreshold(2);
 
         etSearch.addTextChangedListener(new TextWatcher() {
+
             @Override
             public void beforeTextChanged(CharSequence charSequence, int i, int i1, int i2) {
 
@@ -268,6 +269,7 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
             public void afterTextChanged(Editable editable) {
 
             }
+
         });
 
         etSearch.setOnItemClickListener(new AdapterView.OnItemClickListener() {
@@ -611,7 +613,7 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
                 if (output != null){
                     m[0] = mMap.addMarker(new MarkerOptions().position(output).title("Machine").icon(BitmapDescriptorFactory.fromResource(R.drawable.machine))) ;
                     mMap.animateCamera(CameraUpdateFactory.newLatLngZoom(m[0].getPosition() , 16));
-                    m[0].showInfoWindow();
+                    m[0].showInfoWindow() ;
                     selectedMarker = m[0] ;
                     Location temp = new Location(LocationManager.GPS_PROVIDER);
                     temp.setLatitude(m[0].getPosition().latitude);
