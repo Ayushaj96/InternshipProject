@@ -27,33 +27,17 @@
         android:padding="10sp"
         android:src="@drawable/ic_my_location_black_24dp" />
 
-    <ImageButton
-        android:id="@+id/findNearest"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:layout_alignParentBottom="true"
-        android:layout_alignParentEnd="false"
-        android:layout_alignParentRight="false"
-        android:layout_alignStart="@+id/myLocation"
-        android:layout_marginBottom="100sp"
-        android:background="@drawable/location_button"
-        android:padding="10sp"
-        android:src="@drawable/ic_my_location_black_24dp"
-        android:layout_alignLeft="@+id/myLocation" />
 
     <ImageButton
-        android:id="@+id/searchButton"
+        android:id="@+id/settingsButton"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:layout_alignParentBottom="true"
-        android:layout_alignParentEnd="false"
-        android:layout_alignParentRight="false"
-        android:layout_marginBottom="25sp"
-        android:layout_toStartOf="@+id/myLocation"
+        android:layout_above="@+id/myLocation"
+        android:layout_alignLeft="@+id/myLocation"
+        android:layout_alignStart="@+id/myLocation"
         android:background="@drawable/location_button"
         android:padding="10sp"
-        android:src="@drawable/ic_search_black_24dp"
-        android:layout_toLeftOf="@+id/myLocation" />
+        android:src="@drawable/ic_settings" />
 
     <com.rey.material.widget.ProgressView
         android:id="@+id/progressData"
@@ -80,15 +64,6 @@
         android:layout_height="wrap_content"
         android:layout_alignParentBottom="true"
         android:visibility="gone" />
-
-    <ImageButton
-        android:id="@+id/btnNav"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:layout_margin="@dimen/dimen_30dp"
-        android:background="@null"
-        android:padding="5dp"
-        android:src="@drawable/ic_menu" />
 
 
 </RelativeLayout>

@@ -13,6 +13,14 @@ import android.widget.Toast;
 
 import com.example.vasu.aismap.FetchPHP.AsyncResponseUserRegistration;
 import com.example.vasu.aismap.FetchPHP.UserLoginTask;
+import com.example.vasu.aismap.Models.MarkerModel;
+import com.google.android.gms.maps.model.BitmapDescriptorFactory;
+import com.google.android.gms.maps.model.LatLng;
+import com.google.android.gms.maps.model.Marker;
+import com.google.android.gms.maps.model.MarkerOptions;
+
+import org.json.JSONArray;
+import org.json.JSONObject;
 
 import cn.pedant.SweetAlert.SweetAlertDialog;
 
@@ -23,15 +31,18 @@ public class UserLoginActivity  extends AppCompatActivity {
     EditText Email, Password;
     Button LogIn ;
     String PasswordHolder, EmailHolder;
-    SharedPreferences sharedPreferences;
-    SharedPreferences.Editor editor;
+    SharedPreferences sharedPreferences , sharedPreferencesMyInfo;
+    SharedPreferences.Editor editor , editorMyInfo ;
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_user_login);
 
         sharedPreferences=getApplicationContext().getSharedPreferences("MyLoginStatus", MODE_PRIVATE);
+        sharedPreferencesMyInfo=getApplicationContext().getSharedPreferences("MyInfo", MODE_PRIVATE);
         editor = sharedPreferences.edit();
+        editorMyInfo = sharedPreferencesMyInfo.edit();
+
         Email = (EditText)findViewById(R.id.email);
         Password = (EditText)findViewById(R.id.password);
         LogIn = (Button)findViewById(R.id.login);
@@ -39,9 +50,7 @@ public class UserLoginActivity  extends AppCompatActivity {
         LogIn.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
-
                 loginUser();
-
             }
         });
     }
@@ -60,14 +69,31 @@ public class UserLoginActivity  extends AppCompatActivity {
             Toast.makeText(this, "Something Is missing", Toast.LENGTH_SHORT).show();
         }
         else {
-
-
             UserLoginTask ult = new UserLoginTask(UserLoginActivity.this, EmailHolder, PasswordHolder, new AsyncResponseUserRegistration() {
 
                 @Override
                 public void processFinish(String output) {
+                    if (output.startsWith("Login Success")){
+                        String result = output.substring(output.indexOf("[") , output.length()) ;
+                        try {
+                            JSONArray jsonArray =new JSONArray(result);
+                            JSONObject object = jsonArray.getJSONObject(0);
+                            String full_name = object.getString("full_name");
+                            String email = object.getString("email");
+                            String mobile = object.getString("mobile");
+                            String username = object.getString("username");
+                            String dob = object.getString("dob");
+                            String profession = object.getString("profession");
+                            editorMyInfo.putString("FullName" , full_name) ;
+                            editorMyInfo.putString("Email" , email) ;
+                            editorMyInfo.putString("Mobile" , mobile) ;
+                            editorMyInfo.putString("Username" , username) ;
+                            editorMyInfo.putString("DOB" , dob) ;
+                            editorMyInfo.putString("Profession" , profession) ;
+                            editorMyInfo.commit();
+                        } catch (Exception e) {
+                        }
 
-                    if (output.equalsIgnoreCase("Login Success")){
                         editor.putBoolean("LoginStatus",true);
                         editor.commit();
                         startActivity(new Intent(UserLoginActivity.this , MapsActivity.class));
@@ -83,6 +109,4 @@ public class UserLoginActivity  extends AppCompatActivity {
             ult.execute();
         }
     }
-
-
 }

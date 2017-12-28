@@ -1,6 +1,7 @@
 package com.example.vasu.aismap;
 
 import android.content.Intent;
+import android.content.SharedPreferences;
 import android.graphics.Color;
 import android.os.Bundle;
 import android.support.v7.app.AppCompatActivity;
@@ -21,11 +22,19 @@ public class UserSignupActivity extends AppCompatActivity {
     EditText name,email,username,password,cpassword,mnumber,dob,profession;
     String NameHolder, EmailHolder,UnameHolder, PasswordHolder,MobileHolder,DobHolder,ProfessionHolder;
 
+    SharedPreferences sharedPreferences , sharedPreferencesMyInfo;
+    SharedPreferences.Editor editor , editorMyInfo ;
+
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_user_signup);
+
+        sharedPreferences=getApplicationContext().getSharedPreferences("MyLoginStatus", MODE_PRIVATE);
+        sharedPreferencesMyInfo=getApplicationContext().getSharedPreferences("MyInfo", MODE_PRIVATE);
+        editor = sharedPreferences.edit();
+        editorMyInfo = sharedPreferencesMyInfo.edit();
 
         //Assign Id'S
         name = (EditText)findViewById(R.id.fullname);
@@ -46,10 +55,7 @@ public class UserSignupActivity extends AppCompatActivity {
             }
         });
 
-
     }
-
-
 
     public void addData(){
 
@@ -77,6 +83,15 @@ public class UserSignupActivity extends AppCompatActivity {
                 public void processFinish(String output) {
                     Toast.makeText(UserSignupActivity.this, ""+output, Toast.LENGTH_LONG).show();
                     if (output.equalsIgnoreCase("Registration Successfully")){
+                        editorMyInfo.putString("FullName" , NameHolder) ;
+                        editorMyInfo.putString("Email" , EmailHolder) ;
+                        editorMyInfo.putString("Mobile" , MobileHolder) ;
+                        editorMyInfo.putString("Username" , UnameHolder) ;
+                        editorMyInfo.putString("DOB" , DobHolder) ;
+                        editorMyInfo.putString("Profession" , ProfessionHolder) ;
+                        editorMyInfo.commit();
+                        editor.putBoolean("LoginStatus",true);
+                        editor.commit();
                         startActivity(new Intent(UserSignupActivity.this , MapsActivity.class));
                         pDialog.hide();
                         finish();
