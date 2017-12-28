@@ -11,7 +11,9 @@ import android.widget.EditText;
 import android.widget.RelativeLayout;
 import android.widget.Toast;
 
-import com.example.vasu.aismap.FetchPHP.HttpParse;
+import com.example.vasu.aismap.FetchPHP.AsyncResponseUserRegistration;
+import com.example.vasu.aismap.FetchPHP.UserLoginTask;
+import com.example.vasu.aismap.FetchPHP.UserRegistrationTask;
 
 import java.util.HashMap;
 
@@ -24,13 +26,6 @@ public class UserLoginActivity  extends AppCompatActivity {
     EditText Email, Password;
     RelativeLayout LogIn ;
     String PasswordHolder, EmailHolder;
-    String finalResult ;
-    String HttpURL = "https://aiseraintern007.000webhostapp.com/AISERA/UserLogin.php";
-    Boolean CheckEditText ;
-    ProgressDialog progressDialog;
-    HashMap<String,String> hashMap = new HashMap<>();
-    HttpParse httpParse = new HttpParse();
-    public static final String UserEmail = "";
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -45,89 +40,34 @@ public class UserLoginActivity  extends AppCompatActivity {
             @Override
             public void onClick(View view) {
 
-                CheckEditTextIsEmptyOrNot();
-
-                if(CheckEditText){
-
-                    UserLoginFunction(EmailHolder, PasswordHolder);
-
-                }
-                else {
-
-                    Toast.makeText(UserLoginActivity.this, "Please fill all form fields.", Toast.LENGTH_LONG).show();
-
-                }
+                loginUser();
 
             }
         });
     }
-    public void CheckEditTextIsEmptyOrNot(){
+    public void loginUser(){
 
         EmailHolder = Email.getText().toString();
         PasswordHolder = Password.getText().toString();
 
         if(TextUtils.isEmpty(EmailHolder) || TextUtils.isEmpty(PasswordHolder))
         {
-            CheckEditText = false;
+            Toast.makeText(this, "Something Is missing", Toast.LENGTH_SHORT).show();
         }
         else {
-
-            CheckEditText = true ;
+            UserLoginTask ult = new UserLoginTask(UserLoginActivity.this, EmailHolder, PasswordHolder, new AsyncResponseUserRegistration() {
+                @Override
+                public void processFinish(String output) {
+                    Toast.makeText(UserLoginActivity.this, ""+output, Toast.LENGTH_SHORT).show();
+                    if (output.equalsIgnoreCase("Login Success")){
+                        startActivity(new Intent(UserLoginActivity.this , MapsActivity.class));
+                        finish();
+                    }
+                }
+            });
+            ult.execute();
         }
     }
 
-    public void UserLoginFunction(final String email, final String password){
-
-        class UserLoginClass extends AsyncTask<String,Void,String> {
-
-            @Override
-            protected void onPreExecute() {
-                super.onPreExecute();
-
-                progressDialog = ProgressDialog.show(UserLoginActivity.this,"Loading Data",null,true,true);
-            }
-
-            @Override
-            protected void onPostExecute(String httpResponseMsg) {
-
-                super.onPostExecute(httpResponseMsg);
-
-                progressDialog.dismiss();
-
-                if(httpResponseMsg.equalsIgnoreCase("Data Matched")){
-
-                    finish();
-
-                    Intent intent = new Intent(UserLoginActivity.this, MapsActivity.class);
-
-                    intent.putExtra(UserEmail,email);
-
-                    startActivity(intent);
-
-                }
-                else{
-
-                    Toast.makeText(UserLoginActivity.this,httpResponseMsg,Toast.LENGTH_LONG).show();
-                }
-
-            }
-
-            @Override
-            protected String doInBackground(String... params) {
-
-                hashMap.put("email",params[0]);
-
-                hashMap.put("password",params[1]);
-
-                finalResult = httpParse.postRequest(hashMap, HttpURL);
-
-                return finalResult;
-            }
-        }
-
-        UserLoginClass userLoginClass = new UserLoginClass();
-
-        userLoginClass.execute(email,password);
-    }
 
 }
