@@ -325,7 +325,7 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
                         company2quantity = String.valueOf(mm.getCompany2quantity());
                     }}
                     Intent intent = new Intent(MapsActivity.this, DetailedMachineInfo.class);
-                    intent.putExtra("Address",address);
+                    intent.putExtra("address",address);
                     intent.putExtra("serialno",serialno);
                     intent.putExtra("access",access);
                     intent.putExtra("status",status);

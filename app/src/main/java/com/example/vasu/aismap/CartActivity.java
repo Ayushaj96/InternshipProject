@@ -10,8 +10,8 @@ import java.util.ArrayList;
 
 public class CartActivity extends AppCompatActivity {
 
-    String company1 = "" , company2 = "" ;
-    int company1Quantity = 0 , company2Quantity = 0 ;
+    String address,machine_serial_no,access,status,company1,company2,type;
+    int company1quantity , company2quantity ;
 
     Spinner companySpinner ;
 
@@ -24,9 +24,9 @@ public class CartActivity extends AppCompatActivity {
 
         Intent i = getIntent();
         company1 = i.getStringExtra("company1");
-        company1Quantity = Integer.parseInt(i.getStringExtra("company1quantity"));
+        company1quantity = i.getIntExtra("company1quantity" , 0) ;
         company2 = i.getStringExtra("company2");
-        company2Quantity = Integer.parseInt(i.getStringExtra("company2quantity"));
+        company2quantity = i.getIntExtra("company2quantity" , 0) ;
 
         ArrayList<String> companies = new ArrayList<>();
         companies.add(company1) ;

@@ -10,6 +10,9 @@ import android.widget.TextView;
 
 public class DetailedMachineInfo extends AppCompatActivity {
 
+    String address,machine_serial_no,access,status,company1,company2,type;
+    int company1quantity , company2quantity ;
+
     ImageView image ;
     TextView tv1,tv2,tv3,tv4,tv5,tv6,tv7;
         Button bt1;;
@@ -20,6 +23,16 @@ public class DetailedMachineInfo extends AppCompatActivity {
 
         Intent i=getIntent();
 
+        address = i.getStringExtra("address");
+        machine_serial_no = i.getStringExtra("serialno");
+        access = i.getStringExtra("access");
+        status = i.getStringExtra("status");
+        company1 = i.getStringExtra("company1");
+        company1quantity = Integer.parseInt(i.getStringExtra("company1quantity"));
+        company2 = i.getStringExtra("company2");
+        company2quantity = Integer.parseInt(i.getStringExtra("company2quantity"));
+        type = i.getStringExtra("type");
+
         tv1=(TextView)findViewById(R.id.mserialno);
         tv2=(TextView)findViewById(R.id.maddress);
         tv3=(TextView)findViewById(R.id.maccess);
@@ -29,17 +42,27 @@ public class DetailedMachineInfo extends AppCompatActivity {
         tv7=(TextView)findViewById(R.id.mcompany);
         bt1=(Button)findViewById(R.id.mdirections);
 
-        tv1.setText(i.getStringExtra("serialno"));
-        tv2.setText(i.getStringExtra("Address"));
-        tv3.setText(i.getStringExtra("access"));
-        tv4.setText(i.getStringExtra("status"));
-        tv5.setText(i.getStringExtra("type"));
+        tv1.setText(machine_serial_no);
+        tv2.setText(address);
+        tv3.setText(access);
+        tv4.setText(status);
+        tv5.setText(type);
 
 
         bt1.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-
+                Intent intent = new Intent(DetailedMachineInfo.this , CartActivity.class);
+                intent.putExtra("address",address);
+                intent.putExtra("serialno",machine_serial_no);
+                intent.putExtra("access",access);
+                intent.putExtra("status",status);
+                intent.putExtra("type",type);
+                intent.putExtra("company1",company1);
+                intent.putExtra("company1quantity",company1quantity);
+                intent.putExtra("company2",company2);
+                intent.putExtra("company2quantity",company2quantity);
+                startActivity(intent);
             }
         });
     }
