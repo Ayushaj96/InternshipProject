@@ -130,11 +130,8 @@ public class UserSignupActivity extends AppCompatActivity {
             protected String doInBackground(String... params) {
 
                 hashMap.put("full_name",params[0]);
-
                 hashMap.put("mobile",params[1]);
-
                 hashMap.put("email",params[2]);
-
                 hashMap.put("username",params[3]);
                 hashMap.put("password",params[4]);
                 hashMap.put("dob",params[5]);

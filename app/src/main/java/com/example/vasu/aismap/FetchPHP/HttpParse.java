@@ -82,7 +82,7 @@ public class HttpParse {
             stringBuilder.append("&");
 
             stringBuilder.append(URLEncoder.encode(map_entry.getKey(), "UTF-8"));
-
+ 
             stringBuilder.append("=");
 
             stringBuilder.append(URLEncoder.encode(map_entry.getValue(), "UTF-8"));
