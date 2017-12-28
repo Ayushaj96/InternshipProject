@@ -196,7 +196,7 @@ public class CartActivity extends AppCompatActivity {
         payUmoneyConfig.setPayUmoneyActivityTitle("Payment Activity");
         PayUmoneySdkInitializer.PaymentParam.Builder builder = new PayUmoneySdkInitializer.PaymentParam.Builder();
 
-        double amount = (double) totalCost ;
+        double amount = (double) 1 ;
         String txnId = System.currentTimeMillis() + "";
         String phone = mobile;
         String productName = productinfo;
