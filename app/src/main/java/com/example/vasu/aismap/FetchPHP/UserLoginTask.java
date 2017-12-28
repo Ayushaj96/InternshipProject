@@ -6,17 +6,7 @@ import android.location.Location;
 import android.os.AsyncTask;
 import android.util.Log;
 
-import com.example.vasu.aismap.Models.MarkerModel;
 import com.example.vasu.aismap.Models.NearMachines;
-import com.example.vasu.aismap.R;
-import com.google.android.gms.maps.model.BitmapDescriptorFactory;
-import com.google.android.gms.maps.model.LatLng;
-import com.google.android.gms.maps.model.Marker;
-import com.google.android.gms.maps.model.MarkerOptions;
-
-import org.json.JSONArray;
-import org.json.JSONObject;
-
 import java.io.BufferedReader;
 import java.io.IOException;
 import java.io.InputStream;
@@ -28,36 +18,50 @@ import java.net.URL;
 import java.net.URLEncoder;
 import java.util.ArrayList;
 
+import static android.content.Context.MODE_PRIVATE;
+
 /**
  * Created by Vasu on 25-12-2017.
  */
 
-public class FindAllSearchMachines extends AsyncTask<String,String,String> {
+public class UserRegistrationTask extends AsyncTask<String,String,String> {
 
     HttpURLConnection conn;
     URL url = null;
     public static final int CONNECTION_TIMEOUT = 10000;
     public static final int READ_TIMEOUT = 15000;
-    ArrayList<NearMachines> nearList = new ArrayList<>();
-    String search ;
+    String name,email,username,mobile,password,dob,profession ;
 
-    SharedPreferences sharedPreferencesLocation ;
     Context context ;
 
-    public AsyncResponseFindAllSearches delegate = null;
+    AsyncResponseUserRegistration delegate ;
 
-    public FindAllSearchMachines(Context context , String search, AsyncResponseFindAllSearches delegate){
+    public UserRegistrationTask(){
+
+    }
+
+    public UserRegistrationTask(Context context,String name,String email,String username
+            ,String mobile,String password,String dob,String profession,AsyncResponseUserRegistration delegate){
         this.context = context ;
+        this.name = name;
+        this.email = email;
+        this.username = username;
+        this.mobile = mobile;
+        this.password = password;
+        this.dob = dob;
+        this.profession = profession;
         this.delegate = delegate ;
-        this.search = search ;
 
     }
 
     @Override
     protected String doInBackground(String... params) {
-
         try {
-            url = new URL("https://aiseraintern007.000webhostapp.com/AISERA/find_search_machines.php");
+
+            // Enter URL address where your json file resides
+            // Even you can make call to php file which returns json data
+            url = new URL("https://aiseraintern007.000webhostapp.com/AISERA/UserRegistration.php");
+
         } catch (MalformedURLException e) {
             // TODO Auto-generated catch block
             e.printStackTrace();
@@ -65,8 +69,26 @@ public class FindAllSearchMachines extends AsyncTask<String,String,String> {
         }
         try {
 
-            String data = URLEncoder.encode("search", "UTF-8")
-                    + "=" + URLEncoder.encode(this.search, "UTF-8");
+            String data = URLEncoder.encode("full_name", "UTF-8")
+                    + "=" + URLEncoder.encode(this.name, "UTF-8");
+
+            data += "&" + URLEncoder.encode("mobile", "UTF-8") + "="
+                    + URLEncoder.encode(this.mobile, "UTF-8");
+
+            data += "&" + URLEncoder.encode("email", "UTF-8") + "="
+                    + URLEncoder.encode(this.email, "UTF-8");
+
+            data += "&" + URLEncoder.encode("username", "UTF-8") + "="
+                    + URLEncoder.encode(this.username, "UTF-8");
+
+            data += "&" + URLEncoder.encode("password", "UTF-8") + "="
+                    + URLEncoder.encode(this.password, "UTF-8");
+
+            data += "&" + URLEncoder.encode("dob", "UTF-8") + "="
+                    + URLEncoder.encode(this.dob, "UTF-8");
+
+            data += "&" + URLEncoder.encode("profession", "UTF-8") + "="
+                    + URLEncoder.encode(this.profession, "UTF-8");
 
             // Setup HttpURLConnection class to send and receive data from php and mysql
             conn = (HttpURLConnection) url.openConnection();
@@ -88,13 +110,9 @@ public class FindAllSearchMachines extends AsyncTask<String,String,String> {
         }
 
         try {
-
             int response_code = conn.getResponseCode();
-
-            // Check if successful connection made
             if (response_code == HttpURLConnection.HTTP_OK) {
 
-                // Read data sent from server
                 InputStream input = conn.getInputStream();
                 BufferedReader reader = new BufferedReader(new InputStreamReader(input));
                 StringBuilder result = new StringBuilder();
@@ -103,12 +121,9 @@ public class FindAllSearchMachines extends AsyncTask<String,String,String> {
                 while ((line = reader.readLine()) != null) {
                     result.append(line);
                 }
-
-                // Pass data to onPostExecute method
                 return (result.toString());
 
             } else {
-
                 return ("unsuccessful");
             }
 
@@ -117,39 +132,10 @@ public class FindAllSearchMachines extends AsyncTask<String,String,String> {
         } finally {
             conn.disconnect();
         }
-
-
     }
 
     @Override
     protected void onPostExecute(String result) {
-
-        ArrayList<MarkerModel> addressList = new ArrayList<>() ;
-
-        try {
-            JSONArray jsonArray =new JSONArray(result);
-            for (int i = 0; i < jsonArray.length(); i++) {
-                JSONObject object = jsonArray.getJSONObject(i);
-                double latitude = object.getDouble("latitude");
-                double longitude = object.getDouble("longitude");
-                String address = object.getString("address");
-                String address_tags = object.getString("address_tags");
-                String machine_serial_no = object.getString("machine_serial_no");
-                String access = object.getString("access");
-                String status = object.getString("status");
-                int quantity = object.getInt("quantity");
-                String type = object.getString("type");
-                float cost = (float) object.getDouble("cost");
-                String company = object.getString("company");
-                LatLng ll = new LatLng(latitude,longitude) ;
-                MarkerModel mm = new MarkerModel(ll,address,address_tags,machine_serial_no,access,status,quantity,type,cost,company);
-                addressList.add(mm);
-            }
-        } catch (Exception e) {
-        }
-
-        delegate.processFinish(addressList);
-
+        delegate.processFinish(result);
     }
-
 }

@@ -6,17 +6,7 @@ import android.location.Location;
 import android.os.AsyncTask;
 import android.util.Log;
 
-import com.example.vasu.aismap.Models.MarkerModel;
 import com.example.vasu.aismap.Models.NearMachines;
-import com.example.vasu.aismap.R;
-import com.google.android.gms.maps.model.BitmapDescriptorFactory;
-import com.google.android.gms.maps.model.LatLng;
-import com.google.android.gms.maps.model.Marker;
-import com.google.android.gms.maps.model.MarkerOptions;
-
-import org.json.JSONArray;
-import org.json.JSONObject;
-
 import java.io.BufferedReader;
 import java.io.IOException;
 import java.io.InputStream;
@@ -28,36 +18,38 @@ import java.net.URL;
 import java.net.URLEncoder;
 import java.util.ArrayList;
 
+import static android.content.Context.MODE_PRIVATE;
+
 /**
  * Created by Vasu on 25-12-2017.
  */
 
-public class FindAllSearchMachines extends AsyncTask<String,String,String> {
+public class FindNearMachines extends AsyncTask<String,String,String> {
 
     HttpURLConnection conn;
     URL url = null;
     public static final int CONNECTION_TIMEOUT = 10000;
     public static final int READ_TIMEOUT = 15000;
-    ArrayList<NearMachines> nearList = new ArrayList<>();
-    String search ;
 
     SharedPreferences sharedPreferencesLocation ;
     Context context ;
 
-    public AsyncResponseFindAllSearches delegate = null;
+    public AsyncResponseFindNear delegate = null;
 
-    public FindAllSearchMachines(Context context , String search, AsyncResponseFindAllSearches delegate){
+    public FindNearMachines(Context context ){
         this.context = context ;
         this.delegate = delegate ;
-        this.search = search ;
 
     }
 
     @Override
     protected String doInBackground(String... params) {
-
         try {
-            url = new URL("https://aiseraintern007.000webhostapp.com/AISERA/find_search_machines.php");
+
+            // Enter URL address where your json file resides
+            // Even you can make call to php file which returns json data
+            url = new URL("https://aiseraintern007.000webhostapp.com/AISERA/UserRegistration.php");
+
         } catch (MalformedURLException e) {
             // TODO Auto-generated catch block
             e.printStackTrace();
@@ -65,8 +57,23 @@ public class FindAllSearchMachines extends AsyncTask<String,String,String> {
         }
         try {
 
-            String data = URLEncoder.encode("search", "UTF-8")
-                    + "=" + URLEncoder.encode(this.search, "UTF-8");
+            String data = URLEncoder.encode("full_name", "UTF-8")
+                    + "=" + URLEncoder.encode(String.valueOf(this.lat), "UTF-8");
+
+            data += "&" + URLEncoder.encode("email", "UTF-8") + "="
+                    + URLEncoder.encode(String.valueOf(this.lang), "UTF-8");
+
+            data += "&" + URLEncoder.encode("username", "UTF-8") + "="
+                    + URLEncoder.encode(String.valueOf(1), "UTF-8");
+
+            data += "&" + URLEncoder.encode("password", "UTF-8") + "="
+                    + URLEncoder.encode(String.valueOf(1), "UTF-8");
+
+            data += "&" + URLEncoder.encode("dob", "UTF-8") + "="
+                    + URLEncoder.encode(String.valueOf(1), "UTF-8");
+
+            data += "&" + URLEncoder.encode("profession", "UTF-8") + "="
+                    + URLEncoder.encode(String.valueOf(1), "UTF-8");
 
             // Setup HttpURLConnection class to send and receive data from php and mysql
             conn = (HttpURLConnection) url.openConnection();
@@ -124,32 +131,7 @@ public class FindAllSearchMachines extends AsyncTask<String,String,String> {
     @Override
     protected void onPostExecute(String result) {
 
-        ArrayList<MarkerModel> addressList = new ArrayList<>() ;
-
-        try {
-            JSONArray jsonArray =new JSONArray(result);
-            for (int i = 0; i < jsonArray.length(); i++) {
-                JSONObject object = jsonArray.getJSONObject(i);
-                double latitude = object.getDouble("latitude");
-                double longitude = object.getDouble("longitude");
-                String address = object.getString("address");
-                String address_tags = object.getString("address_tags");
-                String machine_serial_no = object.getString("machine_serial_no");
-                String access = object.getString("access");
-                String status = object.getString("status");
-                int quantity = object.getInt("quantity");
-                String type = object.getString("type");
-                float cost = (float) object.getDouble("cost");
-                String company = object.getString("company");
-                LatLng ll = new LatLng(latitude,longitude) ;
-                MarkerModel mm = new MarkerModel(ll,address,address_tags,machine_serial_no,access,status,quantity,type,cost,company);
-                addressList.add(mm);
-            }
-        } catch (Exception e) {
-        }
-
-        delegate.processFinish(addressList);
+        delegate.processFinish(result);
 
     }
-
 }

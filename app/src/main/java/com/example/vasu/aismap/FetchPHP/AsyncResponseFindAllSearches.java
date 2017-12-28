@@ -1,5 +1,7 @@
 package com.example.vasu.aismap.FetchPHP;
 
+import com.example.vasu.aismap.Models.MarkerModel;
+
 import java.util.ArrayList;
 
 /**
@@ -7,5 +9,5 @@ import java.util.ArrayList;
  */
 
 public interface AsyncResponseFindAllSearches {
-    void processFinish(ArrayList<String> output);
+    void processFinish(ArrayList<MarkerModel> output);
 }

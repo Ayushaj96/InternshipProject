@@ -7,6 +7,7 @@ import android.view.ViewGroup;
 import android.widget.ArrayAdapter;
 import android.widget.TextView;
 
+import com.example.vasu.aismap.Models.MarkerModel;
 import com.example.vasu.aismap.Models.NearMachines;
 import com.example.vasu.aismap.R;
 
@@ -16,9 +17,9 @@ import java.util.ArrayList;
  * Created by Vasu on 24-12-2017.
  */
 
-public class CustomSearchListAdapter extends ArrayAdapter<String>{
+public class CustomSearchListAdapter extends ArrayAdapter<MarkerModel>{
 
-    private ArrayList<String> dataSet;
+    private ArrayList<MarkerModel> dataSet;
     Context mContext;
 
     // View lookup cache
@@ -26,7 +27,7 @@ public class CustomSearchListAdapter extends ArrayAdapter<String>{
         TextView txtName;
     }
 
-    public CustomSearchListAdapter( Context context , ArrayList<String> data) {
+    public CustomSearchListAdapter( Context context , ArrayList<MarkerModel> data) {
         super(context, R.layout.search_result_item, data);
         this.dataSet = data;
         this.mContext=context;
@@ -38,7 +39,7 @@ public class CustomSearchListAdapter extends ArrayAdapter<String>{
     @Override
     public View getView(int position, View convertView, ViewGroup parent) {
         // Get the data item for this position
-        String dataModel = getItem(position);
+        MarkerModel dataModel = getItem(position);
         // Check if an existing view is being reused, otherwise inflate the view
         ViewHolder viewHolder; // view lookup cache stored in tag
 
@@ -61,7 +62,7 @@ public class CustomSearchListAdapter extends ArrayAdapter<String>{
 
         lastPosition = position;
 
-        viewHolder.txtName.setText(dataModel);
+        viewHolder.txtName.setText(dataModel.getAddress());
         return convertView;
     }
 }

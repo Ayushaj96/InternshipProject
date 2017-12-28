@@ -1,6 +1,7 @@
 package com.example.vasu.aismap;
 
 import android.app.ProgressDialog;
+import android.content.Intent;
 import android.os.AsyncTask;
 import android.os.Bundle;
 import android.support.v7.app.AppCompatActivity;
@@ -10,7 +11,8 @@ import android.widget.Button;
 import android.widget.EditText;
 import android.widget.Toast;
 
-import com.example.vasu.aismap.FetchPHP.HttpParse;
+import com.example.vasu.aismap.FetchPHP.AsyncResponseUserRegistration;
+import com.example.vasu.aismap.FetchPHP.UserRegistrationTask;
 
 import java.util.HashMap;
 
@@ -19,12 +21,6 @@ public class UserSignupActivity extends AppCompatActivity {
     Button submit;
     EditText name,email,username,password,cpassword,mnumber,dob,profession;
     String NameHolder, EmailHolder,UnameHolder, PasswordHolder,MobileHolder,DobHolder,ProfessionHolder;
-    String finalResult ;
-    String HttpURL = "https://aiseraintern007.000webhostapp.com/AISERA/UserRegistration.php";
-    Boolean CheckEditText ;
-    ProgressDialog progressDialog;
-    HashMap<String,String> hashMap = new HashMap<>();
-    HttpParse httpParse = new HttpParse();
 
 
     @Override
@@ -47,25 +43,7 @@ public class UserSignupActivity extends AppCompatActivity {
         submit.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
-
-                // Checking whether EditText is Empty or Not
-                CheckEditTextIsEmptyOrNot();
-
-                if(CheckEditText){
-
-                    // If EditText is not empty and CheckEditText = True then this block will execute.
-
-                   UserRegisterFunction(NameHolder, EmailHolder,UnameHolder, PasswordHolder,MobileHolder,DobHolder,ProfessionHolder);
-
-                }
-                else {
-
-                    // If EditText is empty then this block will execute .
-                    Toast.makeText(UserSignupActivity.this, "Please fill all form fields.", Toast.LENGTH_LONG).show();
-
-                }
-
-
+                addData();
             }
         });
 
@@ -74,7 +52,7 @@ public class UserSignupActivity extends AppCompatActivity {
 
 
 
-    public void CheckEditTextIsEmptyOrNot(){
+    public void addData(){
 
         NameHolder = name.getText().toString();
         EmailHolder = email.getText().toString();
@@ -86,66 +64,24 @@ public class UserSignupActivity extends AppCompatActivity {
 
 
         if(TextUtils.isEmpty(NameHolder) || TextUtils.isEmpty(EmailHolder) ||TextUtils.isEmpty(UnameHolder)|| TextUtils.isEmpty(PasswordHolder)
-                ||TextUtils.isEmpty(MobileHolder)||TextUtils.isEmpty(DobHolder)||TextUtils.isEmpty(ProfessionHolder))
-        {
-
-            CheckEditText = false;
-
+                ||TextUtils.isEmpty(MobileHolder)||TextUtils.isEmpty(DobHolder)||TextUtils.isEmpty(ProfessionHolder)) {
+            Toast.makeText(this, "Something is Empty", Toast.LENGTH_SHORT).show();
         }
         else {
-
-            CheckEditText = true ;
+            UserRegistrationTask urt = new UserRegistrationTask(UserSignupActivity.this, NameHolder, EmailHolder, UnameHolder
+                    ,MobileHolder , PasswordHolder, DobHolder, ProfessionHolder, new AsyncResponseUserRegistration() {
+                @Override
+                public void processFinish(String output) {
+                    Toast.makeText(UserSignupActivity.this, ""+output, Toast.LENGTH_LONG).show();
+                    if (output.equalsIgnoreCase("Registration Successfully")){
+                        startActivity(new Intent(UserSignupActivity.this , MapsActivity.class));
+                        finish();
+                    }
+                }
+            });
+            urt.execute();
         }
 
-    }
-
-    public void UserRegisterFunction(final String NameHolder,final String EmailHolder,
-                                     final String UnameHolder,
-                                     final String PasswordHolder,
-                                     final String MobileHolder,
-                                     final String DobHolder,
-                                     final String ProfessionHolder){
-
-        class UserRegisterFunctionClass extends AsyncTask<String,Void,String> {
-
-            @Override
-            protected void onPreExecute() {
-                super.onPreExecute();
-
-                progressDialog = ProgressDialog.show(UserSignupActivity.this,"Loading Data",null,true,true);
-            }
-
-            @Override
-            protected void onPostExecute(String httpResponseMsg) {
-
-                super.onPostExecute(httpResponseMsg);
-
-                progressDialog.dismiss();
-
-                Toast.makeText(UserSignupActivity.this,httpResponseMsg.toString(), Toast.LENGTH_LONG).show();
-
-            }
-
-            @Override
-            protected String doInBackground(String... params) {
-
-                hashMap.put("full_name",params[0]);
-                hashMap.put("mobile",params[1]);
-                hashMap.put("email",params[2]);
-                hashMap.put("username",params[3]);
-                hashMap.put("password",params[4]);
-                hashMap.put("dob",params[5]);
-                hashMap.put("profession",params[6]);
-
-                finalResult = httpParse.postRequest(hashMap, HttpURL);
-
-                return finalResult;
-            }
-        }
-
-        UserRegisterFunctionClass userRegisterFunctionClass = new UserRegisterFunctionClass();
-
-        userRegisterFunctionClass.execute(NameHolder, EmailHolder,UnameHolder, PasswordHolder,MobileHolder,DobHolder,ProfessionHolder);
     }
 
 }

@@ -13,8 +13,12 @@ import android.os.Bundle;
 import android.support.annotation.NonNull;
 import android.support.v4.app.ActivityCompat;
 import android.support.v4.app.FragmentActivity;
+import android.support.v4.widget.DrawerLayout;
+import android.support.v7.app.ActionBarDrawerToggle;
 import android.util.Log;
+import android.view.Gravity;
 import android.view.KeyEvent;
+import android.view.LayoutInflater;
 import android.view.View;
 import android.view.animation.Animation;
 import android.view.animation.AnimationUtils;
@@ -29,6 +33,7 @@ import android.widget.ListView;
 import android.widget.RelativeLayout;
 import android.widget.TextView;
 import android.widget.Toast;
+import android.widget.Toolbar;
 
 import com.example.vasu.aismap.CustomAdapter.CustomHistoryAdapter;
 import com.example.vasu.aismap.CustomAdapter.CustomSearchListAdapter;
@@ -96,8 +101,7 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
 
     SearchHistory historyDatabase ;
 
-    ArrayList<MarkerModel> nearMarkersList = new ArrayList<>() ;
-    ArrayList<MarkerModel> nearSearchMarkersList = new ArrayList<>() ;
+    ArrayList<MarkerModel> allShowingMarkers = new ArrayList<>() ;
 
     SharedPreferences sharedPreferences ,sharedPreferencesLocation ;
     SharedPreferences.Editor editorLocation ;
@@ -109,21 +113,22 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
 
     boolean locationUpdated = false ;
     boolean nearMachineExecuted = false ;
-    RelativeLayout mRoot ;
-    LinearLayout llSearchBar ;
     AutoCompleteTextView etSearch ;
     GridView gvNear ;
     ListView lvHistory ;
 
     Animation slide_down , slide_up ;
 
-    View includeBasicInfo ;
+    View includeSearchInfo , includeBasicInfo , includeNavigation;
     TextView tvBasicMachineSerial, tvBasicMachineAddress;
     Button btnGetDirections , btnMoreInfo;
 
     Marker selectedMarker ;
 
     SweetAlertDialog pDialog ;
+
+    DrawerLayout drawerLayout ;
+    ImageButton ibNav ;
 
     protected void createLocationRequest() {
         mLocationRequest = new LocationRequest();
@@ -139,23 +144,27 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
         SupportMapFragment mapFragment = (SupportMapFragment) getSupportFragmentManager().findFragmentById(R.id.map);
         mapFragment.getMapAsync(this);
 
+
         ibMyLocation = (ImageButton) findViewById(R.id.myLocation);
         ibSearch = (ImageButton) findViewById(R.id.searchButton);
         ibNearest = (ImageButton) findViewById(R.id.findNearest);
-        ibIncludeMore = (ImageButton) findViewById(R.id.search_more);
-        ibIncludeClose = (ImageButton) findViewById(R.id.search_close);
+        ibNav = (ImageButton) findViewById(R.id.btnNav);
 
-        mRoot = (RelativeLayout) findViewById(R.id.rlMaps);
-        llSearchBar = (LinearLayout) findViewById(R.id.includeBar);
-        etSearch = (AutoCompleteTextView) findViewById(R.id.geo_autocomplete);
-        gvNear = (GridView) findViewById(R.id.gvNearMachines);
-        lvHistory = (ListView) findViewById(R.id.lvHistory);
+        includeSearchInfo = (View) findViewById(R.id.includeBarSearch);
+        ibIncludeMore = (ImageButton) includeSearchInfo.findViewById(R.id.search_more);
+        ibIncludeClose = (ImageButton) includeSearchInfo.findViewById(R.id.search_close);
+        etSearch = (AutoCompleteTextView) includeSearchInfo.findViewById(R.id.geo_autocomplete);
+        gvNear = (GridView) includeSearchInfo.findViewById(R.id.gvNearMachines);
+        lvHistory = (ListView)includeSearchInfo. findViewById(R.id.lvHistory);
 
         includeBasicInfo = (View) findViewById(R.id.includeBarBasicInfo);
         tvBasicMachineSerial = includeBasicInfo.findViewById(R.id.machineSerialText) ;
         tvBasicMachineAddress = includeBasicInfo.findViewById(R.id.machineAddressText) ;
         btnGetDirections = includeBasicInfo.findViewById(R.id.directions) ;
         btnMoreInfo = includeBasicInfo.findViewById(R.id.btnMoreInfo) ;
+
+        includeNavigation = (View) findViewById(R.id.includeBarNav);
+        drawerLayout = (DrawerLayout) includeNavigation.findViewById(R.id.drawer_layout);
 
         slide_down = AnimationUtils.loadAnimation(getApplicationContext(), R.anim.slide_down);
         slide_up = AnimationUtils.loadAnimation(getApplicationContext(), R.anim.slide_up);
@@ -200,9 +209,9 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
         ibSearch.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
-                if (llSearchBar.getVisibility() == View.GONE){
-                    llSearchBar.setVisibility(View.VISIBLE);
-                    llSearchBar.startAnimation(slide_up);
+                if (includeSearchInfo.getVisibility() == View.GONE){
+                    includeSearchInfo.setVisibility(View.VISIBLE);
+                    includeSearchInfo.startAnimation(slide_up);
                 }
             }
         });
@@ -236,10 +245,17 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
         ibIncludeClose.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
-                if (llSearchBar.getVisibility() == View.VISIBLE){
-                    llSearchBar.startAnimation(slide_down);
-                    llSearchBar.setVisibility(View.GONE);
+                if (includeSearchInfo.getVisibility() == View.VISIBLE){
+                    includeSearchInfo.startAnimation(slide_down);
+                    includeSearchInfo.setVisibility(View.GONE);
                 }
+            }
+        });
+
+        ibNav.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+
             }
         });
 
@@ -248,7 +264,7 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
                 if ((event.getAction() == KeyEvent.ACTION_DOWN) && (keyCode == KeyEvent.KEYCODE_ENTER)) {
                     FindAllSearchMachines fasm = new FindAllSearchMachines(MapsActivity.this, etSearch.getText().toString(), new AsyncResponseFindAllSearches() {
                         @Override
-                        public void processFinish(ArrayList<String> output) {
+                        public void processFinish(ArrayList<MarkerModel> output) {
                             hideKeyboard(MapsActivity.this);
                             CustomSearchListAdapter csla = new CustomSearchListAdapter(MapsActivity.this , output);
                             DialogPlus dialog = DialogPlus.newDialog(MapsActivity.this)
@@ -256,9 +272,9 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
                                     .setOnItemClickListener(new OnItemClickListener() {
                                         @Override
                                         public void onItemClick(DialogPlus dialog, Object item, View view, int position) {
+                                            MarkerModel mm = (MarkerModel) item ;
                                             dialog.dismiss();
-                                            String address = item.toString() ;
-                                            showSearchedMarker(address,position);
+                                            showSearchedMarker(mm);
                                         }
                                     })
                                     .setExpanded(true)  // This will enable the expand feature, (similar to android L share dialog)
@@ -274,14 +290,14 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
         });
 
 
-        lvHistory.setOnItemClickListener(new AdapterView.OnItemClickListener() {
+        /*lvHistory.setOnItemClickListener(new AdapterView.OnItemClickListener() {
             @Override
             public void onItemClick(AdapterView<?> adapterView, View view, int i, long l) {
                 HistoryModel hm = (HistoryModel) adapterView.getItemAtPosition(i) ;
                 String address = hm.getAddress();
-                showSearchedMarker(address,i);
+                showSearchedMarker(address);
             }
-        });
+        }); */
 
         btnGetDirections.setOnClickListener(new View.OnClickListener() {
             @Override
@@ -309,7 +325,7 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
             public void onClick(View view) {
                 String company="",address="",serialno="",access="",status="",type="";
                 String cost= "";
-                for (MarkerModel mm : nearMarkersList) {
+                for (MarkerModel mm : allShowingMarkers) {
                     if (mm.getMarker().getPosition().latitude == selectedMarker.getPosition().latitude) {
                          address = mm.getAddress();
                          serialno = mm.getSerial_no();
@@ -367,7 +383,7 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
                 if (mCurrentLocation.getLatitude()!=marker.getPosition().latitude) {
 
                 if (includeBasicInfo.getVisibility() == View.GONE){
-                    for (MarkerModel mm : nearMarkersList){
+                    for (MarkerModel mm : allShowingMarkers){
                         if ((String.valueOf(mm.getMarker())).equals(String.valueOf(marker))){
                             tvBasicMachineSerial.setText(""+mm.getSerial_no().toString());
                             tvBasicMachineAddress.setText(""+mm.getAddress());
@@ -441,6 +457,14 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
         editorLocation.putFloat("Latitude" , (float) mCurrentLocation.getLatitude());
         editorLocation.putFloat("Longitude" , (float) mCurrentLocation.getLongitude());
         editorLocation.commit();
+        FindNearMachines fnm = new FindNearMachines(MapsActivity.this , mCurrentLocation , new AsyncResponseFindNear(){
+            @Override
+            public void processFinish(String output) {
+                addToNearGrid(output);
+                findNear(output) ;
+            }
+        });
+        fnm.execute() ;
         showHistory();
         updateUI();
     }
@@ -490,7 +514,7 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
                     float cost = (float) object.getDouble("cost");
                     String company = object.getString("company");
                     LatLng ll = new LatLng(latitude,longitude) ;
-                    MarkerModel mm = new MarkerModel(address,address_tags,machine_serial_no,access,status,quantity,type,cost,company);
+                    MarkerModel mm = new MarkerModel(ll,address,address_tags,machine_serial_no,access,status,quantity,type,cost,company);
                     nearGridList.add(mm);
                 }
             }
@@ -502,11 +526,10 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
     }
 
     public void findNear(String result){
-        /*mMap.clear();
-        nearMarkersList.clear();*/
         try {
             JSONArray jsonArray =new JSONArray(result);
             for (int i = 0; i < jsonArray.length(); i++) {
+                    boolean present = false ;
                     JSONObject object = jsonArray.getJSONObject(i);
                     Log.i("ARRAY" , String.valueOf(object)) ;
                     double latitude = object.getDouble("latitude");
@@ -521,23 +544,24 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
                     float cost = (float) object.getDouble("cost");
                     String company = object.getString("company");
                     LatLng ll = new LatLng(latitude,longitude) ;
-                    Marker m = mMap.addMarker(new MarkerOptions().title("Status : " + (status.equalsIgnoreCase("yes") ? "Working" : "Not Working")).snippet("Quantity : " + quantity).position(ll).icon(BitmapDescriptorFactory.fromResource(R.drawable.machine))) ;
-                    MarkerModel mm = new MarkerModel(m,address,address_tags,machine_serial_no,access,status,quantity,type,cost,company);
-                    nearMarkersList.add(mm);
+                    for (MarkerModel allMM : allShowingMarkers){
+                        if (allMM.getAddress().equals(address)) present = true ;
+                    }
+                    if (!present) {
+                        Marker m = mMap.addMarker(new MarkerOptions().title("Status : " + (status.equalsIgnoreCase("yes") ? "Working" : "Not Working")).snippet("Quantity : " + quantity).position(ll).icon(BitmapDescriptorFactory.fromResource(R.drawable.machine)));
+                        MarkerModel mm = new MarkerModel(m,ll,address,address_tags,machine_serial_no,access,status,quantity,type,cost,company);
+                        allShowingMarkers.add(mm);
+                    }
             }
         } catch (Exception e) {
         }
-
     }
 
     public void findSearchNear(String result){
-        for (MarkerModel mm : nearSearchMarkersList){
-            mm.getMarker().remove();
-        }
-        nearSearchMarkersList.clear();
         try {
             JSONArray jsonArray =new JSONArray(result);
             for (int i = 0; i < jsonArray.length(); i++) {
+                boolean present = false ;
                 JSONObject object = jsonArray.getJSONObject(i);
                 double latitude = object.getDouble("latitude");
                 double longitude = object.getDouble("longitude");
@@ -551,13 +575,17 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
                 float cost = (float) object.getDouble("cost");
                 String company = object.getString("company");
                 LatLng ll = new LatLng(latitude,longitude) ;
-                Marker m = mMap.addMarker(new MarkerOptions().title("Status : " + (status.equalsIgnoreCase("yes") ? "Working" : "Not Working")).snippet("Quantity : " + quantity).position(ll).icon(BitmapDescriptorFactory.fromResource(R.drawable.machine))) ;
-                MarkerModel mm = new MarkerModel(m,address,address_tags,machine_serial_no,access,status,quantity,type,cost,company);
-                nearSearchMarkersList.add(mm);
+                for (MarkerModel allMM : allShowingMarkers){
+                    if (allMM.getAddress().equals(address)) present = true ;
+                }
+                if (!present) {
+                    Marker m = mMap.addMarker(new MarkerOptions().title("Status : " + (status.equalsIgnoreCase("yes") ? "Working" : "Not Working")).snippet("Quantity : " + quantity).position(ll).icon(BitmapDescriptorFactory.fromResource(R.drawable.machine)));
+                    MarkerModel mm = new MarkerModel(m, ll, address, address_tags, machine_serial_no, access, status, quantity, type, cost, company);
+                    allShowingMarkers.add(mm);
+                }
             }
         } catch (Exception e) {
         }
-
     }
 
     public void pointToNearest(String result){
@@ -586,15 +614,12 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
 
         final LatLng minLL = new LatLng(minLat,minLong) ;
 
-        for (MarkerModel m : nearMarkersList){
+        for (MarkerModel m : allShowingMarkers){
             if (m.getMarker().getPosition().latitude == minLL.latitude){
                 mMap.animateCamera(CameraUpdateFactory.newLatLngZoom(minLL, 18)) ;
                 m.getMarker().showInfoWindow();
-            }else {
-                //Toast.makeText(this, "NOT FOUND" + m.getMarker().getPosition(), Toast.LENGTH_SHORT).show();
             }
         }
-
     }
 
     public void showHistory(){
@@ -609,44 +634,45 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
         lvHistory.setAdapter(cha);
     }
 
-    public void showSearchedMarker(String address , int position){
-        final Marker[] m = new Marker[1];
+    public void showSearchedMarker(MarkerModel mmAddress){
+        boolean present = false ;
+        final Marker m;
         pDialog.setTitleText("Finding the address");
         pDialog.show();
         etSearch.setText("");
-        if (llSearchBar.getVisibility() == View.VISIBLE){
-            llSearchBar.startAnimation(slide_down);
-            llSearchBar.setVisibility(View.GONE);
+        if (includeSearchInfo.getVisibility() == View.VISIBLE){
+            includeSearchInfo.startAnimation(slide_down);
+            includeSearchInfo.setVisibility(View.GONE);
         }
         Date date = new Date();
         SimpleDateFormat sdf = new SimpleDateFormat("hh:mm") ;
         String time = sdf.format(date) ;
-        historyDatabase.addData("A Machine" , address , time) ;
-        GetSearchLocation gsl = new GetSearchLocation(MapsActivity.this, address, new AsyncResponseSearch() {
+        historyDatabase.addData("A Machine" , mmAddress.getAddress() , time) ;
+
+        pDialog.dismissWithAnimation();
+        LatLng ll = mmAddress.getLatLng() ;
+        for (MarkerModel allMM : allShowingMarkers){
+            if (allMM.getAddress().equals(mmAddress.getAddress())) present = true ;
+        }
+        if (!present) {
+            m = mMap.addMarker(new MarkerOptions().title("Status : " + (mmAddress.getStatus().equalsIgnoreCase("yes") ? "Working" : "Not Working")).snippet("Quantity : " + mmAddress.getQuantity()).position(ll).icon(BitmapDescriptorFactory.fromResource(R.drawable.machine)));
+            mmAddress.setMarker(m);
+            allShowingMarkers.add(mmAddress);
+        }
+        mMap.animateCamera(CameraUpdateFactory.newLatLngZoom(mmAddress.getLatLng(), 16));
+        mmAddress.getMarker().showInfoWindow() ;
+        selectedMarker = mmAddress.getMarker() ;
+        Location temp = new Location(LocationManager.GPS_PROVIDER);
+        temp.setLatitude(mmAddress.getMarker().getPosition().latitude);
+        temp.setLongitude(mmAddress.getMarker().getPosition().longitude);
+        FindNearMachines fnm = new FindNearMachines(MapsActivity.this , temp , new AsyncResponseFindNear(){
             @Override
-            public void processFinish(LatLng output) {
-                pDialog.dismissWithAnimation();
-                if (output != null){
-                    m[0] = mMap.addMarker(new MarkerOptions().position(output).title("Machine").icon(BitmapDescriptorFactory.fromResource(R.drawable.machine))) ;
-                    mMap.animateCamera(CameraUpdateFactory.newLatLngZoom(m[0].getPosition() , 16));
-                    m[0].showInfoWindow() ;
-                    selectedMarker = m[0] ;
-                    Location temp = new Location(LocationManager.GPS_PROVIDER);
-                    temp.setLatitude(m[0].getPosition().latitude);
-                    temp.setLongitude(m[0].getPosition().longitude);
-                    FindNearMachines fnm = new FindNearMachines(MapsActivity.this , temp , new AsyncResponseFindNear(){
-                        @Override
-                        public void processFinish(String output) {
-                            findSearchNear(output) ;
-                        }
-                    });
-                    fnm.execute() ;
-                }else{
-                    Toast.makeText(MapsActivity.this, "Cant find Location ", Toast.LENGTH_SHORT).show();
-                }
+            public void processFinish(String output) {
+                findSearchNear(output) ;
             }
         });
-        gsl.execute() ;
+        fnm.execute() ;
+
     }
 
     public static void hideKeyboard(Activity activity) {
@@ -661,9 +687,9 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
 
     @Override
     public void onBackPressed() {
-        if (llSearchBar.getVisibility() == View.VISIBLE){
-            llSearchBar.startAnimation(slide_down);
-            llSearchBar.setVisibility(View.GONE);
+        if (includeSearchInfo.getVisibility() == View.VISIBLE){
+            includeSearchInfo.startAnimation(slide_down);
+            includeSearchInfo.setVisibility(View.GONE);
         }else if(includeBasicInfo.getVisibility() == View.VISIBLE){
             includeBasicInfo.startAnimation(slide_down);
             includeBasicInfo.setVisibility(View.GONE);
