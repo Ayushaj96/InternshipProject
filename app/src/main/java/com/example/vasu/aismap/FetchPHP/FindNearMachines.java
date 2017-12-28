@@ -51,7 +51,7 @@ public class FindNearMachines extends AsyncTask<String,String,String> {
         }
 
     }
-  
+
     @Override
     protected String doInBackground(String... params) {
         try {

@@ -6,4 +6,4 @@ package com.example.vasu.aismap.FetchPHP;
 
 public interface AsyncResponseUserRegistration {
     void processFinish(String output);
-}
+}   
