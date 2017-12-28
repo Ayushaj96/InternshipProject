@@ -7,8 +7,8 @@ import android.os.Bundle;
 import android.support.v7.app.AppCompatActivity;
 import android.text.TextUtils;
 import android.view.View;
+import android.widget.Button;
 import android.widget.EditText;
-import android.widget.RelativeLayout;
 import android.widget.Toast;
 
 import com.example.vasu.aismap.FetchPHP.AsyncResponseUserRegistration;
@@ -21,7 +21,7 @@ import cn.pedant.SweetAlert.SweetAlertDialog;
 public class UserLoginActivity  extends AppCompatActivity {
 
     EditText Email, Password;
-    RelativeLayout LogIn ;
+    Button LogIn ;
     String PasswordHolder, EmailHolder;
     SharedPreferences sharedPreferences;
     SharedPreferences.Editor editor;
@@ -34,7 +34,7 @@ public class UserLoginActivity  extends AppCompatActivity {
         editor = sharedPreferences.edit();
         Email = (EditText)findViewById(R.id.email);
         Password = (EditText)findViewById(R.id.password);
-        LogIn = (RelativeLayout) findViewById(R.id.login);
+        LogIn = (Button)findViewById(R.id.login);
 
         LogIn.setOnClickListener(new View.OnClickListener() {
             @Override

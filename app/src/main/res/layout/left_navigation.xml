@@ -57,7 +57,7 @@
                     android:layout_marginLeft="10dp"/>
 
                 <TextView
-                    android:id="@+id/maccess"
+
                     android:layout_marginLeft="15dp"
                     android:layout_marginRight="10dp"
                     android:layout_width="match_parent"
@@ -92,7 +92,7 @@
                     android:layout_marginLeft="10dp"/>
 
                 <TextView
-                    android:id="@+id/maccess"
+
                     android:layout_marginLeft="15dp"
                     android:layout_marginRight="10dp"
                     android:layout_width="match_parent"
@@ -126,7 +126,7 @@
                     android:layout_marginLeft="10dp"/>
 
                 <TextView
-                    android:id="@+id/maccess"
+
                     android:layout_marginLeft="15dp"
                     android:layout_marginRight="10dp"
                     android:layout_width="match_parent"
@@ -160,7 +160,7 @@
                     android:layout_marginLeft="10dp"/>
 
                 <TextView
-                    android:id="@+id/maccess"
+
                     android:layout_marginLeft="15dp"
                     android:layout_marginRight="10dp"
                     android:layout_width="match_parent"
@@ -194,7 +194,7 @@
                     android:layout_marginLeft="10dp"/>
 
                 <TextView
-                    android:id="@+id/maccess"
+
                     android:layout_marginLeft="15dp"
                     android:layout_marginRight="10dp"
                     android:layout_width="match_parent"
@@ -228,7 +228,7 @@
                     android:layout_marginLeft="10dp"/>
 
                 <TextView
-                    android:id="@+id/maccess"
+
                     android:layout_marginLeft="15dp"
                     android:layout_marginRight="10dp"
                     android:layout_width="match_parent"
