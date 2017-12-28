@@ -131,12 +131,13 @@ public class FindAllSearchMachines extends AsyncTask<String,String,String> {
                 String machine_serial_no = object.getString("machine_serial_no");
                 String access = object.getString("access");
                 String status = object.getString("status");
-                int quantity = object.getInt("quantity");
+                String company1 = object.getString("company1");
+                int company1quantity = object.getInt("company1quantity");
+                String company2 = object.getString("company2");
+                int company2quantity = object.getInt("company2quantity");
                 String type = object.getString("type");
-                float cost = (float) object.getDouble("cost");
-                String company = object.getString("company");
                 LatLng ll = new LatLng(latitude,longitude) ;
-                MarkerModel mm = new MarkerModel(ll,address,address_tags,machine_serial_no,access,status,quantity,type,cost,company);
+                MarkerModel mm = new MarkerModel(ll,address,address_tags,machine_serial_no,access,status,company1,company1quantity,company2,company2quantity,type);
                 addressList.add(mm);
             }
         } catch (Exception e) {
