@@ -650,6 +650,7 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
             if (allMM.getAddress().equals(mmAddress.getAddress())) present = true ;
         }
         if (!present) {
+            Log.i("MARKER" , "HERE");
             m = mMap.addMarker(new MarkerOptions().title("Status : " + (mmAddress.getStatus().equalsIgnoreCase("yes") ? "Working" : "Not Working")).snippet("Quantity : " + (mmAddress.getCompany1quantity()+mmAddress.getCompany2quantity()) ).position(ll).icon(BitmapDescriptorFactory.fromResource(R.drawable.machine)));
             mmAddress.setMarker(m);
             allShowingMarkers.add(mmAddress);
