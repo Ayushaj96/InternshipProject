@@ -124,7 +124,7 @@ public class FindAllSearchMachines extends AsyncTask<String,String,String> {
     @Override
     protected void onPostExecute(String result) {
 
-        ArrayList<String> addressList = new ArrayList<>() ;
+        ArrayList<MarkerModel> addressList = new ArrayList<>() ;
 
         try {
             JSONArray jsonArray =new JSONArray(result);
@@ -133,8 +133,17 @@ public class FindAllSearchMachines extends AsyncTask<String,String,String> {
                 double latitude = object.getDouble("latitude");
                 double longitude = object.getDouble("longitude");
                 String address = object.getString("address");
+                String address_tags = object.getString("address_tags");
+                String machine_serial_no = object.getString("machine_serial_no");
+                String access = object.getString("access");
+                String status = object.getString("status");
+                int quantity = object.getInt("quantity");
+                String type = object.getString("type");
+                float cost = (float) object.getDouble("cost");
+                String company = object.getString("company");
                 LatLng ll = new LatLng(latitude,longitude) ;
-                addressList.add(address);
+                MarkerModel mm = new MarkerModel(ll,address,address_tags,machine_serial_no,access,status,quantity,type,cost,company);
+                addressList.add(mm);
             }
         } catch (Exception e) {
         }

@@ -40,9 +40,13 @@ public class PaymentActivty extends AppCompatActivity {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_payment_activty);
 
-        merchantId = "393463" ;
+       /* merchantId = "5932019" ;
+        merchantKey = "EFtpMftw" ;
+        merchantSalt = "m4cHTWKqoL"  ; */
+
+       /* merchantId = "393463" ;
         merchantKey = "LLKwG0" ;
-        merchantSalt = "qauKbEAJ" ;
+        merchantSalt = "qauKbEAJ" ; */
 
         btnPay =  (Button) findViewById(R.id.btnPay) ;
 
@@ -66,7 +70,7 @@ public class PaymentActivty extends AppCompatActivity {
 
         PayUmoneySdkInitializer.PaymentParam.Builder builder = new PayUmoneySdkInitializer.PaymentParam.Builder();
 
-        double amount = (double) 10;
+        double amount = (double) 1;
         String txnId = System.currentTimeMillis() + "";
         String phone = "9654123691";
         String productName = productinfo;
@@ -101,7 +105,7 @@ public class PaymentActivty extends AppCompatActivity {
                 .setUdf8(udf8)
                 .setUdf9(udf9)
                 .setUdf10(udf10)
-                .setIsDebug(true)
+                .setIsDebug(false)
                 .setKey(merchantKey)
                 .setMerchantId(merchantId);
 

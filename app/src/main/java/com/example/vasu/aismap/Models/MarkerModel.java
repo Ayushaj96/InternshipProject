@@ -1,5 +1,6 @@
 package com.example.vasu.aismap.Models;
 
+import com.google.android.gms.maps.model.LatLng;
 import com.google.android.gms.maps.model.Marker;
 
 /**
@@ -9,6 +10,7 @@ import com.google.android.gms.maps.model.Marker;
 public class MarkerModel{
 
     private Marker marker;
+    private LatLng latLng ;
     private String address;
     private String address_tags;
     private String serial_no ;
@@ -29,7 +31,7 @@ public class MarkerModel{
         this.access = access ;
     }
 
-    public MarkerModel(Marker marker,String address,String address_tags,String serial_no ,String access ,String status ,int quantity ,
+    public MarkerModel(Marker marker,LatLng latLng ,String address,String address_tags,String serial_no ,String access ,String status ,int quantity ,
                        String type ,float cost ,String company){
 
         this.marker = marker ;
@@ -42,11 +44,12 @@ public class MarkerModel{
         this.type = type ;
         this.cost = cost ;
         this.company = company ;
+        this.latLng = latLng ;
 
     }
 
-    public MarkerModel(String address,String address_tags,String serial_no ,String access ,String status ,int quantity ,
-                       String type ,float cost ,String company){
+    public MarkerModel(LatLng latLng , String address, String address_tags, String serial_no , String access , String status , int quantity ,
+                       String type , float cost , String company){
 
         this.address = address ;
         this.address_tags = address_tags ;
@@ -57,6 +60,7 @@ public class MarkerModel{
         this.type = type ;
         this.cost = cost ;
         this.company = company ;
+        this.latLng = latLng ;
 
     }
 
@@ -66,6 +70,14 @@ public class MarkerModel{
 
     public void setMarker(Marker marker) {
         this.marker = marker;
+    }
+
+    public LatLng getLatLng() {
+        return latLng;
+    }
+
+    public void setLatLng(LatLng latLng) {
+        this.latLng = latLng;
     }
 
     public String getAddress() {
