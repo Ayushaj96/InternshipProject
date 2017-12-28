@@ -24,20 +24,32 @@ import static android.content.Context.MODE_PRIVATE;
  * Created by Vasu on 25-12-2017.
  */
 
-public class FindNearMachines extends AsyncTask<String,String,String> {
+public class UserRegistrationTask extends AsyncTask<String,String,String> {
 
     HttpURLConnection conn;
     URL url = null;
     public static final int CONNECTION_TIMEOUT = 10000;
     public static final int READ_TIMEOUT = 15000;
+    String name,email,username,mobile,password,dob,profession ;
 
-    SharedPreferences sharedPreferencesLocation ;
     Context context ;
 
-    public AsyncResponseFindNear delegate = null;
+    AsyncResponseUserRegistration delegate ;
 
-    public FindNearMachines(Context context ){
+    public UserRegistrationTask(){
+
+    }
+
+    public UserRegistrationTask(Context context,String name,String email,String username
+            ,String mobile,String password,String dob,String profession,AsyncResponseUserRegistration delegate){
         this.context = context ;
+        this.name = name;
+        this.email = email;
+        this.username = username;
+        this.mobile = mobile;
+        this.password = password;
+        this.dob = dob;
+        this.profession = profession;
         this.delegate = delegate ;
 
     }
@@ -58,22 +70,25 @@ public class FindNearMachines extends AsyncTask<String,String,String> {
         try {
 
             String data = URLEncoder.encode("full_name", "UTF-8")
-                    + "=" + URLEncoder.encode(String.valueOf(this.lat), "UTF-8");
+                    + "=" + URLEncoder.encode(this.name, "UTF-8");
+
+            data += "&" + URLEncoder.encode("mobile", "UTF-8") + "="
+                    + URLEncoder.encode(this.mobile, "UTF-8");
 
             data += "&" + URLEncoder.encode("email", "UTF-8") + "="
-                    + URLEncoder.encode(String.valueOf(this.lang), "UTF-8");
+                    + URLEncoder.encode(this.email, "UTF-8");
 
             data += "&" + URLEncoder.encode("username", "UTF-8") + "="
-                    + URLEncoder.encode(String.valueOf(1), "UTF-8");
+                    + URLEncoder.encode(this.username, "UTF-8");
 
             data += "&" + URLEncoder.encode("password", "UTF-8") + "="
-                    + URLEncoder.encode(String.valueOf(1), "UTF-8");
+                    + URLEncoder.encode(this.password, "UTF-8");
 
             data += "&" + URLEncoder.encode("dob", "UTF-8") + "="
-                    + URLEncoder.encode(String.valueOf(1), "UTF-8");
+                    + URLEncoder.encode(this.dob, "UTF-8");
 
             data += "&" + URLEncoder.encode("profession", "UTF-8") + "="
-                    + URLEncoder.encode(String.valueOf(1), "UTF-8");
+                    + URLEncoder.encode(this.profession, "UTF-8");
 
             // Setup HttpURLConnection class to send and receive data from php and mysql
             conn = (HttpURLConnection) url.openConnection();
@@ -95,13 +110,9 @@ public class FindNearMachines extends AsyncTask<String,String,String> {
         }
 
         try {
-
             int response_code = conn.getResponseCode();
-
-            // Check if successful connection made
             if (response_code == HttpURLConnection.HTTP_OK) {
 
-                // Read data sent from server
                 InputStream input = conn.getInputStream();
                 BufferedReader reader = new BufferedReader(new InputStreamReader(input));
                 StringBuilder result = new StringBuilder();
@@ -110,12 +121,9 @@ public class FindNearMachines extends AsyncTask<String,String,String> {
                 while ((line = reader.readLine()) != null) {
                     result.append(line);
                 }
-
-                // Pass data to onPostExecute method
                 return (result.toString());
 
             } else {
-
                 return ("unsuccessful");
             }
 
@@ -124,14 +132,10 @@ public class FindNearMachines extends AsyncTask<String,String,String> {
         } finally {
             conn.disconnect();
         }
-
-
     }
 
     @Override
     protected void onPostExecute(String result) {
-
         delegate.processFinish(result);
-
     }
 }

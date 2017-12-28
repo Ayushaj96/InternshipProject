@@ -144,7 +144,6 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
         SupportMapFragment mapFragment = (SupportMapFragment) getSupportFragmentManager().findFragmentById(R.id.map);
         mapFragment.getMapAsync(this);
 
-
         ibMyLocation = (ImageButton) findViewById(R.id.myLocation);
         ibSearch = (ImageButton) findViewById(R.id.searchButton);
         ibNearest = (ImageButton) findViewById(R.id.findNearest);

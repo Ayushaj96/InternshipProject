@@ -16,59 +16,62 @@
         android:textColor="#FFFFFF"
         android:textSize="30dp"
         android:textStyle="bold" />
+
     <EditText
-        android:layout_marginTop="20dp"
+        android:id="@+id/fullname"
         android:layout_width="match_parent"
         android:layout_height="40dp"
+        android:layout_marginTop="20dp"
         android:hint="Full Name"
-        android:id="@+id/fullname"
-        android:textSize="20sp"
-        />
+        android:text="aj"
+        android:textSize="20sp" />
+
     <EditText
+        android:id="@+id/email"
         android:layout_width="match_parent"
         android:layout_height="40dp"
         android:layout_marginTop="2dp"
         android:hint="Email Id"
-        android:id="@+id/email"
-        android:textSize="20sp"
+        android:text="aj@gmail.com"
 
-        />
+        android:textSize="20sp" />
+
     <EditText
+        android:id="@+id/username"
         android:layout_width="match_parent"
         android:layout_height="40dp"
         android:layout_marginTop="2dp"
         android:hint="User_name"
-        android:id="@+id/username"
-        android:textSize="20sp"
+        android:text="aj007"
 
-        />
+        android:textSize="20sp" />
 
     <EditText
+        android:id="@+id/password"
         android:layout_width="match_parent"
         android:layout_height="40dp"
         android:hint="Password"
-        android:id="@+id/password"
-        android:textSize="20sp"
+        android:text="12345"
 
-        />
+        android:textSize="20sp" />
 
     <EditText
         android:id="@+id/confirmpassword"
         android:layout_width="match_parent"
         android:layout_height="40dp"
         android:hint="Confirm Password"
-        android:textSize="20sp"
-        />
+        android:text="12345"
+        android:textSize="20sp" />
 
 
     <EditText
+        android:id="@+id/mobilenumber"
         android:layout_width="match_parent"
         android:layout_height="40dp"
         android:hint="Mobile Number"
-        android:id="@+id/mobilenumber"
-        android:textSize="20sp"
+        android:text="1236547890"
 
-        />
+        android:textSize="20sp" />
 
     <EditText
         android:layout_width="match_parent"
@@ -78,14 +81,15 @@
         android:textSize="20sp"
 
         />
+
     <EditText
+        android:id="@+id/Profession"
         android:layout_width="match_parent"
         android:layout_height="40dp"
         android:hint="Profession"
-        android:id="@+id/Profession"
-        android:textSize="20sp"
+        android:text="android"
 
-        />
+        android:textSize="20sp" />
 
 
     <Button
