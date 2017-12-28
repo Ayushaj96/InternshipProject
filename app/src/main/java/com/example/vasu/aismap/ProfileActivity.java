@@ -38,4 +38,7 @@ public class ProfileActivity extends AppCompatActivity {
         tvProfession.setText(sharedPreferences.getString("Profession" , ""));
 
     }
+
+
+
 }

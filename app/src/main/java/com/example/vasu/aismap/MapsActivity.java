@@ -90,7 +90,7 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
     MarkerOptions markerOptionsMyLoc;
     Marker myCurrentLocMarker, mPrevLocMarker;
 
-    ImageButton ibMyLocation , ibSearch , ibNearest , ibIncludeMore , ibIncludeClose;
+    ImageButton ibMyLocation , ibSetting , ibIncludeMore , ibIncludeClose;
 
     SearchHistory historyDatabase ;
 
@@ -119,7 +119,6 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
     Marker selectedMarker ;
 
     SweetAlertDialog pDialog ;
-    ImageButton ibNav ;
 
     protected void createLocationRequest() {
         mLocationRequest = new LocationRequest();
@@ -136,9 +135,7 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
         mapFragment.getMapAsync(this);
 
         ibMyLocation = (ImageButton) findViewById(R.id.myLocation);
-        ibSearch = (ImageButton) findViewById(R.id.searchButton);
-        ibNearest = (ImageButton) findViewById(R.id.findNearest);
-        ibNav = (ImageButton) findViewById(R.id.btnNav);
+        ibSetting = (ImageButton) findViewById(R.id.settingsButton);
 
         includeSearchInfo = (View) findViewById(R.id.includeBarSearch);
         ibIncludeMore = (ImageButton) includeSearchInfo.findViewById(R.id.search_more);
@@ -193,7 +190,7 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
 
             }
         });
-        ibSearch.setOnClickListener(new View.OnClickListener() {
+        /*ibSearch.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
                 if (includeSearchInfo.getVisibility() == View.GONE){
@@ -220,6 +217,13 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
                 }
 
             }
+        });*/
+
+        ibSetting.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+
+            }
         });
 
         ibIncludeMore.setOnClickListener(new View.OnClickListener() {
@@ -239,12 +243,6 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
             }
         });
 
-        ibNav.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View view) {
-
-            }
-        });
 
         etSearch.setOnKeyListener(new View.OnKeyListener() {
             public boolean onKey(View v, int keyCode, KeyEvent event) {
