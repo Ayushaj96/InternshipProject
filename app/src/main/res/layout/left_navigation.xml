@@ -4,10 +4,6 @@
     android:layout_width="match_parent"
     android:layout_marginRight="100dp" android:layout_height="match_parent">
 
-    <LinearLayout
-        android:layout_width="match_parent"
-        android:layout_height="match_parent"
-        android:orientation="vertical">
 
     <RelativeLayout
     android:layout_width="match_parent"
@@ -21,7 +17,8 @@
         android:background="@drawable/profilepic">
 
     </ImageView>
-    <TextView
+
+        <TextView
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:layout_alignParentLeft="true"
@@ -36,211 +33,119 @@
 
 </RelativeLayout>
 
-        <android.support.v7.widget.CardView
+    <LinearLayout
+        android:layout_width="fill_parent"
+        android:layout_height="45dp"
+        android:layout_below="@+id/rl"
+        android:layout_marginTop="8dp"
+        android:id="@+id/ll1"
+        android:orientation="horizontal"
+        android:gravity="center_vertical">
+
+        <ImageView
+            android:layout_width="32dp"
+            android:layout_height="20dp"
+            android:layout_marginLeft="10dp"/>
+        <TextView
+            android:layout_marginLeft="25dp"
+            android:layout_marginRight="10dp"
             android:layout_width="match_parent"
-            android:layout_height="50sp"
-            app:cardCornerRadius="5sp"
-            android:elevation="7sp"
-            android:layout_margin="2sp">
-
-            <LinearLayout
-                android:layout_below="@+id/card"
-                android:layout_width="match_parent"
-                android:layout_height="match_parent"
-                android:orientation="horizontal"
-
-                android:gravity="center_vertical">
-
-                <ImageView
-                    android:layout_width="32dp"
-                    android:layout_height="32dp"
-                    android:layout_marginLeft="10dp"/>
-
-                <TextView
-
-                    android:layout_marginLeft="15dp"
-                    android:layout_marginRight="10dp"
-                    android:layout_width="match_parent"
-                    android:layout_height="30dp"
-                    android:textSize="18sp"
-                    android:text="PUBLIC"
-                    android:maxLines="1"
-                    android:ellipsize="end"/>
-
-            </LinearLayout>
-
-        </android.support.v7.widget.CardView>
-
-        <android.support.v7.widget.CardView
-            android:layout_width="match_parent"
-            android:layout_height="50sp"
-            app:cardCornerRadius="5sp"
-            android:elevation="7sp"
-            android:layout_margin="2sp">
-
-            <LinearLayout
-                android:layout_below="@+id/card"
-                android:layout_width="match_parent"
-                android:layout_height="match_parent"
-                android:orientation="horizontal"
-
-                android:gravity="center_vertical">
-
-                <ImageView
-                    android:layout_width="32dp"
-                    android:layout_height="32dp"
-                    android:layout_marginLeft="10dp"/>
-
-                <TextView
-
-                    android:layout_marginLeft="15dp"
-                    android:layout_marginRight="10dp"
-                    android:layout_width="match_parent"
-                    android:layout_height="30dp"
-                    android:textSize="18sp"
-                    android:text="PUBLIC"
-                    android:maxLines="1"
-                    android:ellipsize="end"/>
-
-            </LinearLayout>
-
-        </android.support.v7.widget.CardView>
-        <android.support.v7.widget.CardView
-            android:layout_width="match_parent"
-            android:layout_height="50sp"
-            app:cardCornerRadius="5sp"
-            android:elevation="7sp"
-            android:layout_margin="2sp">
-
-            <LinearLayout
-                android:layout_below="@+id/card"
-                android:layout_width="match_parent"
-                android:layout_height="match_parent"
-                android:orientation="horizontal"
-
-                android:gravity="center_vertical">
-
-                <ImageView
-                    android:layout_width="32dp"
-                    android:layout_height="32dp"
-                    android:layout_marginLeft="10dp"/>
-
-                <TextView
-
-                    android:layout_marginLeft="15dp"
-                    android:layout_marginRight="10dp"
-                    android:layout_width="match_parent"
-                    android:layout_height="30dp"
-                    android:textSize="18sp"
-                    android:text="PUBLIC"
-                    android:maxLines="1"
-                    android:ellipsize="end"/>
-
-            </LinearLayout>
-
-        </android.support.v7.widget.CardView>
-        <android.support.v7.widget.CardView
-            android:layout_width="match_parent"
-            android:layout_height="50sp"
-            app:cardCornerRadius="5sp"
-            android:elevation="7sp"
-            android:layout_margin="2sp">
-
-            <LinearLayout
-                android:layout_below="@+id/card"
-                android:layout_width="match_parent"
-                android:layout_height="match_parent"
-                android:orientation="horizontal"
-
-                android:gravity="center_vertical">
-
-                <ImageView
-                    android:layout_width="32dp"
-                    android:layout_height="32dp"
-                    android:layout_marginLeft="10dp"/>
-
-                <TextView
-
-                    android:layout_marginLeft="15dp"
-                    android:layout_marginRight="10dp"
-                    android:layout_width="match_parent"
-                    android:layout_height="30dp"
-                    android:textSize="18sp"
-                    android:text="PUBLIC"
-                    android:maxLines="1"
-                    android:ellipsize="end"/>
-
-            </LinearLayout>
-
-        </android.support.v7.widget.CardView>
-        <android.support.v7.widget.CardView
-            android:layout_width="match_parent"
-            android:layout_height="50sp"
-            app:cardCornerRadius="5sp"
-            android:elevation="7sp"
-            android:layout_margin="2sp">
-
-            <LinearLayout
-                android:layout_below="@+id/card"
-                android:layout_width="match_parent"
-                android:layout_height="match_parent"
-                android:orientation="horizontal"
-
-                android:gravity="center_vertical">
-
-                <ImageView
-                    android:layout_width="32dp"
-                    android:layout_height="32dp"
-                    android:layout_marginLeft="10dp"/>
-
-                <TextView
-
-                    android:layout_marginLeft="15dp"
-                    android:layout_marginRight="10dp"
-                    android:layout_width="match_parent"
-                    android:layout_height="30dp"
-                    android:textSize="18sp"
-                    android:text="PUBLIC"
-                    android:maxLines="1"
-                    android:ellipsize="end"/>
-
-            </LinearLayout>
-
-        </android.support.v7.widget.CardView>
-        <android.support.v7.widget.CardView
-            android:layout_width="match_parent"
-            android:layout_height="50sp"
-            app:cardCornerRadius="5sp"
-            android:elevation="7sp"
-            android:layout_margin="2sp">
-
-            <LinearLayout
-                android:layout_below="@+id/card"
-                android:layout_width="match_parent"
-                android:layout_height="match_parent"
-                android:orientation="horizontal"
-
-                android:gravity="center_vertical">
-
-                <ImageView
-                    android:layout_width="32dp"
-                    android:layout_height="32dp"
-                    android:layout_marginLeft="10dp"/>
-
-                <TextView
-
-                    android:layout_marginLeft="15dp"
-                    android:layout_marginRight="10dp"
-                    android:layout_width="match_parent"
-                    android:layout_height="30dp"
-                    android:textSize="18sp"
-                    android:text="PUBLIC"
-                    android:maxLines="1"
-                    android:ellipsize="end"/>
-
-            </LinearLayout>
-
-        </android.support.v7.widget.CardView>
+            android:layout_height="wrap_content"
+            android:textSize="20sp"
+            android:text="PUBLIC"
+            android:textStyle="bold"
+            />
     </LinearLayout>
+    <LinearLayout
+        android:layout_width="fill_parent"
+        android:layout_height="45dp"
+        android:orientation="horizontal"
+        android:layout_below="@id/ll1"
+        android:id="@+id/ll2"
+        android:layout_marginTop="5dp"
+        android:gravity="center_vertical">
+
+        <ImageView
+            android:layout_width="32dp"
+            android:layout_height="20dp"
+            android:layout_marginLeft="10dp"/>
+        <TextView
+            android:layout_width="fill_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginLeft="25dp"
+            android:layout_marginRight="10dp"
+            android:textSize="20sp"
+            android:text="Machine Near me"
+            android:textStyle="bold"/>
+    </LinearLayout>
+
+    <LinearLayout
+        android:layout_width="fill_parent"
+        android:layout_height="45dp"
+        android:orientation="horizontal"
+        android:layout_below="@id/ll2"
+        android:id="@+id/ll3"
+        android:layout_marginTop="5dp"
+        android:gravity="center_vertical">
+
+        <ImageView
+            android:layout_width="32dp"
+            android:layout_height="32dp"
+            android:layout_marginLeft="10dp"/>
+        <TextView
+            android:layout_width="fill_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginLeft="25dp"
+            android:layout_marginRight="10dp"
+            android:textSize="20sp"
+            android:text="PRIVATE"
+            android:textStyle="bold"/>
+    </LinearLayout>
+    <LinearLayout
+        android:layout_width="fill_parent"
+        android:layout_height="45dp"
+        android:layout_marginTop="4dp"
+        android:orientation="horizontal"
+        android:layout_below="@id/ll3"
+        android:id="@+id/ll4"
+        android:gravity="center_vertical">
+
+        <ImageView
+            android:layout_width="32dp"
+            android:layout_height="32dp"
+            android:layout_marginLeft="10dp"/>
+        <TextView
+            android:layout_width="fill_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginLeft="25dp"
+            android:layout_marginRight="10dp"
+            android:textSize="20sp"
+            android:text="PRIVATE"
+            android:textStyle="bold"/>
+    </LinearLayout>
+        <LinearLayout
+            android:layout_width="fill_parent"
+            android:layout_height="45dp"
+            android:orientation="horizontal"
+            android:layout_below="@id/ll4"
+            android:id="@+id/ll5"
+            android:layout_marginTop="4dp"
+            android:clickable="true"
+            android:gravity="center_vertical">
+
+            <ImageView
+                android:layout_width="32dp"
+                android:layout_height="32dp"
+                android:layout_marginLeft="10dp"
+                android:background="@drawable/ic_logout"/>
+            <TextView
+                android:layout_width="fill_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginLeft="25dp"
+                android:layout_marginRight="10dp"
+                android:textSize="20sp"
+                android:text="LOGOUT"
+                android:textStyle="bold"/>
+        </LinearLayout>
 
 </RelativeLayout>
