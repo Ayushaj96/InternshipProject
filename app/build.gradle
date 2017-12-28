@@ -38,7 +38,7 @@ dependencies {
     compile 'com.orhanobut:dialogplus:1.11@aar'
     compile 'com.borax12.materialdaterangepicker:library:1.9'
     compile 'com.shawnlin:number-picker:2.4.4'
-    compile('com.payumoney.sdkui:plug-n-play:1.1.0'){
+    compile( 'com.payumoney.sdkui:plug-n-play:1.1.0'){
         transitive = true;
         exclude module: 'payumoney-sdk'
     }
