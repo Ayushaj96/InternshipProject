@@ -1,8 +1,7 @@
 package com.example.vasu.aismap;
 
-import android.app.ProgressDialog;
 import android.content.Intent;
-import android.os.AsyncTask;
+import android.graphics.Color;
 import android.os.Bundle;
 import android.support.v7.app.AppCompatActivity;
 import android.text.TextUtils;
@@ -14,7 +13,7 @@ import android.widget.Toast;
 import com.example.vasu.aismap.FetchPHP.AsyncResponseUserRegistration;
 import com.example.vasu.aismap.FetchPHP.UserRegistrationTask;
 
-import java.util.HashMap;
+import cn.pedant.SweetAlert.SweetAlertDialog;
 
 public class UserSignupActivity extends AppCompatActivity {
 
@@ -67,7 +66,11 @@ public class UserSignupActivity extends AppCompatActivity {
                 ||TextUtils.isEmpty(MobileHolder)||TextUtils.isEmpty(DobHolder)||TextUtils.isEmpty(ProfessionHolder)) {
             Toast.makeText(this, "Something is Empty", Toast.LENGTH_SHORT).show();
         }
-        else {
+        else {   final SweetAlertDialog pDialog = new SweetAlertDialog(this, SweetAlertDialog.PROGRESS_TYPE);
+            pDialog.getProgressHelper().setBarColor(Color.parseColor("#A5DC86"));
+            pDialog.setTitleText("Loading");
+            pDialog.setCancelable(true);
+            pDialog.show();
             UserRegistrationTask urt = new UserRegistrationTask(UserSignupActivity.this, NameHolder, EmailHolder, UnameHolder
                     ,MobileHolder , PasswordHolder, DobHolder, ProfessionHolder, new AsyncResponseUserRegistration() {
                 @Override
@@ -75,6 +78,7 @@ public class UserSignupActivity extends AppCompatActivity {
                     Toast.makeText(UserSignupActivity.this, ""+output, Toast.LENGTH_LONG).show();
                     if (output.equalsIgnoreCase("Registration Successfully")){
                         startActivity(new Intent(UserSignupActivity.this , MapsActivity.class));
+                        pDialog.hide();
                         finish();
                     }
                 }

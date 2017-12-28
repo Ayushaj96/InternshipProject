@@ -1,8 +1,8 @@
 package com.example.vasu.aismap;
 
-import android.app.ProgressDialog;
 import android.content.Intent;
-import android.os.AsyncTask;
+import android.content.SharedPreferences;
+import android.graphics.Color;
 import android.os.Bundle;
 import android.support.v7.app.AppCompatActivity;
 import android.text.TextUtils;
@@ -13,25 +13,25 @@ import android.widget.Toast;
 
 import com.example.vasu.aismap.FetchPHP.AsyncResponseUserRegistration;
 import com.example.vasu.aismap.FetchPHP.UserLoginTask;
-import com.example.vasu.aismap.FetchPHP.UserRegistrationTask;
 
-import java.util.HashMap;
+import cn.pedant.SweetAlert.SweetAlertDialog;
 
-/**
- * Created by AYUSH on 12/28/2017.
- */
+
 
 public class UserLoginActivity  extends AppCompatActivity {
 
     EditText Email, Password;
     RelativeLayout LogIn ;
     String PasswordHolder, EmailHolder;
-
+    SharedPreferences sharedPreferences;
+    SharedPreferences.Editor editor;
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_user_login);
 
+        sharedPreferences=getApplicationContext().getSharedPreferences("MyLoginStatus", MODE_PRIVATE);
+        editor = sharedPreferences.edit();
         Email = (EditText)findViewById(R.id.email);
         Password = (EditText)findViewById(R.id.password);
         LogIn = (RelativeLayout) findViewById(R.id.login);
@@ -46,6 +46,11 @@ public class UserLoginActivity  extends AppCompatActivity {
         });
     }
     public void loginUser(){
+        final SweetAlertDialog pDialog = new SweetAlertDialog(this, SweetAlertDialog.PROGRESS_TYPE);
+        pDialog.getProgressHelper().setBarColor(Color.parseColor("#A5DC86"));
+        pDialog.setTitleText("Loading");
+        pDialog.setCancelable(true);
+        pDialog.show();
 
         EmailHolder = Email.getText().toString();
         PasswordHolder = Password.getText().toString();
@@ -55,13 +60,23 @@ public class UserLoginActivity  extends AppCompatActivity {
             Toast.makeText(this, "Something Is missing", Toast.LENGTH_SHORT).show();
         }
         else {
+
+
             UserLoginTask ult = new UserLoginTask(UserLoginActivity.this, EmailHolder, PasswordHolder, new AsyncResponseUserRegistration() {
+
                 @Override
                 public void processFinish(String output) {
-                    Toast.makeText(UserLoginActivity.this, ""+output, Toast.LENGTH_SHORT).show();
+
                     if (output.equalsIgnoreCase("Login Success")){
+                        editor.putBoolean("LoginStatus",true);
+                        editor.commit();
                         startActivity(new Intent(UserLoginActivity.this , MapsActivity.class));
+                        pDialog.hide();
                         finish();
+                    }
+                    else {
+                        pDialog.hide();
+                        Toast.makeText(UserLoginActivity.this, "Invalid email Id or Password", Toast.LENGTH_SHORT).show();
                     }
                 }
             });
