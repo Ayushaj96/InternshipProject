@@ -104,7 +104,6 @@
                 android:text="Fast Login"
                 android:textColor="#fff"
                 android:layout_centerInParent="true"
-
                 android:textSize="18sp" />
         </RelativeLayout>
     </android.support.v7.widget.CardView>

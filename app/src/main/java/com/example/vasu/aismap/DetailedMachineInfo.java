@@ -34,8 +34,6 @@ public class DetailedMachineInfo extends AppCompatActivity {
         tv3.setText(i.getStringExtra("access"));
         tv4.setText(i.getStringExtra("status"));
         tv5.setText(i.getStringExtra("type"));
-        tv6.setText(i.getStringExtra("cost"));
-        tv7.setText(i.getStringExtra("company"));
 
 
         bt1.setOnClickListener(new View.OnClickListener() {

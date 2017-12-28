@@ -119,8 +119,6 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
     Marker selectedMarker ;
 
     SweetAlertDialog pDialog ;
-
-    DrawerLayout drawerLayout ;
     ImageButton ibNav ;
 
     protected void createLocationRequest() {
@@ -154,9 +152,6 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
         tvBasicMachineAddress = includeBasicInfo.findViewById(R.id.machineAddressText) ;
         btnGetDirections = includeBasicInfo.findViewById(R.id.directions) ;
         btnMoreInfo = includeBasicInfo.findViewById(R.id.btnMoreInfo) ;
-
-        includeNavigation = (View) findViewById(R.id.includeBarNav);
-        drawerLayout = (DrawerLayout) includeNavigation.findViewById(R.id.drawer_layout);
 
         slide_down = AnimationUtils.loadAnimation(getApplicationContext(), R.anim.slide_down);
         slide_up = AnimationUtils.loadAnimation(getApplicationContext(), R.anim.slide_up);
