@@ -67,7 +67,8 @@
 
         <ImageView
             android:layout_width="32dp"
-            android:layout_height="20dp"
+            android:layout_height="32dp"
+            android:background="@drawable/ic_vending_machine"
             android:layout_marginLeft="10dp"/>
         <TextView
             android:layout_width="fill_parent"
@@ -113,14 +114,15 @@
         <ImageView
             android:layout_width="32dp"
             android:layout_height="32dp"
-            android:layout_marginLeft="10dp"/>
+            android:layout_marginLeft="11dp"
+            android:background="@drawable/ic_care_about_planet"/>
         <TextView
             android:layout_width="fill_parent"
             android:layout_height="wrap_content"
             android:layout_marginLeft="25dp"
             android:layout_marginRight="10dp"
             android:textSize="20sp"
-            android:text="PRIVATE"
+            android:text="About Us"
             android:textStyle="bold"/>
     </LinearLayout>
         <LinearLayout
