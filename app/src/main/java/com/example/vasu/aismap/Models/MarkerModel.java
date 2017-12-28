@@ -16,10 +16,11 @@ public class MarkerModel{
     private String serial_no ;
     private String access ;
     private String status ;
-    private int quantity ;
+    private String company1;
+    private int company1quantity;
+    private String company2;
+    private int company2quantity;
     private String type ;
-    private float cost ;
-    private String company ;
 
     public MarkerModel(){
 
@@ -31,8 +32,8 @@ public class MarkerModel{
         this.access = access ;
     }
 
-    public MarkerModel(Marker marker,LatLng latLng ,String address,String address_tags,String serial_no ,String access ,String status ,int quantity ,
-                       String type ,float cost ,String company){
+    public MarkerModel(Marker marker,LatLng latLng ,String address,String address_tags,String serial_no
+            ,String access,String status,String company1,int company1quantity,String company2,int company2quantity,String type){
 
         this.marker = marker ;
         this.address = address ;
@@ -40,26 +41,27 @@ public class MarkerModel{
         this.serial_no = serial_no ;
         this.access = access ;
         this.status = status ;
-        this.quantity = quantity ;
+        this.company1 = company1;
+        this.company1quantity = company1quantity;
+        this.company2 = company2;
+        this.company2quantity = company2quantity;
         this.type = type ;
-        this.cost = cost ;
-        this.company = company ;
         this.latLng = latLng ;
-
     }
 
-    public MarkerModel(LatLng latLng , String address, String address_tags, String serial_no , String access , String status , int quantity ,
-                       String type , float cost , String company){
+    public MarkerModel(LatLng latLng ,String address,String address_tags,String serial_no
+            ,String access,String status,String company1,int company1quantity,String company2,int company2quantity,String type){
 
         this.address = address ;
         this.address_tags = address_tags ;
         this.serial_no = serial_no ;
         this.access = access ;
         this.status = status ;
-        this.quantity = quantity ;
+        this.company1 = company1;
+        this.company1quantity = company1quantity;
+        this.company2 = company2;
+        this.company2quantity = company2quantity;
         this.type = type ;
-        this.cost = cost ;
-        this.company = company ;
         this.latLng = latLng ;
 
     }
@@ -120,12 +122,36 @@ public class MarkerModel{
         this.status = status;
     }
 
-    public int getQuantity() {
-        return quantity;
+    public String getCompany1() {
+        return company1;
     }
 
-    public void setQuantity(int quantity) {
-        this.quantity = quantity;
+    public void setCompany1(String company1) {
+        this.company1 = company1;
+    }
+
+    public int getCompany1quantity() {
+        return company1quantity;
+    }
+
+    public void setCompany1quantity(int company1quantity) {
+        this.company1quantity = company1quantity;
+    }
+
+    public String getCompany2() {
+        return company2;
+    }
+
+    public void setCompany2(String company2) {
+        this.company2 = company2;
+    }
+
+    public int getCompany2quantity() {
+        return company2quantity;
+    }
+
+    public void setCompany2quantity(int company2quantity) {
+        this.company2quantity = company2quantity;
     }
 
     public String getType() {
@@ -135,22 +161,5 @@ public class MarkerModel{
     public void setType(String type) {
         this.type = type;
     }
-
-    public float getCost() {
-        return cost;
-    }
-
-    public void setCost(float cost) {
-        this.cost = cost;
-    }
-
-    public String getCompany() {
-        return company;
-    }
-
-    public void setCompany(String company) {
-        this.company = company;
-    }
-
 
 }

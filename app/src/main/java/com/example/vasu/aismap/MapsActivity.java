@@ -322,7 +322,7 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
         btnMoreInfo.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
-                String company="",address="",serialno="",access="",status="",type="";
+                String company1="",company1quantity="",company2="",company2quantity="",address="",serialno="",access="",status="",type="";
                 String cost= "";
                 for (MarkerModel mm : allShowingMarkers) {
                     if (mm.getMarker().getPosition().latitude == selectedMarker.getPosition().latitude) {
@@ -331,17 +331,22 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
                         access = mm.getAccess();
                         status = mm.getStatus();
                         type = mm.getType();
-                        cost = String.valueOf(mm.getCost());
-                        company = mm.getCompany();
+                        company1 = mm.getCompany1();
+                        company1quantity = String.valueOf(mm.getCompany1quantity()) ;
+                        company2 = mm.getCompany2();
+                        company2quantity = String.valueOf(mm.getCompany2quantity());
                     }}
                     Intent intent = new Intent(MapsActivity.this, DetailedMachineInfo.class);
                     intent.putExtra("Address",address);
                     intent.putExtra("serialno",serialno);
                     intent.putExtra("access",access);
-                        intent.putExtra("status",status);
-                        intent.putExtra("type",type);
-                        intent.putExtra("cost",cost);
-                        intent.putExtra("company",company);
+                    intent.putExtra("status",status);
+                    intent.putExtra("type",type);
+                    intent.putExtra("cost",cost);
+                    intent.putExtra("company1",company1);
+                    intent.putExtra("company1quantity",company1quantity);
+                    intent.putExtra("company2",company2);
+                    intent.putExtra("company2quantity",company2quantity);
                     startActivity(intent);
 
             }
@@ -508,12 +513,13 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
                     String machine_serial_no = object.getString("machine_serial_no");
                     String access = object.getString("access");
                     String status = object.getString("status");
-                    int quantity = object.getInt("quantity");
+                    String company1 = object.getString("company1");
+                    int company1quantity = object.getInt("company1quantity");
+                    String company2 = object.getString("company2");
+                    int company2quantity = object.getInt("company2quantity");
                     String type = object.getString("type");
-                    float cost = (float) object.getDouble("cost");
-                    String company = object.getString("company");
                     LatLng ll = new LatLng(latitude,longitude) ;
-                    MarkerModel mm = new MarkerModel(ll,address,address_tags,machine_serial_no,access,status,quantity,type,cost,company);
+                    MarkerModel mm = new MarkerModel(ll,address,address_tags,machine_serial_no,access,status,company1,company1quantity,company2,company2quantity,type);
                     nearGridList.add(mm);
                 }
             }
@@ -538,17 +544,18 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
                     String machine_serial_no = object.getString("machine_serial_no");
                     String access = object.getString("access");
                     String status = object.getString("status");
-                    int quantity = object.getInt("quantity");
+                    String company1 = object.getString("company1");
+                    int company1quantity = object.getInt("company1quantity");
+                    String company2 = object.getString("company2");
+                    int company2quantity = object.getInt("company2quantity");
                     String type = object.getString("type");
-                    float cost = (float) object.getDouble("cost");
-                    String company = object.getString("company");
                     LatLng ll = new LatLng(latitude,longitude) ;
                     for (MarkerModel allMM : allShowingMarkers){
                         if (allMM.getAddress().equals(address)) present = true ;
                     }
                     if (!present) {
-                        Marker m = mMap.addMarker(new MarkerOptions().title("Status : " + (status.equalsIgnoreCase("yes") ? "Working" : "Not Working")).snippet("Quantity : " + quantity).position(ll).icon(BitmapDescriptorFactory.fromResource(R.drawable.machine)));
-                        MarkerModel mm = new MarkerModel(m,ll,address,address_tags,machine_serial_no,access,status,quantity,type,cost,company);
+                        Marker m = mMap.addMarker(new MarkerOptions().title("Status : " + (status.equalsIgnoreCase("yes") ? "Working" : "Not Working")).snippet("Quantity : " + (company1quantity+company2quantity)).position(ll).icon(BitmapDescriptorFactory.fromResource(R.drawable.machine)));
+                        MarkerModel mm = new MarkerModel(m,ll,address,address_tags,machine_serial_no,access,status,company1,company1quantity,company2,company2quantity,type);
                         allShowingMarkers.add(mm);
                     }
             }
@@ -569,17 +576,18 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
                 String machine_serial_no = object.getString("machine_serial_no");
                 String access = object.getString("access");
                 String status = object.getString("status");
-                int quantity = object.getInt("quantity");
+                String company1 = object.getString("company1");
+                int company1quantity = object.getInt("company1quantity");
+                String company2 = object.getString("company2");
+                int company2quantity = object.getInt("company2quantity");
                 String type = object.getString("type");
-                float cost = (float) object.getDouble("cost");
-                String company = object.getString("company");
                 LatLng ll = new LatLng(latitude,longitude) ;
                 for (MarkerModel allMM : allShowingMarkers){
                     if (allMM.getAddress().equals(address)) present = true ;
                 }
                 if (!present) {
-                    Marker m = mMap.addMarker(new MarkerOptions().title("Status : " + (status.equalsIgnoreCase("yes") ? "Working" : "Not Working")).snippet("Quantity : " + quantity).position(ll).icon(BitmapDescriptorFactory.fromResource(R.drawable.machine)));
-                    MarkerModel mm = new MarkerModel(m, ll, address, address_tags, machine_serial_no, access, status, quantity, type, cost, company);
+                    Marker m = mMap.addMarker(new MarkerOptions().title("Status : " + (status.equalsIgnoreCase("yes") ? "Working" : "Not Working")).snippet("Quantity : " + (company1quantity+company2quantity)).position(ll).icon(BitmapDescriptorFactory.fromResource(R.drawable.machine)));
+                    MarkerModel mm = new MarkerModel(m, ll, address, address_tags, machine_serial_no, access, status,company1,company1quantity,company2,company2quantity,type);
                     allShowingMarkers.add(mm);
                 }
             }
@@ -654,7 +662,7 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
             if (allMM.getAddress().equals(mmAddress.getAddress())) present = true ;
         }
         if (!present) {
-            m = mMap.addMarker(new MarkerOptions().title("Status : " + (mmAddress.getStatus().equalsIgnoreCase("yes") ? "Working" : "Not Working")).snippet("Quantity : " + mmAddress.getQuantity()).position(ll).icon(BitmapDescriptorFactory.fromResource(R.drawable.machine)));
+            m = mMap.addMarker(new MarkerOptions().title("Status : " + (mmAddress.getStatus().equalsIgnoreCase("yes") ? "Working" : "Not Working")).snippet("Quantity : " + (mmAddress.getCompany1quantity()+mmAddress.getCompany2quantity()) ).position(ll).icon(BitmapDescriptorFactory.fromResource(R.drawable.machine)));
             mmAddress.setMarker(m);
             allShowingMarkers.add(mmAddress);
         }
