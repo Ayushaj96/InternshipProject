@@ -4,89 +4,109 @@
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
+    android:background="@drawable/gradient"
+    android:paddingBottom="@dimen/activity_vertical_margin"
+    android:paddingLeft="@dimen/activity_horizontal_margin"
+    android:paddingRight="@dimen/activity_horizontal_margin"
+    android:paddingTop="@dimen/activity_vertical_margin"
     tools:context="com.example.vasu.aismap.MainActivity">
 
-
-    <Button
-
-        android:id="@+id/button5"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:text="Get"
-        android:layout_alignParentBottom="true"
-        android:layout_alignParentLeft="true"
-        android:layout_alignParentStart="true"
-        android:layout_marginLeft="20dp"
-        android:layout_marginStart="20dp" />
-
-    <Button
-        android:id="@+id/button6"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-
-        android:text="New"
-        android:layout_alignParentBottom="true"
-        android:layout_toRightOf="@+id/button5"
-        android:layout_toEndOf="@+id/button5"
-        android:layout_marginLeft="37dp"
-        android:layout_marginStart="37dp" />
-
-    <Button
-        android:id="@+id/button7"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:text="Next"
-        android:layout_alignParentBottom="true"
-        android:layout_toRightOf="@+id/button6"
-        android:layout_toEndOf="@+id/button6"
-        android:layout_marginLeft="43dp"
-        android:layout_marginStart="43dp" />
-
-    <EditText
-        android:id="@+id/editText"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:layout_marginLeft="21dp"
-        android:layout_marginStart="21dp"
-        android:layout_marginTop="48dp"
-        android:ems="10"
+    <ImageView
+        android:layout_width="120dp"
+        android:layout_height="150dp"
+        android:id="@+id/imageView"
+        android:layout_marginTop="35dp"
+        android:src="@drawable/twitter"
         android:layout_alignParentTop="true"
-        android:layout_alignLeft="@+id/button6"
-        android:layout_alignStart="@+id/button6"
-        android:text="14"/>
+        android:layout_centerHorizontal="true" />
 
-    <EditText
-        android:id="@+id/editText2"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:layout_alignLeft="@+id/editText"
-        android:layout_alignStart="@+id/editText"
-        android:layout_below="@+id/editText"
-        android:layout_marginTop="50dp"
-        android:ems="10"
-        android:text="1000"
-        />
+    <android.support.v7.widget.CardView
+        xmlns:card_view="http://schemas.android.com/apk/res-auto"
+        android:id="@+id/card1"
+        android:layout_gravity="center"
+        android:layout_width="200dp"
+        android:layout_height="40dp"
+        android:layout_below="@id/imageView"
+        android:layout_centerHorizontal="true"
+        card_view:cardBackgroundColor="#FF00FF"
+        card_view:cardCornerRadius="25dp"
+        card_view:cardElevation="10dp"
+        android:layout_marginTop="10dp"
+         >
 
-    <TextView
-        android:id="@+id/textView3"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:layout_above="@+id/editText2"
-        android:layout_alignEnd="@+id/button5"
-        android:layout_alignRight="@+id/button5"
-        android:text="ZOOM"
-        android:textSize="20dp"/>
+        <RelativeLayout
+            android:layout_width="match_parent"
+            android:layout_height="match_parent"
+            android:id="@+id/Signup">
 
-    <TextView
-        android:id="@+id/textView4"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:layout_alignBottom="@+id/editText2"
-        android:layout_alignLeft="@+id/textView3"
-        android:layout_alignStart="@+id/textView3"
-        android:text="Distance"
-        android:textSize="20dp"
-        />
+            <TextView
 
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_centerInParent="true"
+                android:text="Sign up"
+                android:textColor="#fff"
+                android:textSize="18sp" />
+        </RelativeLayout>
+    </android.support.v7.widget.CardView>
+
+    <android.support.v7.widget.CardView
+        xmlns:card_view="http://schemas.android.com/apk/res-auto"
+        android:id="@+id/card2"
+        android:layout_gravity="center"
+        android:layout_width="200dp"
+        android:layout_height="40dp"
+        android:layout_below="@id/card1"
+        android:layout_centerHorizontal="true"
+        card_view:cardBackgroundColor="#FF00FF"
+        card_view:cardCornerRadius="25dp"
+        card_view:cardElevation="10dp"
+        android:layout_marginTop="15dp"
+         >
+
+        <RelativeLayout
+            android:layout_width="match_parent"
+            android:layout_height="match_parent"
+            android:id="@+id/Login">
+
+            <TextView
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="Login"
+                android:textColor="#fff"
+                android:layout_centerInParent="true"
+
+                android:textSize="18sp" />
+        </RelativeLayout>
+    </android.support.v7.widget.CardView>
+    <android.support.v7.widget.CardView
+        xmlns:card_view="http://schemas.android.com/apk/res-auto"
+        android:id="@+id/card3"
+        android:layout_gravity="center"
+        android:layout_width="200dp"
+        android:layout_height="40dp"
+        android:layout_below="@id/card2"
+        android:layout_centerHorizontal="true"
+        card_view:cardBackgroundColor="#FF00FF"
+        card_view:cardCornerRadius="25dp"
+        card_view:cardElevation="10dp"
+        android:layout_marginTop="15dp"
+         >
+
+        <RelativeLayout
+            android:layout_width="match_parent"
+            android:layout_height="match_parent"
+            android:id="@+id/fastlogin">
+
+            <TextView
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="Fast Login"
+                android:textColor="#fff"
+                android:layout_centerInParent="true"
+
+                android:textSize="18sp" />
+        </RelativeLayout>
+    </android.support.v7.widget.CardView>
 
 </RelativeLayout>
