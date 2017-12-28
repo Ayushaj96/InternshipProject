@@ -8,7 +8,6 @@ import android.widget.ArrayAdapter;
 import android.widget.TextView;
 
 import com.example.vasu.aismap.Models.MarkerModel;
-import com.example.vasu.aismap.Models.NearMachines;
 import com.example.vasu.aismap.R;
 
 import java.util.ArrayList;
