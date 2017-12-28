@@ -13,8 +13,12 @@ import android.os.Bundle;
 import android.support.annotation.NonNull;
 import android.support.v4.app.ActivityCompat;
 import android.support.v4.app.FragmentActivity;
+import android.support.v4.widget.DrawerLayout;
+import android.support.v7.app.ActionBarDrawerToggle;
 import android.util.Log;
+import android.view.Gravity;
 import android.view.KeyEvent;
+import android.view.LayoutInflater;
 import android.view.View;
 import android.view.animation.Animation;
 import android.view.animation.AnimationUtils;
@@ -29,6 +33,7 @@ import android.widget.ListView;
 import android.widget.RelativeLayout;
 import android.widget.TextView;
 import android.widget.Toast;
+import android.widget.Toolbar;
 
 import com.example.vasu.aismap.CustomAdapter.CustomHistoryAdapter;
 import com.example.vasu.aismap.CustomAdapter.CustomSearchListAdapter;
@@ -114,13 +119,16 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
 
     Animation slide_down , slide_up ;
 
-    View includeSearchInfo , includeBasicInfo ;
+    View includeSearchInfo , includeBasicInfo , includeNavigation;
     TextView tvBasicMachineSerial, tvBasicMachineAddress;
     Button btnGetDirections , btnMoreInfo;
 
     Marker selectedMarker ;
 
     SweetAlertDialog pDialog ;
+
+    DrawerLayout drawerLayout ;
+    ImageButton ibNav ;
 
     protected void createLocationRequest() {
         mLocationRequest = new LocationRequest();
@@ -136,9 +144,11 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
         SupportMapFragment mapFragment = (SupportMapFragment) getSupportFragmentManager().findFragmentById(R.id.map);
         mapFragment.getMapAsync(this);
 
+
         ibMyLocation = (ImageButton) findViewById(R.id.myLocation);
         ibSearch = (ImageButton) findViewById(R.id.searchButton);
         ibNearest = (ImageButton) findViewById(R.id.findNearest);
+        ibNav = (ImageButton) findViewById(R.id.btnNav);
 
         includeSearchInfo = (View) findViewById(R.id.includeBarSearch);
         ibIncludeMore = (ImageButton) includeSearchInfo.findViewById(R.id.search_more);
@@ -152,6 +162,9 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
         tvBasicMachineAddress = includeBasicInfo.findViewById(R.id.machineAddressText) ;
         btnGetDirections = includeBasicInfo.findViewById(R.id.directions) ;
         btnMoreInfo = includeBasicInfo.findViewById(R.id.btnMoreInfo) ;
+
+        includeNavigation = (View) findViewById(R.id.includeBarNav);
+        drawerLayout = (DrawerLayout) includeNavigation.findViewById(R.id.drawer_layout);
 
         slide_down = AnimationUtils.loadAnimation(getApplicationContext(), R.anim.slide_down);
         slide_up = AnimationUtils.loadAnimation(getApplicationContext(), R.anim.slide_up);
@@ -236,6 +249,13 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
                     includeSearchInfo.startAnimation(slide_down);
                     includeSearchInfo.setVisibility(View.GONE);
                 }
+            }
+        });
+
+        ibNav.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+
             }
         });
 
