@@ -247,10 +247,13 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
         etSearch.setOnKeyListener(new View.OnKeyListener() {
             public boolean onKey(View v, int keyCode, KeyEvent event) {
                 if ((event.getAction() == KeyEvent.ACTION_DOWN) && (keyCode == KeyEvent.KEYCODE_ENTER)) {
+                    pDialog.setTitle("Find all Machines near : " + etSearch.getText().toString());
+                    pDialog.show();
                     FindAllSearchMachines fasm = new FindAllSearchMachines(MapsActivity.this, etSearch.getText().toString(), new AsyncResponseFindAllSearches() {
                         @Override
                         public void processFinish(ArrayList<MarkerModel> output) {
                             hideKeyboard(MapsActivity.this);
+                            pDialog.dismissWithAnimation();
                             CustomSearchListAdapter csla = new CustomSearchListAdapter(MapsActivity.this , output);
                             DialogPlus dialog = DialogPlus.newDialog(MapsActivity.this)
                                     .setAdapter(csla)
@@ -349,6 +352,10 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
                 zoom  = mMap.getCameraPosition().zoom;
             }
         });
+
+        mMap.getUiSettings().setMapToolbarEnabled(false);
+        mMap.getUiSettings().setZoomControlsEnabled(false);
+
         googleMap.moveCamera(CameraUpdateFactory.newLatLngZoom(position, 16));
 
         if (mCurrentLocation.getLatitude() == 0.0 && mCurrentLocation.getLongitude() == 0.0 ){
@@ -645,17 +652,24 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
         pDialog.dismissWithAnimation();
         LatLng ll = mmAddress.getLatLng() ;
         for (MarkerModel allMM : allShowingMarkers){
-            if (allMM.getAddress().equals(mmAddress.getAddress())) present = true ;
+            if (allMM.getAddress().equals(mmAddress.getAddress())) {
+                present = true ;
+                selectedMarker = allMM.getMarker() ;
+                break;
+            }
         }
         if (!present) {
             Log.i("MARKER" , "HERE");
             m = mMap.addMarker(new MarkerOptions().title("Status : " + (mmAddress.getStatus().equalsIgnoreCase("yes") ? "Working" : "Not Working")).snippet("Quantity : " + (mmAddress.getCompany1quantity()+mmAddress.getCompany2quantity()) ).position(ll).icon(BitmapDescriptorFactory.fromResource(R.drawable.machine)));
             mmAddress.setMarker(m);
             allShowingMarkers.add(mmAddress);
+            mMap.animateCamera(CameraUpdateFactory.newLatLngZoom(mmAddress.getLatLng(), 16));
+            mmAddress.getMarker().showInfoWindow() ;
+        }else{
+            mMap.animateCamera(CameraUpdateFactory.newLatLngZoom(selectedMarker.getPosition(), 16));
+            selectedMarker.showInfoWindow() ;
         }
-        mMap.animateCamera(CameraUpdateFactory.newLatLngZoom(mmAddress.getLatLng(), 16));
-        mmAddress.getMarker().showInfoWindow() ;
-        selectedMarker = mmAddress.getMarker() ;
+
         Location temp = new Location(LocationManager.GPS_PROVIDER);
         temp.setLatitude(mmAddress.getMarker().getPosition().latitude);
         temp.setLongitude(mmAddress.getMarker().getPosition().longitude);
@@ -693,6 +707,7 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
                     .setIcon(android.R.drawable.ic_dialog_alert)
                     .setTitle("Closing Activity")
                     .setMessage("Are you sure you want to close this activity?")
+                    .setIcon(R.drawable.ic_info_outline)
                     .setPositiveButton("Yes", new DialogInterface.OnClickListener()
                     {
                         @Override
