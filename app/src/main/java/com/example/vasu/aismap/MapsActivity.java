@@ -26,6 +26,7 @@ import android.widget.AutoCompleteTextView;
 import android.widget.Button;
 import android.widget.GridView;
 import android.widget.ImageButton;
+import android.widget.LinearLayout;
 import android.widget.ListView;
 import android.widget.TextView;
 import android.widget.Toast;
@@ -96,8 +97,8 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
 
     ArrayList<MarkerModel> allShowingMarkers = new ArrayList<>() ;
 
-    SharedPreferences sharedPreferences ,sharedPreferencesLocation ;
-    SharedPreferences.Editor editorLocation ;
+    SharedPreferences sharedPreferences ,sharedPreferencesLocation , sharedPreferencesLoginStatus;
+    SharedPreferences.Editor editorLocation , editorLoginStatus;
     float zoom = 15.0f ;
     float radius = 100.0f ;
     boolean moveMyLocCamera = true ;
@@ -110,11 +111,12 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
     GridView gvNear ;
     ListView lvHistory ;
 
-    Animation slide_down , slide_up ;
+    Animation slide_down , slide_up ,slide_right , slide_left;
 
     View includeSearchInfo , includeBasicInfo , includeNavigation;
     TextView tvBasicMachineSerial, tvBasicMachineAddress;
     Button btnGetDirections , btnMoreInfo;
+    LinearLayout llSearch , llNearMachine , llProfile , llAbout , llLogout ;
 
     Marker selectedMarker ;
 
@@ -150,12 +152,23 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
         btnGetDirections = includeBasicInfo.findViewById(R.id.directions) ;
         btnMoreInfo = includeBasicInfo.findViewById(R.id.btnMoreInfo) ;
 
+        includeNavigation= (View) findViewById(R.id.includeBarNavigation);
+        llSearch = includeNavigation.findViewById(R.id.ll1) ;
+        llNearMachine = includeNavigation.findViewById(R.id.ll2) ;
+        llProfile = includeNavigation.findViewById(R.id.ll3) ;
+        llAbout = includeNavigation.findViewById(R.id.ll4) ;
+        llLogout = includeNavigation.findViewById(R.id.ll5) ;
+
         slide_down = AnimationUtils.loadAnimation(getApplicationContext(), R.anim.slide_down);
         slide_up = AnimationUtils.loadAnimation(getApplicationContext(), R.anim.slide_up);
+        slide_right = AnimationUtils.loadAnimation(getApplicationContext(), R.anim.slide_right);
+        slide_left = AnimationUtils.loadAnimation(getApplicationContext(), R.anim.slide_left);
 
         sharedPreferences =getApplicationContext().getSharedPreferences("MyPref", MODE_PRIVATE);
         sharedPreferencesLocation =getApplicationContext().getSharedPreferences("MyLocation", MODE_PRIVATE);
+        sharedPreferencesLoginStatus =getApplicationContext().getSharedPreferences("MyLoginStatus", MODE_PRIVATE);
         editorLocation = sharedPreferencesLocation.edit();
+        editorLoginStatus = sharedPreferencesLocation.edit();
         zoom = Float.parseFloat(sharedPreferences.getString("Zoom" , "15.0"));
         radius = Float.parseFloat(sharedPreferences.getString("Radius" , "100.0"));
 
@@ -193,10 +206,7 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
         /*ibSearch.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
-                if (includeSearchInfo.getVisibility() == View.GONE){
-                    includeSearchInfo.setVisibility(View.VISIBLE);
-                    includeSearchInfo.startAnimation(slide_up);
-                }
+
             }
         });
 
@@ -222,7 +232,10 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
         ibSetting.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
-
+                if (includeNavigation.getVisibility() == View.GONE){
+                    includeNavigation.setVisibility(View.VISIBLE);
+                    includeNavigation.startAnimation(slide_right);
+                }
             }
         });
 
@@ -243,6 +256,77 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
             }
         });
 
+        llSearch.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                if (includeNavigation.getVisibility() == View.VISIBLE){
+                    includeNavigation.startAnimation(slide_left);
+                    includeNavigation.setVisibility(View.GONE);
+                }
+                if (includeSearchInfo.getVisibility() == View.GONE){
+                    includeSearchInfo.setVisibility(View.VISIBLE);
+                    includeSearchInfo.startAnimation(slide_up);
+                }
+            }
+        });
+
+        llNearMachine.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                if (includeNavigation.getVisibility() == View.VISIBLE){
+                    includeNavigation.startAnimation(slide_left);
+                    includeNavigation.setVisibility(View.GONE);
+                }
+                if (mCurrentLocation != null){
+                    Toast.makeText(MapsActivity.this, "Finding Nearest Machine", Toast.LENGTH_SHORT).show();
+                    FindNearMachines fnm = new FindNearMachines(MapsActivity.this , mCurrentLocation , new AsyncResponseFindNear(){
+                        @Override
+                        public void processFinish(String output) {
+                            pointToNearest(output);
+                        }
+                    });
+                    fnm.execute() ;
+                }else{
+                    Toast.makeText(MapsActivity.this, "Getting your location..", Toast.LENGTH_SHORT).show();
+                }
+            }
+        });
+
+        llProfile.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                if (includeNavigation.getVisibility() == View.VISIBLE){
+                    includeNavigation.startAnimation(slide_left);
+                    includeNavigation.setVisibility(View.GONE);
+                }
+                startActivity(new Intent(MapsActivity.this , ProfileActivity.class));
+            }
+        });
+
+        llAbout.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                if (includeNavigation.getVisibility() == View.VISIBLE){
+                    includeNavigation.startAnimation(slide_left);
+                    includeNavigation.setVisibility(View.GONE);
+                }
+
+            }
+        });
+
+        llLogout.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                if (includeNavigation.getVisibility() == View.VISIBLE){
+                    includeNavigation.startAnimation(slide_left);
+                    includeNavigation.setVisibility(View.GONE);
+                }
+                editorLoginStatus.putBoolean("LoginStatus",false);
+                editorLoginStatus.commit();
+                startActivity(new Intent(MapsActivity.this , MainActivity.class));
+                finish();
+            }
+        });
 
         etSearch.setOnKeyListener(new View.OnKeyListener() {
             public boolean onKey(View v, int keyCode, KeyEvent event) {
@@ -701,8 +785,11 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
         }else if(includeBasicInfo.getVisibility() == View.VISIBLE){
             includeBasicInfo.startAnimation(slide_down);
             includeBasicInfo.setVisibility(View.GONE);
+        }else if (includeNavigation.getVisibility() == View.VISIBLE){
+            includeNavigation.startAnimation(slide_left);
+            includeNavigation.setVisibility(View.GONE);
         }else{
-          //  super.onBackPressed();
+            //  super.onBackPressed();
             new AlertDialog.Builder(this)
                     .setIcon(android.R.drawable.ic_dialog_alert)
                     .setTitle("Closing Activity")
