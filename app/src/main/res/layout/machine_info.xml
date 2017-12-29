@@ -14,14 +14,15 @@
         app:diagonal_position="bottom"
         app:diagonal_direction="right">
 
+        <RelativeLayout
+            android:layout_width="match_parent"
+            android:layout_height="match_parent">
+
         <ImageView
             android:layout_width="match_parent"
             android:layout_height="match_parent"
             android:scaleType="centerCrop"
             android:src="@drawable/machine_info_background" />
-
-    </com.github.florent37.diagonallayout.DiagonalLayout>
-
 
     <de.hdodenhof.circleimageview.CircleImageView
 
@@ -29,11 +30,8 @@
         android:layout_width="70dp"
         android:layout_height="70dp"
         android:layout_alignParentTop="true"
-        android:layout_marginLeft="7dp"
-        android:layout_marginStart="7dp"
+        android:layout_marginLeft="15dp"
         android:layout_marginTop="57dp"
-        android:layout_toEndOf="@+id/line"
-        android:layout_toRightOf="@+id/line"
         android:elevation="15sp"
         android:src="@color/blue"
         app:civ_border_color="#ffffff"
@@ -42,26 +40,30 @@
     <TextView
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:layout_alignTop="@+id/profile_image"
-        android:layout_toEndOf="@+id/profile_image"
-        android:layout_toRightOf="@+id/profile_image"
         android:text="Machine S.no"
         android:textSize="25sp"
         android:textStyle="bold"
         android:layout_marginLeft="10dp"
         android:textColor="#eff6f9"
-        android:id="@+id/textView4" />
+        android:id="@+id/textView4"
+        android:layout_marginTop="60dp"
+        android:layout_toRightOf="@+id/profile_image"
+        />
 
     <TextView
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:layout_below="@+id/textView4"
         android:layout_marginLeft="15dp"
+
         android:text="Machine Address"
         android:textSize="15sp"
         android:textColor="#eff6f9"
-        android:layout_toEndOf="@+id/profile_image"
+        android:layout_below="@id/textView4"
         android:layout_toRightOf="@+id/profile_image" />
+
+        </RelativeLayout>
+    </com.github.florent37.diagonallayout.DiagonalLayout>
+
 
     <LinearLayout
         android:id="@+id/line"
