@@ -100,7 +100,7 @@
             android:elevation="15sp"
             android:src="@drawable/user"
             android:layout_marginLeft="60dp"
-            android:background="@drawable/btn"
+            android:background="@drawable/location_button"
             />
 
     </LinearLayout>
