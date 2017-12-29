@@ -5,15 +5,23 @@
     android:layout_width="match_parent"
     android:layout_height="match_parent">
 
-
-    <ImageView
+    <com.github.florent37.diagonallayout.DiagonalLayout
+        android:layout_width="match_parent"
+        android:layout_height="300dp"
+        android:elevation="10dp"
         android:id="@+id/imageView"
-        android:layout_width="fill_parent"
-        android:layout_height="200dp"
-        android:layout_alignParentLeft="true"
-        android:layout_alignParentStart="true"
-        android:layout_alignParentTop="true"
-        android:background="@drawable/pic2" />
+        app:diagonal_angle="20"
+        app:diagonal_position="bottom"
+        app:diagonal_direction="right">
+
+        <ImageView
+            android:layout_width="match_parent"
+            android:layout_height="match_parent"
+            android:scaleType="centerCrop"
+            android:src="@drawable/machine_info_background" />
+
+    </com.github.florent37.diagonallayout.DiagonalLayout>
+
 
     <de.hdodenhof.circleimageview.CircleImageView
 
