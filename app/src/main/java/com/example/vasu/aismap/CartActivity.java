@@ -351,14 +351,14 @@ public class CartActivity extends AppCompatActivity {
                 // Response from SURl and FURL
                 String merchantResponse = transactionResponse.getTransactionDetails();
 
-                new AlertDialog.Builder(this)
+                /*new AlertDialog.Builder(this)
                         .setCancelable(false)
                         .setMessage("Payu's Data : " + payuResponse + "\n\n\n Merchant's Data: " + merchantResponse)
                         .setPositiveButton(android.R.string.ok, new DialogInterface.OnClickListener() {
                             public void onClick(DialogInterface dialog, int whichButton) {
                                 dialog.dismiss();
                             }
-                        }).show();
+                        }).show(); */
 
                 if (transactionResponse.getTransactionStatus().equals(TransactionResponse.TransactionStatus.SUCCESSFUL)) {
                     Date date = new Date();
@@ -383,7 +383,7 @@ public class CartActivity extends AppCompatActivity {
                 transStatus = status ;
 
                 if (!transStatus.equals("")){
-                    UserLogTask ult = new UserLogTask(CartActivity.this, mobile, machine_serial_no, quality, quantity, 1.0f, company
+                    UserLogTask ult = new UserLogTask(CartActivity.this, mobile, machine_serial_no, quality, quantity, "1.0", company
                             ,transStartTime, transEndTime, transMode, transactionId, transStatus, encryptedCode, new AsyncResponseUserLog() {
                         @Override
                         public void processFinish(String output) {

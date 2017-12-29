@@ -25,7 +25,7 @@ public class UserLogTask extends AsyncTask<String,String,String> {
     public static final int READ_TIMEOUT = 15000;
     String mobile,machine_id,quality,quantity,company,trans_start_time,
             trans_end_time,trans_mode,trans_id,trans_status,encrypted_code; ;
-    float cost ;
+    String cost ;
 
     Context context ;
 
@@ -35,7 +35,7 @@ public class UserLogTask extends AsyncTask<String,String,String> {
 
     }
 
-    public UserLogTask(Context context,String mobile,String machine_id,String quality,String quantity,float cost,
+    public UserLogTask(Context context,String mobile,String machine_id,String quality,String quantity,String cost,
                        String company,String trans_start_time,String trans_end_time,String trans_mode,String trans_id
                         ,String trans_status,String encrypted_code, AsyncResponseUserLog delegate){
         this.context = context ;
