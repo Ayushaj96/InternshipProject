@@ -168,7 +168,7 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
         sharedPreferencesLocation =getApplicationContext().getSharedPreferences("MyLocation", MODE_PRIVATE);
         sharedPreferencesLoginStatus =getApplicationContext().getSharedPreferences("MyLoginStatus", MODE_PRIVATE);
         editorLocation = sharedPreferencesLocation.edit();
-        editorLoginStatus = sharedPreferencesLocation.edit();
+        editorLoginStatus = sharedPreferencesLoginStatus.edit();
         zoom = Float.parseFloat(sharedPreferences.getString("Zoom" , "15.0"));
         radius = Float.parseFloat(sharedPreferences.getString("Radius" , "100.0"));
 
@@ -203,31 +203,6 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
 
             }
         });
-        /*ibSearch.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View view) {
-
-            }
-        });
-
-        ibNearest.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View view) {
-                if (mCurrentLocation != null){
-                    Toast.makeText(MapsActivity.this, "Finding Nearest Machine", Toast.LENGTH_SHORT).show();
-                    FindNearMachines fnm = new FindNearMachines(MapsActivity.this , mCurrentLocation , new AsyncResponseFindNear(){
-                        @Override
-                        public void processFinish(String output) {
-                            pointToNearest(output);
-                        }
-                    });
-                    fnm.execute() ;
-                }else{
-                    Toast.makeText(MapsActivity.this, "Getting your location..", Toast.LENGTH_SHORT).show();
-                }
-
-            }
-        });*/
 
         ibSetting.setOnClickListener(new View.OnClickListener() {
             @Override
