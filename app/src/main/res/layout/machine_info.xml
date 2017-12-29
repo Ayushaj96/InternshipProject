@@ -5,24 +5,21 @@
     android:layout_width="match_parent"
     android:layout_height="match_parent">
 
-    <com.github.florent37.diagonallayout.DiagonalLayout
+    <com.santalu.diagonalimageview.DiagonalImageView
         android:layout_width="match_parent"
         android:layout_height="250dp"
-        android:elevation="10dp"
+        android:scaleType="centerCrop"
         android:id="@+id/imageView"
-        app:diagonal_angle="10"
-        app:diagonal_position="bottom"
-        app:diagonal_direction="right">
-
+        app:di_borderColor="#FF5722"
+        app:di_borderEnabled="false"
+        app:di_direction="bottom"
+        app:di_overlap="56dp"
+        app:di_position="bottom"
+        android:src="@drawable/machine_info_background">
+    </com.santalu.diagonalimageview.DiagonalImageView>
         <RelativeLayout
             android:layout_width="match_parent"
             android:layout_height="match_parent">
-
-        <ImageView
-            android:layout_width="match_parent"
-            android:layout_height="match_parent"
-            android:scaleType="centerCrop"
-            android:src="@drawable/machine_info_background" />
 
     <de.hdodenhof.circleimageview.CircleImageView
 
@@ -62,7 +59,7 @@
         </RelativeLayout>
 
 
-    </com.github.florent37.diagonallayout.DiagonalLayout>
+
 
 
     <LinearLayout

@@ -5,26 +5,22 @@
     android:layout_width="match_parent"
     android:layout_height="match_parent">
 
-    <com.github.florent37.diagonallayout.DiagonalLayout
+    <com.santalu.diagonalimageview.DiagonalImageView
         android:layout_width="match_parent"
         android:layout_height="250dp"
-        android:elevation="10dp"
+        android:scaleType="centerCrop"
         android:id="@+id/imageView"
-        app:diagonal_angle="10"
-        app:diagonal_position="bottom"
-        app:diagonal_direction="right">
+        app:di_borderEnabled="false"
+        app:di_direction="bottom"
+        app:di_overlap="56dp"
+        app:di_position="bottom"
+        android:src="@drawable/machine_info_background">
+    </com.santalu.diagonalimageview.DiagonalImageView>
 
-        <RelativeLayout
+    <RelativeLayout
             android:layout_width="match_parent"
             android:layout_height="match_parent">
-
-            <ImageView
-                android:layout_width="match_parent"
-                android:layout_height="match_parent"
-                android:scaleType="centerCrop"
-                android:src="@drawable/machine_info_background" />
-
-            <de.hdodenhof.circleimageview.CircleImageView
+        <de.hdodenhof.circleimageview.CircleImageView
 
                 android:id="@+id/profile_image"
                 android:layout_width="70dp"
@@ -62,16 +58,17 @@
                 android:layout_toRightOf="@+id/profile_image" />
 
         </RelativeLayout>
-    </com.github.florent37.diagonallayout.DiagonalLayout>
+
 
 
     <LinearLayout
         android:id="@+id/line"
-        android:layout_width="3dp"
+        android:layout_width="1dp"
         android:layout_height="match_parent"
         android:layout_below="@id/imageView"
         android:layout_marginLeft="20dp"
         android:background="#d3d1d4"
+        android:layout_marginTop="-55dp"
         android:orientation="vertical">
 
     </LinearLayout>
@@ -81,9 +78,9 @@
         android:id="@+id/ll1"
         android:layout_width="match_parent"
         android:layout_height="50dp"
-        android:layout_marginTop="20dp"
+        android:layout_marginTop="-30dp"
         android:layout_below="@id/imageView"
-        android:layout_marginLeft="11dp"
+        android:layout_marginLeft="15dp"
         android:orientation="horizontal"
         android:gravity="center_vertical"
         >
