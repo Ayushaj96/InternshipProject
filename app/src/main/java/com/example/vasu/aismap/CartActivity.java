@@ -77,6 +77,8 @@ public class CartActivity extends AppCompatActivity {
         emailId = sharedPreferences.getString("Email" , "");
         mobile = sharedPreferences.getString("Mobile" , "");
         username = sharedPreferences.getString("Username" , "");
+
+        machine_serial_no = i.getStringExtra("serialno");
         company1 = i.getStringExtra("company1");
         company1quantity = i.getIntExtra("company1quantity" , 0) ;
         company2 = i.getStringExtra("company2");

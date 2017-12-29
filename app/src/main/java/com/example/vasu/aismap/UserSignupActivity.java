@@ -5,6 +5,7 @@ import android.content.SharedPreferences;
 import android.graphics.Color;
 import android.os.Bundle;
 import android.support.v7.app.AppCompatActivity;
+import android.text.InputType;
 import android.text.TextUtils;
 import android.view.View;
 import android.widget.Button;
@@ -14,13 +15,16 @@ import android.widget.Toast;
 import com.example.vasu.aismap.FetchPHP.AsyncResponseUserRegistration;
 import com.example.vasu.aismap.FetchPHP.UserRegistrationTask;
 
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
+
 import cn.pedant.SweetAlert.SweetAlertDialog;
 
 public class UserSignupActivity extends AppCompatActivity {
 
     Button submit;
     EditText name,email,username,password,cpassword,mnumber,dob,profession;
-    String NameHolder, EmailHolder,UnameHolder, PasswordHolder,MobileHolder,DobHolder,ProfessionHolder;
+    String NameHolder, EmailHolder,UnameHolder, PasswordHolder,CPasswordHolder,MobileHolder,DobHolder,ProfessionHolder;
 
     SharedPreferences sharedPreferences , sharedPreferencesMyInfo;
     SharedPreferences.Editor editor , editorMyInfo ;
@@ -47,6 +51,9 @@ public class UserSignupActivity extends AppCompatActivity {
         profession = (EditText)findViewById(R.id.Profession);
         submit = (Button)findViewById(R.id.submit);
 
+
+        mnumber.setInputType(InputType.TYPE_CLASS_NUMBER);
+
         //Adding Click Listener on button.
         submit.setOnClickListener(new View.OnClickListener() {
             @Override
@@ -59,19 +66,63 @@ public class UserSignupActivity extends AppCompatActivity {
 
     public void addData(){
 
+        String validemail = "[a-zA-Z0-9\\+\\.\\_\\%\\-\\+]{1,256}" +
+
+                "\\@" +
+
+                "[a-zA-Z0-9][a-zA-Z0-9\\-]{0,64}" +
+
+                "(" +
+
+                "\\." +
+
+                "[a-zA-Z0-9][a-zA-Z0-9\\-]{0,25}" +
+
+                ")+";
+
+
         NameHolder = name.getText().toString();
         EmailHolder = email.getText().toString();
         UnameHolder=username.getText().toString();
         PasswordHolder = password.getText().toString();
+        CPasswordHolder=cpassword.getText().toString();
         MobileHolder=mnumber.getText().toString();
         DobHolder=dob.getText().toString();
         ProfessionHolder=profession.getText().toString();
 
+        Matcher matcher= Pattern.compile(validemail).matcher(EmailHolder);
 
-        if(TextUtils.isEmpty(NameHolder) || TextUtils.isEmpty(EmailHolder) ||TextUtils.isEmpty(UnameHolder)|| TextUtils.isEmpty(PasswordHolder)
+
+
+
+        if(TextUtils.isEmpty(NameHolder) || TextUtils.isEmpty(EmailHolder) ||
+                TextUtils.isEmpty(UnameHolder)|| TextUtils.isEmpty(PasswordHolder)
                 ||TextUtils.isEmpty(MobileHolder)||TextUtils.isEmpty(DobHolder)||TextUtils.isEmpty(ProfessionHolder)) {
             Toast.makeText(this, "Something is Empty", Toast.LENGTH_SHORT).show();
         }
+        else
+            if (PasswordHolder.length()<5) {
+                 password.setError("password should be more than 5");
+
+            }
+            else
+            if (!PasswordHolder.equals(CPasswordHolder)) {
+                //Toast.makeText(this, "Password and Confirm Password Does not match", Toast.LENGTH_SHORT).show();
+                cpassword.setError("Does not match password");
+            }
+            else
+                if(!matcher.matches())
+                {
+                  //  Toast.makeText(this, "INVALID EMAIL", Toast.LENGTH_LONG).show();
+                    email.setError("Invalid Email" );
+                }
+
+                else
+                    if(mnumber.length()>10||mnumber.length()<10)
+                    {
+                        //Toast.makeText(this, "Invalid Phone Number", Toast.LENGTH_LONG).show();
+                        mnumber.setError("Invalid Mobile Number");
+                    }
         else {   final SweetAlertDialog pDialog = new SweetAlertDialog(this, SweetAlertDialog.PROGRESS_TYPE);
             pDialog.getProgressHelper().setBarColor(Color.parseColor("#A5DC86"));
             pDialog.setTitleText("Loading");
@@ -95,6 +146,10 @@ public class UserSignupActivity extends AppCompatActivity {
                         startActivity(new Intent(UserSignupActivity.this , MapsActivity.class));
                         pDialog.hide();
                         finish();
+                    }
+                    else
+                    {
+                        pDialog.hide();
                     }
                 }
             });

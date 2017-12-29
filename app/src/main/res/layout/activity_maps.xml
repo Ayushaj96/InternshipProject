@@ -8,7 +8,6 @@
     android:id="@+id/rlMaps">
 
 
-
     <fragment
         android:id="@+id/map"
         android:name="com.google.android.gms.maps.SupportMapFragment"
@@ -39,17 +38,6 @@
         android:padding="10sp"
         android:src="@drawable/ic_settings" />
 
-    <com.rey.material.widget.ProgressView
-        android:id="@+id/progressData"
-        android:layout_width="match_parent"
-        android:layout_height="30dp"
-        android:layout_alignParentBottom="false"
-        android:layout_marginTop="-60dp"
-        app:pv_autostart="true"
-        app:pv_circular="false"
-        app:pv_progressMode="indeterminate"
-        app:pv_progressStyle="@style/Material.Drawable.LinearProgress" />
-
     <include
         android:id="@+id/includeBarSearch"
         layout="@layout/search_bar"
@@ -64,6 +52,13 @@
         android:layout_height="wrap_content"
         android:layout_alignParentBottom="true"
         android:visibility="gone" />
+
+    <include
+        android:id="@+id/includeBarNavigation"
+        layout="@layout/left_navigation"
+        android:layout_width="wrap_content"
+        android:layout_height="match_parent"
+        android:visibility="gone"/>
 
 
 </RelativeLayout>
