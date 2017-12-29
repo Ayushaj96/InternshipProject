@@ -2,19 +2,23 @@ package com.example.vasu.aismap;
 
 import android.Manifest;
 import android.app.Activity;
+import android.content.BroadcastReceiver;
+import android.content.Context;
 import android.content.DialogInterface;
 import android.content.Intent;
+import android.content.IntentFilter;
 import android.content.SharedPreferences;
 import android.content.pm.PackageManager;
 import android.database.Cursor;
 import android.graphics.Color;
 import android.location.Location;
 import android.location.LocationManager;
+import android.net.ConnectivityManager;
+import android.net.NetworkInfo;
 import android.os.Bundle;
 import android.support.annotation.NonNull;
 import android.support.v4.app.ActivityCompat;
 import android.support.v4.app.FragmentActivity;
-import android.support.v4.widget.DrawerLayout;
 import android.support.v7.app.AlertDialog;
 import android.util.Log;
 import android.view.KeyEvent;
@@ -22,6 +26,7 @@ import android.view.View;
 import android.view.animation.Animation;
 import android.view.animation.AnimationUtils;
 import android.view.inputmethod.InputMethodManager;
+import android.widget.AdapterView;
 import android.widget.AutoCompleteTextView;
 import android.widget.Button;
 import android.widget.GridView;
@@ -81,7 +86,7 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
     private GoogleMap mMap;
     LocationRequest mLocationRequest;
     GoogleApiClient mGoogleApiClient;
-    Location mCurrentLocation = new Location("My Location");
+    Location mCurrentLocation = new Location(LocationManager.GPS_PROVIDER);
 
     private static final String TAG = "LocationActivity";
     private static final long INTERVAL = 1000 * 5;
@@ -122,6 +127,8 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
 
     SweetAlertDialog pDialog ;
 
+    BroadcastReceiver networkReceiver ;
+
     protected void createLocationRequest() {
         mLocationRequest = new LocationRequest();
         mLocationRequest.setInterval(INTERVAL);
@@ -135,6 +142,21 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
         setContentView(R.layout.activity_maps);
         SupportMapFragment mapFragment = (SupportMapFragment) getSupportFragmentManager().findFragmentById(R.id.map);
         mapFragment.getMapAsync(this);
+
+        networkReceiver = new BroadcastReceiver (){
+            @Override
+            public void onReceive(Context context, Intent intent) {
+                if(intent.getExtras()!=null) {
+                    NetworkInfo ni=(NetworkInfo) intent.getExtras().get(ConnectivityManager.EXTRA_NETWORK_INFO);
+                    if(ni!=null && ni.getState()==NetworkInfo.State.CONNECTED) {
+                        mCurrentLocation.setProvider(LocationManager.NETWORK_PROVIDER);
+                    }else {
+                        mCurrentLocation.setProvider(LocationManager.GPS_PROVIDER);
+                        Toast.makeText(context, "disconnected", Toast.LENGTH_SHORT).show();
+                    }
+                }
+            }
+        };
 
         ibMyLocation = (ImageButton) findViewById(R.id.myLocation);
         ibSetting = (ImageButton) findViewById(R.id.settingsButton);
@@ -326,7 +348,7 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
                                                 showSearchedMarker(mm);
                                             }
                                         })
-                                        .setExpanded(true)  // This will enable the expand feature, (similar to android L share dialog)
+                                        .setExpanded(true)
                                         .create();
                                 dialog.show();
                             }else{
@@ -521,6 +543,7 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
         editorLocation.putFloat("Latitude" , (float) mCurrentLocation.getLatitude());
         editorLocation.putFloat("Longitude" , (float) mCurrentLocation.getLongitude());
         editorLocation.commit();
+
         FindNearMachines fnm = new FindNearMachines(MapsActivity.this , mCurrentLocation , new AsyncResponseFindNear(){
             @Override
             public void processFinish(String output) {
@@ -694,7 +717,8 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
         ArrayList<HistoryModel> historyList = new ArrayList<>();
         data = historyDatabase.getListContents();
         while (data.moveToNext()){
-            historyList.add(new HistoryModel(data.getString(1),data.getString(2),data.getString(3)));
+            historyList.add(new HistoryModel(data.getString(1),data.getString(2),data.getString(3)
+                    ,data.getString(4),data.getString(5) ));
         }
         CustomHistoryAdapter cha = new CustomHistoryAdapter(MapsActivity.this , historyList) ;
         cha.notifyDataSetChanged();
@@ -712,7 +736,8 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
         Date date = new Date();
         SimpleDateFormat sdf = new SimpleDateFormat("hh:mm") ;
         String time = sdf.format(date) ;
-        historyDatabase.addData("A Machine" , mmAddress.getAddress() , time) ;
+        historyDatabase.addData(mmAddress.getSerial_no() ,String.valueOf(mmAddress.getLatLng()),mmAddress.getAddress()
+                ,mmAddress.getAddress_tags(),time) ;
 
         LatLng ll = mmAddress.getLatLng() ;
         for (MarkerModel allMM : allShowingMarkers){
@@ -734,9 +759,13 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
             selectedMarker.showInfoWindow() ;
         }
 
-        Location temp = new Location(LocationManager.GPS_PROVIDER);
-        temp.setLatitude(mmAddress.getMarker().getPosition().latitude);
-        temp.setLongitude(mmAddress.getMarker().getPosition().longitude);
+        Location temp ;
+        if (isNetworkAvailable())
+            temp  = new Location(LocationManager.NETWORK_PROVIDER);
+        else
+           temp  = new Location(LocationManager.GPS_PROVIDER);
+        temp.setLatitude(mmAddress.getLatLng().latitude);
+        temp.setLongitude(mmAddress.getLatLng().longitude);
         FindNearMachines fnm = new FindNearMachines(MapsActivity.this , temp , new AsyncResponseFindNear(){
             @Override
             public void processFinish(String output) {
@@ -788,5 +817,26 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
         }
 
     }
+
+    @Override
+    protected void onPause() {
+        super.onPause();
+        unregisterReceiver(networkReceiver);
+    }
+
+    @Override
+    protected void onResume() {
+        super.onResume();
+        IntentFilter filter = new IntentFilter(ConnectivityManager.CONNECTIVITY_ACTION);
+        registerReceiver(networkReceiver, filter);
+    }
+
+    private boolean isNetworkAvailable() {
+        ConnectivityManager connectivityManager
+                = (ConnectivityManager) getSystemService(Context.CONNECTIVITY_SERVICE);
+        NetworkInfo activeNetworkInfo = connectivityManager.getActiveNetworkInfo();
+        return activeNetworkInfo != null && activeNetworkInfo.isConnected();
+    }
+
 
 }
