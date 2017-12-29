@@ -199,8 +199,6 @@ public class CartActivity extends AppCompatActivity {
                 }
             }
         });
-
-
     }
 
     public void setValues(String company){
@@ -231,12 +229,12 @@ public class CartActivity extends AppCompatActivity {
 
         PayUmoneyConfig payUmoneyConfig = PayUmoneyConfig.getInstance();
 
-        payUmoneyConfig.setDoneButtonText("Pay Now");
+        payUmoneyConfig.setDoneButtonText("Done");
         payUmoneyConfig.setPayUmoneyActivityTitle("Payment Activity");
         PayUmoneySdkInitializer.PaymentParam.Builder builder = new PayUmoneySdkInitializer.PaymentParam.Builder();
 
         double amount = (double) 1 ;
-        String txnId = System.currentTimeMillis() + "";
+        String txnId = transactionId ;
         String phone = mobile;
         String productName = productinfo;
         String firstName = fullName;
@@ -338,8 +336,8 @@ public class CartActivity extends AppCompatActivity {
 
         // Result Code is -1 send from Payumoney activity
         Log.d("TRANSACTION", "request code " + requestCode + " resultcode " + resultCode);
-        if (requestCode == PayUmoneyFlowManager.REQUEST_CODE_PAYMENT && resultCode == RESULT_OK && data !=
-                null) {
+        if (requestCode == PayUmoneyFlowManager.REQUEST_CODE_PAYMENT && resultCode == RESULT_OK && data != null) {
+            Log.i("TRANSACTION" , "INSIDE PAYMENTS") ;
             TransactionResponse transactionResponse = data.getParcelableExtra(PayUmoneyFlowManager
                     .INTENT_EXTRA_TRANSACTION_RESPONSE);
 
@@ -378,7 +376,7 @@ public class CartActivity extends AppCompatActivity {
                     JSONObject obj2 = obj1.getJSONObject("result") ;
                     status = obj2.getString("status") ;
                 } catch (Exception e) {
-                    Log.i("TRANSACTION" , "Exception" + e);
+                    Log.i("TRANSACTION" , "JSON Exception" + e);
                 }
 
                 transStatus = status ;
