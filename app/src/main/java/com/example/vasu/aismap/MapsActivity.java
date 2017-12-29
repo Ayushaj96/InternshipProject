@@ -305,13 +305,13 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
         etSearch.setOnKeyListener(new View.OnKeyListener() {
             public boolean onKey(View v, int keyCode, KeyEvent event) {
                 if ((event.getAction() == KeyEvent.ACTION_DOWN) && (keyCode == KeyEvent.KEYCODE_ENTER)) {
-                    pDialog.setTitle("Find all Machines near : " + etSearch.getText().toString());
+                    pDialog.setTitleText("Find all Machines near : " + etSearch.getText().toString());
                     pDialog.show();
                     FindAllSearchMachines fasm = new FindAllSearchMachines(MapsActivity.this, etSearch.getText().toString(), new AsyncResponseFindAllSearches() {
                         @Override
                         public void processFinish(ArrayList<MarkerModel> output) {
                             hideKeyboard(MapsActivity.this);
-                            pDialog.dismissWithAnimation();
+                            pDialog.cancel();
                             CustomSearchListAdapter csla = new CustomSearchListAdapter(MapsActivity.this , output);
                             DialogPlus dialog = DialogPlus.newDialog(MapsActivity.this)
                                     .setAdapter(csla)
@@ -329,6 +329,9 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
                         }
                     });
                     fasm.execute() ;
+                    if (pDialog.isShowing()){
+                        pDialog.cancel();
+                    }
                     return true;
                 }
                 return false;
@@ -695,8 +698,6 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
     public void showSearchedMarker(MarkerModel mmAddress){
         boolean present = false ;
         final Marker m;
-        pDialog.setTitleText("Finding the address");
-        pDialog.show();
         etSearch.setText("");
         if (includeSearchInfo.getVisibility() == View.VISIBLE){
             includeSearchInfo.startAnimation(slide_down);
@@ -707,7 +708,6 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
         String time = sdf.format(date) ;
         historyDatabase.addData("A Machine" , mmAddress.getAddress() , time) ;
 
-        pDialog.dismissWithAnimation();
         LatLng ll = mmAddress.getLatLng() ;
         for (MarkerModel allMM : allShowingMarkers){
             if (allMM.getAddress().equals(mmAddress.getAddress())) {
