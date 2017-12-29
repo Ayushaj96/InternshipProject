@@ -5,6 +5,7 @@ import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
 import android.view.View;
 import android.widget.Button;
+import android.widget.ImageButton;
 import android.widget.ImageView;
 import android.widget.TextView;
 
@@ -15,7 +16,7 @@ public class DetailedMachineInfo extends AppCompatActivity {
 
     ImageView image ;
     TextView tvMachineSerial,tvAddress,tvAccess,tvStatus,tvCompany1,tvCompany2;
-        Button bt1;;
+    ImageButton bt1;
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -40,7 +41,7 @@ public class DetailedMachineInfo extends AppCompatActivity {
         tvCompany1=(TextView)findViewById(R.id.mcompany1);
         tvCompany2=(TextView)findViewById(R.id.mcompany2);
 
-        bt1=(Button)findViewById(R.id.mproceed);
+        bt1=(ImageButton)findViewById(R.id.mproceed);
 
         tvMachineSerial.setText(machine_serial_no);
         tvAddress.setText(address);

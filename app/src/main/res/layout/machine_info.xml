@@ -47,14 +47,12 @@
         android:textColor="#eff6f9"
         android:id="@+id/textView4"
         android:layout_marginTop="60dp"
-        android:layout_toRightOf="@+id/profile_image"
-        />
+        android:layout_toRightOf="@+id/profile_image" />
 
     <TextView
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:layout_marginLeft="15dp"
-
         android:text="Machine Address"
         android:textSize="15sp"
         android:textColor="#eff6f9"
@@ -62,6 +60,8 @@
         android:layout_toRightOf="@+id/profile_image" />
 
         </RelativeLayout>
+
+
     </com.github.florent37.diagonallayout.DiagonalLayout>
 
 
@@ -75,8 +75,7 @@
         android:orientation="vertical">
 
     </LinearLayout>
-
-
+    
     <LinearLayout
         android:id="@+id/ll1"
         android:layout_width="match_parent"
