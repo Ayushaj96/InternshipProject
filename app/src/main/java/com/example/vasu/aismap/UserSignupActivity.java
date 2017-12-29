@@ -29,7 +29,7 @@ public class UserSignupActivity extends AppCompatActivity {
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        setContentView(R.layout.activity_user_signup);
+        setContentView(R.layout.regis);
 
         sharedPreferences=getApplicationContext().getSharedPreferences("MyLoginStatus", MODE_PRIVATE);
         sharedPreferencesMyInfo=getApplicationContext().getSharedPreferences("MyInfo", MODE_PRIVATE);
