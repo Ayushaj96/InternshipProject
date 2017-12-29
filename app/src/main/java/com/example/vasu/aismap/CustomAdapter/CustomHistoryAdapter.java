@@ -52,7 +52,7 @@ public class CustomHistoryAdapter extends ArrayAdapter<HistoryModel> {
             TextView  mAddress= (TextView) convertView.findViewById(R.id.machineAddress);
             TextView mtime = (TextView) convertView.findViewById(R.id.time);
 
-            mname.setText(historyModel.getName());
+            mname.setText(historyModel.getSerial_no());
             mAddress.setText(historyModel.getAddress());
             mtime.setText(historyModel.getTime());
 

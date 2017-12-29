@@ -1,31 +1,40 @@
 package com.example.vasu.aismap.Models;
 
+import com.google.android.gms.maps.model.LatLng;
+import com.google.android.gms.maps.model.Marker;
+
 /**
- * Created by Vasu on 26-12-2017.
+ * Created by Vasu on 29-12-2017.
  */
 
 public class HistoryModel {
 
-    String name ;
-    String address ;
-    String time ;
+    private String latLng ;
+    private String address;
+    private String address_tags;
+    private String serial_no ;
+    private String time ;
 
     public HistoryModel(){
 
     }
 
-    public HistoryModel(String name,String address , String time){
-        this.name = name ;
-        this.address = address ;
+    public HistoryModel(String serial_no,String latLng,String address,String address_tags,String time){
+
         this.time = time ;
+        this.address = address ;
+        this.address_tags = address_tags ;
+        this.serial_no = serial_no ;
+        this.latLng = latLng ;
+
     }
 
-    public String getName() {
-        return name;
+    public String getLatLng() {
+        return latLng;
     }
 
-    public void setName(String name) {
-        this.name = name;
+    public void setLatLng(String latLng) {
+        this.latLng = latLng;
     }
 
     public String getAddress() {
@@ -36,6 +45,22 @@ public class HistoryModel {
         this.address = address;
     }
 
+    public String getAddress_tags() {
+        return address_tags;
+    }
+
+    public void setAddress_tags(String address_tags) {
+        this.address_tags = address_tags;
+    }
+
+    public String getSerial_no() {
+        return serial_no;
+    }
+
+    public void setSerial_no(String serial_no) {
+        this.serial_no = serial_no;
+    }
+
     public String getTime() {
         return time;
     }
@@ -43,6 +68,5 @@ public class HistoryModel {
     public void setTime(String time) {
         this.time = time;
     }
-
 
 }

@@ -92,9 +92,6 @@ public class UserSignupActivity extends AppCompatActivity {
 
         Matcher matcher= Pattern.compile(validemail).matcher(EmailHolder);
 
-
-
-
         if(TextUtils.isEmpty(NameHolder) || TextUtils.isEmpty(EmailHolder) ||
                 TextUtils.isEmpty(UnameHolder)|| TextUtils.isEmpty(PasswordHolder)
                 ||TextUtils.isEmpty(MobileHolder)||TextUtils.isEmpty(DobHolder)||TextUtils.isEmpty(ProfessionHolder)) {
@@ -125,7 +122,7 @@ public class UserSignupActivity extends AppCompatActivity {
                     }
         else {   final SweetAlertDialog pDialog = new SweetAlertDialog(this, SweetAlertDialog.PROGRESS_TYPE);
             pDialog.getProgressHelper().setBarColor(Color.parseColor("#A5DC86"));
-            pDialog.setTitleText("Loading");
+            pDialog.setTitleText("Registering User");
             pDialog.setCancelable(true);
             pDialog.show();
             UserRegistrationTask urt = new UserRegistrationTask(UserSignupActivity.this, NameHolder, EmailHolder, UnameHolder

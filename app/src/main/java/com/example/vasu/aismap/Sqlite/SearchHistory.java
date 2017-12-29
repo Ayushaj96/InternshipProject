@@ -14,9 +14,11 @@ public class SearchHistory extends SQLiteOpenHelper {
     public static final String DATABASE_NAME = "searchHistorylist.db";
     public static final String TABLE_NAME = "searchHistorylist_data";
     public static final String COL1 = "ID";
-    public static final String COL2 = "NAME";
-    public static final String COL3 = "ADDRESS";
-    public static final String COL4 = "TIME";
+    public static final String COL2 = "MACHINEID";
+    public static final String COL3 = "POSITION";
+    public static final String COL4 = "ADDRESS";
+    public static final String COL5 = "ADDRESSTAGS";
+    public static final String COL6 = "TIME";
 
 
     public SearchHistory(Context context) {
@@ -27,7 +29,7 @@ public class SearchHistory extends SQLiteOpenHelper {
     public void onCreate(SQLiteDatabase db) {
 
         db.execSQL("create table searchHistorylist_data " +
-                "(id integer primary key AUTOINCREMENT,NAME text,ADDRESS text,TIME text)");
+                "(id integer primary key AUTOINCREMENT,MACHINEID text,POSITION text,ADDRESS text,ADDRESSTAGS text,TIME text)");
 
     }
 
@@ -37,13 +39,15 @@ public class SearchHistory extends SQLiteOpenHelper {
         onCreate(db);
     }
 
-    public boolean addData(String item0, String item1 , String item2) {
+    public boolean addData(String item1, String item2 , String item3 , String item4 , String item5) {
 
         SQLiteDatabase db = this.getWritableDatabase();
         ContentValues contentValues = new ContentValues();
-        contentValues.put(COL2, item0);
-        contentValues.put(COL3, item1);
-        contentValues.put(COL4, item2);
+        contentValues.put(COL2, item1);
+        contentValues.put(COL3, item2);
+        contentValues.put(COL4, item3);
+        contentValues.put(COL5, item4);
+        contentValues.put(COL6, item5);
 
         long result = db.insert(TABLE_NAME, null, contentValues);
 
@@ -62,7 +66,7 @@ public class SearchHistory extends SQLiteOpenHelper {
 
     public Integer deleteDataFromId (String id) {
         SQLiteDatabase db = this.getWritableDatabase();
-        return db.delete(TABLE_NAME, "NAME = ?",new String[] {id});
+        return db.delete(TABLE_NAME, "MACHINEID = ?",new String[] {id});
     }
 
     public void deleteAllData(){
