@@ -14,7 +14,7 @@ public class DetailedMachineInfo extends AppCompatActivity {
     int company1quantity , company2quantity ;
 
     ImageView image ;
-    TextView tv1,tv2,tv3,tv4,tv5,tv6,tv7;
+    TextView tvMachineSerial,tvAddress,tvAccess,tvStatus,tvCompany1,tvCompany2;
         Button bt1;;
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -33,21 +33,21 @@ public class DetailedMachineInfo extends AppCompatActivity {
         company2quantity = Integer.parseInt(i.getStringExtra("company2quantity"));
         type = i.getStringExtra("type");
 
-        tv1=(TextView)findViewById(R.id.mserialno);
-        tv2=(TextView)findViewById(R.id.maddress);
-        tv3=(TextView)findViewById(R.id.maccess);
-        tv4=(TextView)findViewById(R.id.mstatus);
-        tv5=(TextView)findViewById(R.id.mtype);
-        tv6=(TextView)findViewById(R.id.mcost);
-        tv7=(TextView)findViewById(R.id.mcompany);
-        bt1=(Button)findViewById(R.id.mdirections);
+        tvMachineSerial=(TextView)findViewById(R.id.mserialno);
+        tvAddress=(TextView)findViewById(R.id.maddress);
+        tvAccess=(TextView)findViewById(R.id.maccess);
+        tvStatus=(TextView)findViewById(R.id.mstatus);
+        tvCompany1=(TextView)findViewById(R.id.mcompany1);
+        tvCompany2=(TextView)findViewById(R.id.mcompany2);
 
-        tv1.setText(machine_serial_no);
-        tv2.setText(address);
-        tv3.setText(access);
-        tv4.setText(status);
-        tv5.setText(type);
+        bt1=(Button)findViewById(R.id.mproceed);
 
+        tvMachineSerial.setText(machine_serial_no);
+        tvAddress.setText(address);
+        tvAccess.setText(access);
+        tvStatus.setText(status);
+        tvCompany1.setText(""+company1.replace("ld","Light Days").replace("hd","Heavy Days") + "-" + company1quantity);
+        tvCompany2.setText(""+company2.replace("ld","Light Days").replace("hd","Heavy Days") + "-" + company2quantity);
 
         bt1.setOnClickListener(new View.OnClickListener() {
             @Override
