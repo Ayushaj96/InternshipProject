@@ -174,10 +174,6 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
 
         historyDatabase = new SearchHistory(this) ;
 
-        pDialog = new SweetAlertDialog(MapsActivity.this, SweetAlertDialog.PROGRESS_TYPE);
-        pDialog.getProgressHelper().setBarColor(Color.parseColor("#A5DC86"));
-        pDialog.setCancelable(false);
-
         createLocationRequest();
         if (mGoogleApiClient == null) {
             mGoogleApiClient = new GoogleApiClient.Builder(this)
@@ -306,32 +302,41 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
         etSearch.setOnKeyListener(new View.OnKeyListener() {
             public boolean onKey(View v, int keyCode, KeyEvent event) {
                 if ((event.getAction() == KeyEvent.ACTION_DOWN) && (keyCode == KeyEvent.KEYCODE_ENTER)) {
+                    pDialog = new SweetAlertDialog(MapsActivity.this, SweetAlertDialog.PROGRESS_TYPE);
+                    pDialog.getProgressHelper().setBarColor(Color.parseColor("#A5DC86"));
+                    pDialog.setCancelable(false);
                     pDialog.setTitleText("Find all Machines near : " + etSearch.getText().toString());
                     pDialog.show();
                     FindAllSearchMachines fasm = new FindAllSearchMachines(MapsActivity.this, etSearch.getText().toString(), new AsyncResponseFindAllSearches() {
                         @Override
                         public void processFinish(ArrayList<MarkerModel> output) {
                             hideKeyboard(MapsActivity.this);
-                            pDialog.cancel();
-                            CustomSearchListAdapter csla = new CustomSearchListAdapter(MapsActivity.this , output);
-                            DialogPlus dialog = DialogPlus.newDialog(MapsActivity.this)
-                                    .setAdapter(csla)
-                                    .setOnItemClickListener(new OnItemClickListener() {
-                                        @Override
-                                        public void onItemClick(DialogPlus dialog, Object item, View view, int position) {
-                                            MarkerModel mm = (MarkerModel) item ;
-                                            dialog.dismiss();
-                                            showSearchedMarker(mm);
-                                        }
-                                    })
-                                    .setExpanded(true)  // This will enable the expand feature, (similar to android L share dialog)
-                                    .create();
-                            dialog.show();
+                            if (pDialog.isShowing()){
+                                pDialog.dismissWithAnimation();
+                            }
+                            if (output.size() > 0){
+                                CustomSearchListAdapter csla = new CustomSearchListAdapter(MapsActivity.this , output);
+                                DialogPlus dialog = DialogPlus.newDialog(MapsActivity.this)
+                                        .setAdapter(csla)
+                                        .setOnItemClickListener(new OnItemClickListener() {
+                                            @Override
+                                            public void onItemClick(DialogPlus dialog, Object item, View view, int position) {
+                                                MarkerModel mm = (MarkerModel) item ;
+                                                dialog.dismiss();
+                                                showSearchedMarker(mm);
+                                            }
+                                        })
+                                        .setExpanded(true)  // This will enable the expand feature, (similar to android L share dialog)
+                                        .create();
+                                dialog.show();
+                            }else{
+                                Toast.makeText(MapsActivity.this, "No Machines Found", Toast.LENGTH_SHORT).show();
+                            }
                         }
                     });
                     fasm.execute() ;
                     if (pDialog.isShowing()){
-                        pDialog.cancel();
+                        pDialog.dismissWithAnimation();
                     }
                     return true;
                 }

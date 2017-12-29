@@ -57,7 +57,7 @@ public class UserLoginActivity  extends AppCompatActivity {
     public void loginUser(){
         final SweetAlertDialog pDialog = new SweetAlertDialog(this, SweetAlertDialog.PROGRESS_TYPE);
         pDialog.getProgressHelper().setBarColor(Color.parseColor("#A5DC86"));
-        pDialog.setTitleText("Loading");
+        pDialog.setTitleText("Checking Credentials");
         pDialog.setCancelable(true);
         pDialog.show();
 
