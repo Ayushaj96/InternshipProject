@@ -23,7 +23,9 @@ public class UserLogTask extends AsyncTask<String,String,String> {
     URL url = null;
     public static final int CONNECTION_TIMEOUT = 10000;
     public static final int READ_TIMEOUT = 15000;
-    String mobile,machine_id,quality,quantity,cost,company,trans_start_time,trans_end_time,trans_mode,trans_id,trans_status,encrypted_code; ;
+    String mobile,machine_id,quality,quantity,company,trans_start_time,
+            trans_end_time,trans_mode,trans_id,trans_status,encrypted_code; ;
+    float cost ;
 
     Context context ;
 
@@ -33,7 +35,7 @@ public class UserLogTask extends AsyncTask<String,String,String> {
 
     }
 
-    public UserLogTask(Context context,String mobile,String machine_id,String quality,String quantity,String cost,
+    public UserLogTask(Context context,String mobile,String machine_id,String quality,String quantity,float cost,
                        String company,String trans_start_time,String trans_end_time,String trans_mode,String trans_id
                         ,String trans_status,String encrypted_code, AsyncResponseUserLog delegate){
         this.context = context ;
@@ -81,7 +83,7 @@ public class UserLogTask extends AsyncTask<String,String,String> {
                     + URLEncoder.encode(this.quantity, "UTF-8");
 
             data += "&" + URLEncoder.encode("cost", "UTF-8") + "="
-                    + URLEncoder.encode(this.cost, "UTF-8");
+                    + URLEncoder.encode(String.valueOf(this.cost), "UTF-8");
 
             data += "&" + URLEncoder.encode("company", "UTF-8") + "="
                     + URLEncoder.encode(this.company, "UTF-8");

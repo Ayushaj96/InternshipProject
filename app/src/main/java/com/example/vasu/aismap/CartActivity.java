@@ -17,6 +17,8 @@ import android.widget.Spinner;
 import android.widget.TextView;
 import android.widget.Toast;
 
+import com.example.vasu.aismap.FetchPHP.AsyncResponseUserLog;
+import com.example.vasu.aismap.FetchPHP.UserLogTask;
 import com.payumoney.core.PayUmoneyConfig;
 import com.payumoney.core.PayUmoneyConstants;
 import com.payumoney.core.PayUmoneySdkInitializer;
@@ -24,9 +26,14 @@ import com.payumoney.core.entity.TransactionResponse;
 import com.payumoney.sdkui.ui.utils.PayUmoneyFlowManager;
 import com.payumoney.sdkui.ui.utils.ResultModel;
 
+import org.json.JSONException;
+import org.json.JSONObject;
+
 import java.security.MessageDigest;
 import java.security.NoSuchAlgorithmException;
+import java.text.SimpleDateFormat;
 import java.util.ArrayList;
+import java.util.Date;
 import java.util.HashMap;
 import java.util.Random;
 
@@ -57,12 +64,16 @@ public class CartActivity extends AppCompatActivity {
     String merchantId = "5932019" , merchantKey = "EFtpMftw" , merchantSalt = "m4cHTWKqoL"  ;
     private PayUmoneySdkInitializer.PaymentParam mPaymentParams;
 
+    SimpleDateFormat sdf ;
+
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_cart);
 
         sharedPreferences=getApplicationContext().getSharedPreferences("MyInfo", MODE_PRIVATE);
+
+        sdf = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss");
 
         cardDetails = findViewById(R.id.cardView) ;
 
@@ -113,8 +124,8 @@ public class CartActivity extends AppCompatActivity {
         }
 
         encryptedCode = String.valueOf(tempEncryptedCode) ;
-        Toast.makeText(this, ""+encryptedCode, Toast.LENGTH_LONG).show();
-        Toast.makeText(this, ""+transactionId, Toast.LENGTH_LONG).show();
+        Log.i("TRANSACTION" , "Transactionid " + transactionId) ;
+        Log.i("TRANSACTION" , "Encrypted " + encryptedCode) ;
 
        companySpinner.setOnItemSelectedListener(new AdapterView.OnItemSelectedListener() {
            @Override
@@ -125,6 +136,8 @@ public class CartActivity extends AppCompatActivity {
                     totalCost = 0 ;
                     if (i == 1){
                         chosenCompany = 1 ;
+                        company = productinfo.substring(0,productinfo.indexOf("-"));
+                        quality = productinfo.substring(productinfo.indexOf("-"),productinfo.length());
                     }else if(i == 2){
                         chosenCompany = 2 ;
                     }
@@ -179,6 +192,8 @@ public class CartActivity extends AppCompatActivity {
             @Override
             public void onClick(View view) {
                 if (totalCost > 0){
+                    Date date = new Date();
+                    transStartTime = sdf.format(date) ;
                     launchPayUMoneyFlow();
                 }else {
                     Toast.makeText(CartActivity.this, "Total Cost is 0", Toast.LENGTH_SHORT).show();
@@ -333,17 +348,8 @@ public class CartActivity extends AppCompatActivity {
 
             // Check which object is non-null
             if (transactionResponse != null && transactionResponse.getPayuResponse() != null) {
-                if (transactionResponse.getTransactionStatus().equals(TransactionResponse.TransactionStatus.SUCCESSFUL)) {
-                    Log.i("TRANSACTION" , "Success");
-                    Toast.makeText(this, "Transaction Success", Toast.LENGTH_SHORT).show();
-                } else {
-                    Log.i("TRANSACTION" , "Failure");
-                    Toast.makeText(this, "Transaction Failed", Toast.LENGTH_SHORT).show();
-                }
 
-                // Response from Payumoney
                 String payuResponse = transactionResponse.getPayuResponse();
-
                 // Response from SURl and FURL
                 String merchantResponse = transactionResponse.getTransactionDetails();
 
@@ -355,6 +361,40 @@ public class CartActivity extends AppCompatActivity {
                                 dialog.dismiss();
                             }
                         }).show();
+
+                if (transactionResponse.getTransactionStatus().equals(TransactionResponse.TransactionStatus.SUCCESSFUL)) {
+                    Date date = new Date();
+                    transEndTime = sdf.format(date) ;
+                    Log.i("TRANSACTION" , "Success");
+                    Toast.makeText(this, "Transaction Success", Toast.LENGTH_SHORT).show();
+                } else {
+                    Log.i("TRANSACTION" , "Failure");
+                    Toast.makeText(this, "Transaction Failed", Toast.LENGTH_SHORT).show();
+                }
+
+                String status = "" ;
+
+                try {
+                    JSONObject obj1 = new JSONObject(String.valueOf(payuResponse)) ;
+                    JSONObject obj2 = obj1.getJSONObject("result") ;
+                    status = obj2.getString("status") ;
+                } catch (Exception e) {
+                    Log.i("TRANSACTION" , "Exception" + e);
+                }
+
+                transStatus = status ;
+
+                if (!transStatus.equals("")){
+                    UserLogTask ult = new UserLogTask(CartActivity.this, mobile, machine_serial_no, quality, quantity, 1.0f, company
+                            ,transStartTime, transEndTime, transMode, transactionId, transStatus, encryptedCode, new AsyncResponseUserLog() {
+                        @Override
+                        public void processFinish(String output) {
+                            Log.i("TRANSACTION" , output) ;
+                            Toast.makeText(CartActivity.this, ""+output, Toast.LENGTH_SHORT).show();
+                        }
+                    });
+                    ult.execute() ;
+                }
 
             } else if (resultModel != null && resultModel.getError() != null) {
                 Log.d("TRANSACTION", "Error response : " + resultModel.getError().getTransactionResponse());
