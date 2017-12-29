@@ -43,6 +43,14 @@ public class DetailedMachineInfo extends AppCompatActivity {
 
         bt1=(ImageButton)findViewById(R.id.mproceed);
 
+        if (status.equalsIgnoreCase("yes")){
+            status = "Working" ;
+            bt1.setVisibility(View.VISIBLE);
+        }else{
+            status = "Not Working" ;
+            bt1.setVisibility(View.INVISIBLE);
+        }
+
         tvMachineSerial.setText(machine_serial_no);
         tvAddress.setText(address);
         tvAccess.setText(access);
