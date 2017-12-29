@@ -28,11 +28,17 @@ import java.security.MessageDigest;
 import java.security.NoSuchAlgorithmException;
 import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.Random;
 
 public class CartActivity extends AppCompatActivity {
 
-    String fullName,mobile,emailId,username,address,machine_serial_no,access,status,company1,company2,type;
+    String fullName,mobile,emailId,username,address,machine_serial_no,access,status,company1,company2,type
+            ,transactionId="",encryptedCode="",transStartTime="",transEndTime="",quality="",quantity=""
+            ,company="",transMode="AndroidApp",transStatus="";
     int company1quantity , company2quantity ;
+
+    String letters = "abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ" ;
+    String numbers = "1234567890" ;
 
     Spinner companySpinner ;
 
@@ -92,6 +98,23 @@ public class CartActivity extends AppCompatActivity {
         ArrayAdapter<String> spinnerAdapter = new ArrayAdapter<String>(this, android.R.layout.simple_spinner_item, companies);
         spinnerAdapter.setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item);
         companySpinner.setAdapter(spinnerAdapter);
+
+        int tempEncryptedCode = 0 ;
+        Random rd = new Random() ;
+        while (tempEncryptedCode < 100000){
+            tempEncryptedCode = rd.nextInt(1000000) ;
+        }
+
+        for (int j=0 ; j < 3 ; j++){
+            transactionId += "" + letters.charAt(rd.nextInt(letters.length())) ;
+        }
+        for (int j=0 ; j < 3 ; j++){
+            transactionId += "" + numbers.charAt(rd.nextInt(numbers.length())) ;
+        }
+
+        encryptedCode = String.valueOf(tempEncryptedCode) ;
+        Toast.makeText(this, ""+encryptedCode, Toast.LENGTH_LONG).show();
+        Toast.makeText(this, ""+transactionId, Toast.LENGTH_LONG).show();
 
        companySpinner.setOnItemSelectedListener(new AdapterView.OnItemSelectedListener() {
            @Override
