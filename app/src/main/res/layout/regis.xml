@@ -59,7 +59,10 @@
                 android:paddingLeft="5dp"
                 android:id="@+id/fullname"
                 android:text="aj"
-                android:layout_marginTop="30dp"/>
+                android:layout_marginTop="30dp"
+                android:maxLines="1"
+                android:maxLength="15"
+                />
 
             <EditText android:layout_width="fill_parent"
                 android:layout_height="40dp"
@@ -67,6 +70,8 @@
                 android:id="@+id/email"
                 android:background="#f3f3f3"
                 android:paddingLeft="5dp"
+                android:maxLines="1"
+                android:maxLength="15"
                 android:layout_marginTop="15dp"/>
 
             <EditText android:layout_width="fill_parent"
@@ -76,6 +81,8 @@
                 android:text="aj123"
                 android:background="#f3f3f3"
                 android:paddingLeft="5dp"
+                android:maxLines="1"
+                android:maxLength="15"
                 android:layout_marginTop="15dp"/>
 
             <EditText android:layout_width="fill_parent"
@@ -83,6 +90,8 @@
                 android:hint="Password"
                 android:background="#f3f3f3"
                 android:paddingLeft="5dp"
+                android:maxLines="1"
+                android:maxLength="15"
                 android:layout_marginTop="15dp"
                 android:id="@+id/password"/>
 
@@ -94,6 +103,8 @@
                 android:paddingLeft="5dp"
                 android:id="@+id/confirmpassword"
                 android:layout_marginTop="15dp"
+                android:maxLines="1"
+                android:maxLength="15"
                 />
 
 
@@ -105,7 +116,10 @@
                 android:background="#f3f3f3"
                 android:paddingLeft="5dp"
                 android:layout_marginTop="15dp"
-                android:text="9385985939"/>
+                android:text="9385985939"
+                android:maxLines="1"
+                android:maxLength="15"
+                />
             <EditText android:layout_width="fill_parent"
                 android:layout_height="40dp"
                 android:hint="Date of birth"
@@ -113,7 +127,10 @@
                 android:paddingLeft="5dp"
                 android:text="1996-05-16"
                 android:id="@+id/DateOfbirth"
-                android:layout_marginTop="15dp"/>
+                android:layout_marginTop="15dp"
+                android:maxLines="1"
+                android:maxLength="15"/>
+
             <EditText android:layout_width="fill_parent"
                 android:layout_height="40dp"
                 android:id="@+id/Profession"
@@ -121,7 +138,11 @@
                 android:background="#f3f3f3"
                 android:paddingLeft="5dp"
                 android:layout_marginTop="15dp"
-                android:text="android"/>
+                android:text="android"
+
+                android:maxLines="1"
+                android:maxLength="15"/>
+
             <Button android:layout_width="190dp"
                 android:layout_height="38dp"
                 android:id="@+id/submit"
