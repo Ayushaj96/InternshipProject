@@ -14,13 +14,15 @@ import android.widget.Toast;
 
 import com.example.vasu.aismap.FetchPHP.AsyncResponseUserRegistration;
 import com.example.vasu.aismap.FetchPHP.UserRegistrationTask;
+import com.wdullaer.materialdatetimepicker.date.DatePickerDialog;
 
+import java.util.Calendar;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
 import cn.pedant.SweetAlert.SweetAlertDialog;
 
-public class UserSignupActivity extends AppCompatActivity {
+public class UserSignupActivity extends AppCompatActivity implements DatePickerDialog.OnDateSetListener {
 
     Button submit;
     EditText name,email,username,password,cpassword,mnumber,dob,profession;
@@ -51,6 +53,22 @@ public class UserSignupActivity extends AppCompatActivity {
         profession = (EditText)findViewById(R.id.Profession);
         submit = (Button)findViewById(R.id.submit);
 
+        dob.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+
+                Calendar now = Calendar.getInstance();
+                DatePickerDialog dpd = DatePickerDialog.newInstance(
+                         UserSignupActivity.this,
+                        now.get(Calendar.YEAR),
+                        now.get(Calendar.MONTH),
+                        now.get(Calendar.DAY_OF_MONTH)
+
+                );
+
+                dpd.show(getFragmentManager(), "Datepickerdialog");
+            }
+        });
 
         mnumber.setInputType(InputType.TYPE_CLASS_NUMBER);
 
@@ -63,6 +81,8 @@ public class UserSignupActivity extends AppCompatActivity {
         });
 
     }
+
+
 
     public void addData(){
 
@@ -155,4 +175,9 @@ public class UserSignupActivity extends AppCompatActivity {
 
     }
 
+    @Override
+    public void onDateSet(DatePickerDialog datePickerDialog, int year, int monthOfYear, int dayOfMonth) {
+        String date =year+"/"+monthOfYear+"/"+dayOfMonth;
+        dob.setText(date);
+    }
 }
