@@ -85,12 +85,18 @@ public class ParserTask extends AsyncTask<String, Integer, List<List<HashMap<Str
             // Adding all the points in the route to LineOptions
             lineOptions[i].addAll(points);
             lineOptions[i].width(10);
-            if (this.distanceList.get(i) == tempDistance.get(0)){
+            /*if (this.distanceList.get(i) == tempDistance.get(0)){
                 lineOptions[i].color(Color.GREEN);
             }else if (this.distanceList.get(i) == tempDistance.get(tempDistance.size()-1)){
                 lineOptions[i].color(Color.RED);
             }else{
                 lineOptions[i].color(Color.BLUE);
+            }*/
+
+            if (this.distanceList.get(i) == tempDistance.get(0)){
+                lineOptions[i].color(Color.BLUE);
+            }else{
+                lineOptions[i].color(Color.DKGRAY);
             }
 
         }
