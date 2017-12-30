@@ -6,15 +6,15 @@
     android:layout_height="match_parent"
     android:orientation="vertical"
     tools:context="com.example.vasu.aismap.ProfileActivity"
-    android:paddingTop="25dp"
+    android:paddingTop="50dp"
     android:gravity="center_horizontal"
     android:background="@drawable/profile_background">
 
     <de.hdodenhof.circleimageview.CircleImageView
         android:layout_centerHorizontal="true"
         android:id="@+id/profile_image"
-        android:layout_width="100dp"
-        android:layout_height="100dp"
+        android:layout_width="150dp"
+        android:layout_height="150dp"
         android:src="@color/blue"
         app:civ_border_width="5dp"
         app:civ_border_color="#ffffff"
@@ -27,8 +27,8 @@
         app:cardCornerRadius="10sp"
         android:layout_marginLeft="10sp"
         android:layout_marginRight="10sp"
-        android:layout_marginTop="50dp"
-        app:contentPaddingTop="50dp"
+        android:layout_marginTop="75dp"
+        app:contentPaddingTop="75dp"
         app:contentPaddingBottom="25dp"
         app:cardElevation="10sp">
 
@@ -111,10 +111,11 @@
         android:layout_width="match_parent"
         android:layout_height="match_parent"
         app:cardElevation="10sp"
+        app:cardCornerRadius="10sp"
         android:layout_marginLeft="10sp"
         android:layout_marginRight="10sp"
         android:layout_marginTop="20dp"
-        android:layout_marginBottom="15sp"
+        android:layout_marginBottom="-10sp"
         android:layout_below="@id/cardBasicDetails">
 
         <LinearLayout

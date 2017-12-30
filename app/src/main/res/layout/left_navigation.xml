@@ -82,7 +82,7 @@
             android:layout_marginLeft="25dp"
             android:layout_marginRight="10dp"
             android:textSize="20sp"
-            android:text="Machine Near me"
+            android:text="Nearest Machine"
             android:textStyle="bold"/>
     </LinearLayout>
 

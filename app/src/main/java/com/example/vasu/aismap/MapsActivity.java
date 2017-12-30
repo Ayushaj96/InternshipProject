@@ -11,6 +11,7 @@ import android.content.SharedPreferences;
 import android.content.pm.PackageManager;
 import android.database.Cursor;
 import android.graphics.Color;
+import android.graphics.pdf.PdfDocument;
 import android.location.Location;
 import android.location.LocationManager;
 import android.net.ConnectivityManager;
@@ -272,19 +273,7 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
                     includeNavigation.startAnimation(slide_left);
                     includeNavigation.setVisibility(View.GONE);
                 }
-                if (mCurrentLocation != null){
-                    Toast.makeText(MapsActivity.this, "Finding Nearest Machine", Toast.LENGTH_SHORT).show();
-                    FindNearMachines fnm = new FindNearMachines(MapsActivity.this , mCurrentLocation , new AsyncResponseFindNear(){
-                        @Override
-                        public void processFinish(String output) {
-                            if (!output.equalsIgnoreCase("")) pointToNearest(output);
-                            else Toast.makeText(MapsActivity.this, "No Nearest Machine Found", Toast.LENGTH_SHORT).show();
-                        }
-                    });
-                    fnm.execute() ;
-                }else{
-                    Toast.makeText(MapsActivity.this, "Getting your location..", Toast.LENGTH_SHORT).show();
-                }
+                pointToNearest();
             }
         });
 
@@ -403,8 +392,8 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
                 String cost= "";
                 for (MarkerModel mm : allShowingMarkers) {
                     if (mm.getMarker().getPosition().latitude == selectedMarker.getPosition().latitude) {
-                         address = mm.getAddress();
-                         serialno = mm.getSerial_no();
+                        address = mm.getAddress();
+                        serialno = mm.getSerial_no();
                         access = mm.getAccess();
                         status = mm.getStatus();
                         type = mm.getType();
@@ -518,14 +507,8 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
             }
         });
 
-        FindNearMachines fnm = new FindNearMachines(MapsActivity.this , mCurrentLocation , new AsyncResponseFindNear(){
-            @Override
-            public void processFinish(String output) {
-                addToNearGrid(output);
-                findNear(output) ;
-            }
-        });
-        fnm.execute() ;
+        Toast.makeText(this, "Finding Nearby Machines", Toast.LENGTH_SHORT).show();
+        findNearTask(1);
 
     }
 
@@ -578,14 +561,8 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
         editorLocation.putFloat("Longitude" , (float) mCurrentLocation.getLongitude());
         editorLocation.commit();
 
-        FindNearMachines fnm = new FindNearMachines(MapsActivity.this , mCurrentLocation , new AsyncResponseFindNear(){
-            @Override
-            public void processFinish(String output) {
-                addToNearGrid(output);
-                findNear(output) ;
-            }
-        });
-        fnm.execute() ;
+        // findNearTask(1);
+
         showHistory();
         updateUI();
     }
@@ -613,6 +590,37 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
 
         } else {
             Log.d(TAG, "location is null ...............");
+        }
+    }
+
+    public void findNearTask(int count){
+        if (mCurrentLocation != null){
+            final int[] km = {count};
+            /*pDialog = new SweetAlertDialog(MapsActivity.this, SweetAlertDialog.PROGRESS_TYPE);
+            pDialog.getProgressHelper().setBarColor(Color.parseColor("#A5DC86"));
+            pDialog.setCancelable(false);
+            pDialog.setTitleText("Finding machines in " + km[0] + "km range");
+            pDialog.show(); */
+            FindNearMachines fnm = new FindNearMachines(MapsActivity.this , mCurrentLocation, String.valueOf(km[0]) , new AsyncResponseFindNear(){
+                @Override
+                public void processFinish(String output) {
+                    // if (pDialog.isShowing())pDialog.dismiss();
+
+                    if (!output.equalsIgnoreCase("[]")){
+                        //pointToNearest(output);
+                        addToNearGrid(output);
+                        findNear(output);
+                    }else {
+                        if (km[0] < 5) findNearTask(km[0]+2);
+                        else Toast.makeText(MapsActivity.this, "No Nearest Machine Found", Toast.LENGTH_SHORT).show();
+                    }
+                }
+            });
+            fnm.execute() ;
+            km[0]++ ;
+
+        }else{
+            Toast.makeText(MapsActivity.this, "Getting your location..", Toast.LENGTH_SHORT).show();
         }
     }
 
@@ -676,6 +684,7 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
                         allShowingMarkers.add(mm);
                     }
             }
+            Toast.makeText(this, "Showing all Nearby Machines", Toast.LENGTH_SHORT).show();
         } catch (Exception e) {
         }
     }
@@ -712,28 +721,22 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
         }
     }
 
-    public void pointToNearest(String result){
+    public void pointToNearest(){
 
         float minDist = Float.MAX_VALUE;
         double minLat = 0 ;
         double minLong = 0;
-        try {
-            JSONArray jsonArray =new JSONArray(result);
-            for (int i = 0; i < jsonArray.length(); i++) {
-                JSONObject object = jsonArray.getJSONObject(i);
-                double latitude = object.getDouble("latitude");
-                double longitude = object.getDouble("longitude");
-                float[] dist = new float[2] ;
-                Location.distanceBetween(mCurrentLocation.getLatitude() , mCurrentLocation.getLongitude() ,
-                        latitude , longitude , dist);
-                if (dist[0] <= minDist){
-                    minDist = dist[0] ;
-                    minLat = latitude ;
-                    minLong = longitude ;
-                }
+        for (MarkerModel mm : allShowingMarkers){
+            double latitude = mm.getLatLng().latitude ;
+            double longitude = mm.getLatLng().longitude ;
+            float[] dist = new float[2] ;
+            Location.distanceBetween(mCurrentLocation.getLatitude() , mCurrentLocation.getLongitude() ,
+                    latitude , longitude , dist);
+            if (dist[0] <= minDist){
+                minDist = dist[0] ;
+                minLat = latitude ;
+                minLong = longitude ;
             }
-        } catch (Exception e) {
-            Toast.makeText(this, ""+e.getMessage(), Toast.LENGTH_SHORT).show();
         }
 
         final LatLng minLL = new LatLng(minLat,minLong) ;
@@ -863,7 +866,7 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
            temp  = new Location(LocationManager.GPS_PROVIDER);
         temp.setLatitude(mmAddress.getLatLng().latitude);
         temp.setLongitude(mmAddress.getLatLng().longitude);
-        FindNearMachines fnm = new FindNearMachines(MapsActivity.this , temp , new AsyncResponseFindNear(){
+        FindNearMachines fnm = new FindNearMachines(MapsActivity.this , temp , "1", new AsyncResponseFindNear(){
             @Override
             public void processFinish(String output) {
                 findSearchNear(output) ;
