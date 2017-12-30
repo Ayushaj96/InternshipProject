@@ -108,6 +108,7 @@ public class UserLoginTask extends AsyncTask<String,String,String> {
 
     @Override
     protected void onPostExecute(String result) {
+        result = result.replace("\\n" , "").replace("\\r" , "").replace("\\t" , "");
         delegate.processFinish(result);
     }
 }

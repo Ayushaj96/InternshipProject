@@ -32,15 +32,17 @@ public class FindNearMachines extends AsyncTask<String,String,String> {
     public static final int READ_TIMEOUT = 15000;
     ArrayList<NearMachines> nearList = new ArrayList<>();
     double lat , lang ;
+    String km ;
 
     SharedPreferences sharedPreferencesLocation ;
     Context context ;
 
     public AsyncResponseFindNear delegate = null;
 
-    public FindNearMachines(Context context , Location mCurrentLocation , AsyncResponseFindNear delegate){
+    public FindNearMachines(Context context , Location mCurrentLocation , String km , AsyncResponseFindNear delegate){
         this.context = context ;
         this.delegate = delegate ;
+        this.km = km ;
         sharedPreferencesLocation = this.context.getSharedPreferences("MyLocation", MODE_PRIVATE);
         if (mCurrentLocation != null){
             this.lat = mCurrentLocation.getLatitude();
@@ -74,7 +76,7 @@ public class FindNearMachines extends AsyncTask<String,String,String> {
                     + URLEncoder.encode(String.valueOf(this.lang), "UTF-8");
 
             data += "&" + URLEncoder.encode("km", "UTF-8") + "="
-                    + URLEncoder.encode(String.valueOf(1), "UTF-8");
+                    + URLEncoder.encode(km, "UTF-8");
 
             // Setup HttpURLConnection class to send and receive data from php and mysql
             conn = (HttpURLConnection) url.openConnection();
@@ -132,6 +134,7 @@ public class FindNearMachines extends AsyncTask<String,String,String> {
     @Override
     protected void onPostExecute(String result) {
 
+        result = result.replace("\\n" , "").replace("\\r" , "").replace("\\t" , "");
         delegate.processFinish(result);
 
     }

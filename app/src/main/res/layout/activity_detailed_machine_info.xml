@@ -55,7 +55,10 @@
                 android:textSize="15sp"
                 android:textColor="#eff6f9"
                 android:layout_below="@id/mserialno"
-                android:layout_toRightOf="@+id/profile_image" />
+                android:layout_toRightOf="@+id/profile_image"
+                android:maxLines="3"
+                android:ellipsize="end"
+                android:paddingRight="10sp"/>
 
         </RelativeLayout>
 
