@@ -378,7 +378,7 @@ public class CartActivity extends AppCompatActivity {
                     JSONObject obj2 = obj1.getJSONObject("result") ;
                     status = obj2.getString("status") ;
                 } catch (Exception e) {
-                    Log.i("TRANSACTION" , "JSON Exception" + e);   
+                    Log.i("TRANSACTION" , "JSON Exception" + e);
                 }
 
                 transStatus = status ;

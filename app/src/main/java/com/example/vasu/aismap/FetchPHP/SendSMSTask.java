@@ -45,7 +45,7 @@ protected String doInBackground(String... params) {
 
         // Enter URL address where your json file resides
         // Even you can make call to php file which returns json data
-        url = new URL("http://sms.thinkbuyget.com/api.php");
+        url = new URL("http://sms.thinkbuyget.com/api.php?username=Aiseratech&password=224679&sender=DGENIT&sendto="+this.mobile+"&message="+this.message);
 
         } catch (MalformedURLException e) {
         // TODO Auto-generated catch block
@@ -54,33 +54,14 @@ protected String doInBackground(String... params) {
         }
         try {
 
-        String data = URLEncoder.encode("mobile", "UTF-8") + "=" + URLEncoder.encode(String.valueOf(this.mobile), "UTF-8");
-
-            data += "&"+URLEncoder.encode("message", "UTF-8")
-                    + "=" + URLEncoder.encode(String.valueOf(this.message), "UTF-8");
-
-                data += "&"+URLEncoder.encode("username", "UTF-8")
-                        + "=" + URLEncoder.encode(String.valueOf("Aiseratech"), "UTF-8");
-
-                data += "&"+URLEncoder.encode("password", "UTF-8")
-                        + "=" + URLEncoder.encode(String.valueOf("224679"), "UTF-8");
-
-                data += "&"+URLEncoder.encode("sender", "UTF-8")
-                        + "=" + URLEncoder.encode(String.valueOf("DGENIT"), "UTF-8");
-
-
-            // Setup HttpURLConnection class to send and receive data from php and mysql
+        // Setup HttpURLConnection class to send and receive data from php and mysql
         conn = (HttpURLConnection) url.openConnection();
         conn.setReadTimeout(READ_TIMEOUT);
         conn.setConnectTimeout(CONNECTION_TIMEOUT);
-        conn.setRequestMethod("POST");
+        conn.setRequestMethod("GET");
 
         // setDoOutput to true as we recieve data from json file
         conn.setDoOutput(true);
-
-        OutputStreamWriter wr = new OutputStreamWriter(conn.getOutputStream());
-        wr.write( data );
-        wr.flush();
 
         } catch (IOException e1) {
         // TODO Auto-generated catch block

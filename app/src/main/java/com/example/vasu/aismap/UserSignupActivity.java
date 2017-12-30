@@ -13,11 +13,14 @@ import android.widget.Button;
 import android.widget.EditText;
 import android.widget.Toast;
 
+import com.example.vasu.aismap.FetchPHP.AsyncResponseFindSearch;
 import com.example.vasu.aismap.FetchPHP.AsyncResponseUserRegistration;
+import com.example.vasu.aismap.FetchPHP.SendSMSTask;
 import com.example.vasu.aismap.FetchPHP.UserRegistrationTask;
 import com.wdullaer.materialdatetimepicker.date.DatePickerDialog;
 
 import java.util.Calendar;
+import java.util.Random;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
@@ -78,10 +81,30 @@ public class UserSignupActivity extends AppCompatActivity implements DatePickerD
         submit.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
-                addData();
+                //addData();
+                sendOTP(mnumber.getText().toString());
             }
         });
 
+    }
+
+    public void sendOTP(String mobile){
+        int tempOTP = 0 ;
+        Random rd = new Random() ;
+        while (tempOTP < 100000){
+            tempOTP = rd.nextInt(1000000) ;
+        }
+        String otp = String.valueOf(tempOTP) ;
+        StringBuilder sb=new StringBuilder(mobile+"-"+otp);
+        sb.insert(0,"/%");
+        String message = sb.toString() ;
+        SendSMSTask sendSMSTask=new SendSMSTask(UserSignupActivity.this, ""+mobile, ""+message, new AsyncResponseFindSearch() {
+            @Override
+            public void processFinish(String output) {
+                Toast.makeText(UserSignupActivity.this, ""+output, Toast.LENGTH_SHORT).show();
+            }
+        });
+        sendSMSTask.execute();
     }
 
 
