@@ -13,11 +13,6 @@ import android.widget.Toast;
 
 import com.example.vasu.aismap.FetchPHP.AsyncResponseUserRegistration;
 import com.example.vasu.aismap.FetchPHP.UserLoginTask;
-import com.example.vasu.aismap.Models.MarkerModel;
-import com.google.android.gms.maps.model.BitmapDescriptorFactory;
-import com.google.android.gms.maps.model.LatLng;
-import com.google.android.gms.maps.model.Marker;
-import com.google.android.gms.maps.model.MarkerOptions;
 
 import org.json.JSONArray;
 import org.json.JSONObject;
@@ -66,6 +61,7 @@ public class UserLoginActivity  extends AppCompatActivity {
 
         if(TextUtils.isEmpty(EmailHolder) || TextUtils.isEmpty(PasswordHolder))
         {
+            pDialog.hide();
             Toast.makeText(this, "Something Is missing", Toast.LENGTH_SHORT).show();
         }
         else {
