@@ -277,7 +277,8 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
                     FindNearMachines fnm = new FindNearMachines(MapsActivity.this , mCurrentLocation , new AsyncResponseFindNear(){
                         @Override
                         public void processFinish(String output) {
-                            pointToNearest(output);
+                            if (!output.equalsIgnoreCase("")) pointToNearest(output);
+                            else Toast.makeText(MapsActivity.this, "No Nearest Machine Found", Toast.LENGTH_SHORT).show();
                         }
                     });
                     fnm.execute() ;
@@ -479,6 +480,41 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
                     includeBasicInfo.startAnimation(slide_up);
                 }}
                 return false;
+            }
+        });
+        mMap.setOnInfoWindowClickListener(new GoogleMap.OnInfoWindowClickListener() {
+            @Override
+            public void onInfoWindowClick(Marker marker) {
+                if(includeBasicInfo.getVisibility() == View.VISIBLE){
+                    includeBasicInfo.startAnimation(slide_down);
+                    includeBasicInfo.setVisibility(View.GONE);
+                }
+
+                if (mCurrentLocation.getLatitude()!=marker.getPosition().latitude) {
+
+                    if (includeBasicInfo.getVisibility() == View.GONE){
+                        for (MarkerModel mm : allShowingMarkers){
+                            if ((String.valueOf(mm.getMarker())).equals(String.valueOf(marker))){
+                                tvBasicMachineSerial.setText(""+mm.getSerial_no().toString());
+                                tvBasicMachineAddress.setText(""+mm.getAddress());
+                                selectedMarker = marker ;
+                                break;
+                            }
+                        }
+                        includeBasicInfo.setVisibility(View.VISIBLE);
+                        includeBasicInfo.startAnimation(slide_up);
+                    }}
+            }
+        });
+
+        mMap.setOnInfoWindowCloseListener(new GoogleMap.OnInfoWindowCloseListener() {
+            @Override
+            public void onInfoWindowClose(Marker marker) {
+                if(includeBasicInfo.getVisibility() == View.VISIBLE){
+                    includeBasicInfo.startAnimation(slide_down);
+                    includeBasicInfo.setVisibility(View.GONE);
+                }
+                selectedMarker = null ;
             }
         });
 
