@@ -225,7 +225,7 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
         llNearMachine = includeNavigation.findViewById(R.id.ll2) ;
         llProfile = includeNavigation.findViewById(R.id.ll3) ;
         llAbout = includeNavigation.findViewById(R.id.ll4) ;
-        llLogout = includeNavigation.findViewById(R.id.ll5) ;
+        llLogout = includeNavigation.findViewById(R.id.ll6) ;
 
         slide_down = AnimationUtils.loadAnimation(getApplicationContext(), R.anim.slide_down);
         slide_up = AnimationUtils.loadAnimation(getApplicationContext(), R.anim.slide_up);
