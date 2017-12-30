@@ -125,8 +125,9 @@
                 android:hint="Date of birth"
                 android:background="#f3f3f3"
                 android:paddingLeft="5dp"
-                android:text="1996-05-16"
                 android:id="@+id/DateOfbirth"
+                android:focusable="false"
+                android:descendantFocusability="blocksDescendants"
                 android:layout_marginTop="15dp"
                 android:maxLines="1"
                 android:maxLength="15"/>

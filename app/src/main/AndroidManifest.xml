@@ -51,7 +51,9 @@
         <activity android:name=".PaymentActivty" />
         <activity android:name=".UserLoginActivity" />
         <activity android:name=".CartActivity" />
-        <activity android:name=".UserSignupActivity" />
+        <activity android:name=".UserSignupActivity"
+            android:windowSoftInputMode="stateHidden"
+            />
         <activity android:name=".ProfileActivity"
             android:theme="@style/AppTheme.NoActionBar"></activity>
     </application>
