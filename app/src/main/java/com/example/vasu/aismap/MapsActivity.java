@@ -108,7 +108,7 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
     MarkerOptions markerOptionsMyLoc;
     Marker myCurrentLocMarker, mPrevLocMarker;
 
-    ImageButton ibMyLocation , ibSetting , ibIncludeMore , ibIncludeClose;
+    ImageButton ibMyLocation , ibSetting , ibIncludeMore , ibIncludeClose  , ibSearch;
 
     SearchHistory historyDatabase ;
 
@@ -204,6 +204,7 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
         };
 
         ibMyLocation = (ImageButton) findViewById(R.id.myLocation);
+        ibSearch = (ImageButton) findViewById(R.id.searchButton);
         ibSetting = (ImageButton) findViewById(R.id.settingsButton);
 
         includeSearchInfo = (View) findViewById(R.id.includeBarSearch);
@@ -271,6 +272,20 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
                 if (includeNavigation.getVisibility() == View.GONE){
                     includeNavigation.setVisibility(View.VISIBLE);
                     includeNavigation.startAnimation(slide_right);
+                }
+            }
+        });
+
+        ibSearch.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                if (includeNavigation.getVisibility() == View.VISIBLE){
+                    includeNavigation.startAnimation(slide_left);
+                    includeNavigation.setVisibility(View.GONE);
+                }
+                if (includeSearchInfo.getVisibility() == View.GONE){
+                    includeSearchInfo.setVisibility(View.VISIBLE);
+                    includeSearchInfo.startAnimation(slide_up);
                 }
             }
         });
@@ -651,7 +666,11 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
         editorLocation.putString("Latitude" , String.valueOf(mCurrentLocation.getLatitude()));
         editorLocation.putString("Longitude" , String.valueOf(mCurrentLocation.getLongitude()));
         editorLocation.commit();
-        findNearTask(1,false);
+        if(manager.isProviderEnabled(LocationManager.GPS_PROVIDER) && isNetworkAvailable() ) {
+            findNearTask(1, false);
+        }else {
+            Toast.makeText(this, "Please Make Sure GPS and Internet are working", Toast.LENGTH_SHORT).show();
+        }
         showHistory();
         updateUI();
     }
@@ -826,6 +845,7 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
                 if (m.getMarker().getPosition().latitude == minLL.latitude){
                     mMap.animateCamera(CameraUpdateFactory.newLatLngZoom(minLL, 18)) ;
                     m.getMarker().showInfoWindow();
+                    showBasicInfo(m.getMarker());
                 }
             }
         }else{
