@@ -67,12 +67,14 @@ import com.google.android.gms.location.LocationSettingsRequest;
 import com.google.android.gms.location.LocationSettingsResult;
 import com.google.android.gms.location.LocationSettingsStates;
 import com.google.android.gms.location.LocationSettingsStatusCodes;
+import com.google.android.gms.maps.CameraUpdate;
 import com.google.android.gms.maps.CameraUpdateFactory;
 import com.google.android.gms.maps.GoogleMap;
 import com.google.android.gms.maps.OnMapReadyCallback;
 import com.google.android.gms.maps.SupportMapFragment;
 import com.google.android.gms.maps.model.BitmapDescriptorFactory;
 import com.google.android.gms.maps.model.LatLng;
+import com.google.android.gms.maps.model.LatLngBounds;
 import com.google.android.gms.maps.model.Marker;
 import com.google.android.gms.maps.model.MarkerOptions;
 import com.google.android.gms.maps.model.Polyline;
@@ -423,6 +425,11 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
             @Override
             public void onClick(View view) {
                 if (selectedMarker.getPosition().latitude != mCurrentLocation.getLatitude()) {
+                    pDialog = new SweetAlertDialog(MapsActivity.this, SweetAlertDialog.PROGRESS_TYPE);
+                    pDialog.getProgressHelper().setBarColor(Color.parseColor("#A5DC86"));
+                    pDialog.setCancelable(false);
+                    pDialog.setTitleText("Getting Directions");
+                    pDialog.show();
                     LatLng origin = new LatLng(mCurrentLocation.getLatitude(), mCurrentLocation.getLongitude());
                     LatLng destination = selectedMarker.getPosition();
                     DownloadUrl du = new DownloadUrl();
@@ -430,7 +437,8 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
                     DownloadTask downloadTask = new DownloadTask(new AsyncResponseDownload() {
                         @Override
                         public void processFinish(PolylineOptions[] output) {
-                            drawPath(output);
+                            if (pDialog.isShowing()) pDialog.dismissWithAnimation();
+                            drawPath(output,selectedMarker,myCurrentLocMarker);
                             includeBasicInfo.startAnimation(slide_down);
                             includeBasicInfo.setVisibility(View.GONE);
                         }
@@ -573,6 +581,13 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
             }
         });
 
+        mMap.setOnPolylineClickListener(new GoogleMap.OnPolylineClickListener() {
+            @Override
+            public void onPolylineClick(Polyline polyline) {
+                Toast.makeText(MapsActivity.this, "clicked", Toast.LENGTH_SHORT).show();
+            }
+        });
+
         if(manager.isProviderEnabled(LocationManager.GPS_PROVIDER) && isNetworkAvailable() ) {
             Toast.makeText(this, "Finding Nearby Machines", Toast.LENGTH_SHORT).show();
             findNearTask(1,true);
@@ -609,7 +624,7 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
             }}
     }
 
-    private void drawPath(PolylineOptions[] output) {
+    private void drawPath(PolylineOptions[] output,Marker dest,Marker origin) {
 
         for (int i=0 ; i < pl.length ; i++){
             if (pl[i] != null ){
@@ -622,6 +637,15 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
             pl[count] = mMap.addPolyline(output[count]);
             count++ ;
         }
+
+        LatLngBounds.Builder builder = new LatLngBounds.Builder();
+            builder.include(dest.getPosition());
+            builder.include(origin.getPosition());
+        LatLngBounds bounds = builder.build();
+        int padding = 100;
+        CameraUpdate cu = CameraUpdateFactory.newLatLngBounds(bounds, padding);
+        mMap.animateCamera(cu);
+
     }
 
 

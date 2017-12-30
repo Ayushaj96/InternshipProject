@@ -18,6 +18,7 @@ import android.widget.TextView;
 import android.widget.Toast;
 
 import com.example.vasu.aismap.FetchPHP.AsyncResponseUserLog;
+import com.example.vasu.aismap.FetchPHP.MachineQuantityUpdationTask;
 import com.example.vasu.aismap.FetchPHP.UserLogTask;
 import com.payumoney.core.PayUmoneyConfig;
 import com.payumoney.core.PayUmoneyConstants;
@@ -40,7 +41,7 @@ public class CartActivity extends AppCompatActivity {
 
     String fullName,mobile,emailId,username,address,machine_serial_no,access,status,company1,company2,type
             ,transactionId="",encryptedCode="",transStartTime="",transEndTime="",quality="",quantity=""
-            ,company="",transMode="AndroidApp",transStatus="";
+            ,finalQuantity="",company="",transMode="AndroidApp",transStatus="";
     int company1quantity , company2quantity ;
 
     String letters = "abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ" ;
@@ -193,6 +194,7 @@ public class CartActivity extends AppCompatActivity {
                 if (totalCost > 0){
                     Date date = new Date();
                     transStartTime = sdf.format(date) ;
+                    quantity = tvQuantity.getText().toString();
                     launchPayUMoneyFlow();
                 }else {
                     Toast.makeText(CartActivity.this, "Total Cost is 0", Toast.LENGTH_SHORT).show();
@@ -376,7 +378,7 @@ public class CartActivity extends AppCompatActivity {
                     JSONObject obj2 = obj1.getJSONObject("result") ;
                     status = obj2.getString("status") ;
                 } catch (Exception e) {
-                    Log.i("TRANSACTION" , "JSON Exception" + e);
+                    Log.i("TRANSACTION" , "JSON Exception" + e);   
                 }
 
                 transStatus = status ;
@@ -387,7 +389,9 @@ public class CartActivity extends AppCompatActivity {
                         @Override
                         public void processFinish(String output) {
                             Log.i("TRANSACTION" , output) ;
-                            Toast.makeText(CartActivity.this, ""+output, Toast.LENGTH_SHORT).show();
+                            if (output.equalsIgnoreCase("User Log Inserted")){
+                                Toast.makeText(CartActivity.this, ""+output, Toast.LENGTH_SHORT).show();
+                            }
                         }
                     });
                     ult.execute() ;

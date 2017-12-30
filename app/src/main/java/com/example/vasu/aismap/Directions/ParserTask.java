@@ -92,11 +92,10 @@ public class ParserTask extends AsyncTask<String, Integer, List<List<HashMap<Str
             }else{
                 lineOptions[i].color(Color.BLUE);
             }*/
-
             if (this.distanceList.get(i) == tempDistance.get(0)){
                 lineOptions[i].color(Color.BLUE);
             }else{
-                lineOptions[i].color(Color.DKGRAY);
+                lineOptions[i].color(Color.GRAY);
             }
 
         }
