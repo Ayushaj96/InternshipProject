@@ -47,7 +47,8 @@
             android:name=".ProfileActivity"
             android:parentActivityName=".MapsActivity"
             android:theme="@style/AppTheme.NoActionBar" />
-        <activity android:name=".SendSMSActivity"></activity>
+        <activity android:name=".SendSMSActivity" />
+        <activity android:name=".FinalStepActivity"></activity>
     </application>
 
 </manifest>

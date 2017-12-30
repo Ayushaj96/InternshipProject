@@ -17,8 +17,10 @@ import android.widget.Spinner;
 import android.widget.TextView;
 import android.widget.Toast;
 
+import com.example.vasu.aismap.FetchPHP.AsyncResponseFindSearch;
 import com.example.vasu.aismap.FetchPHP.AsyncResponseUserLog;
 import com.example.vasu.aismap.FetchPHP.MachineQuantityUpdationTask;
+import com.example.vasu.aismap.FetchPHP.SendSMSTask;
 import com.example.vasu.aismap.FetchPHP.UserLogTask;
 import com.payumoney.core.PayUmoneyConfig;
 import com.payumoney.core.PayUmoneyConstants;
@@ -115,6 +117,8 @@ public class CartActivity extends AppCompatActivity {
         while (tempEncryptedCode < 100000){
             tempEncryptedCode = rd.nextInt(1000000) ;
         }
+        encryptedCode = String.valueOf(tempEncryptedCode) ;
+        Log.i("TRANSACTION" , "Encrypted " + encryptedCode) ;
 
         for (int j=0 ; j < 3 ; j++){
             transactionId += "" + letters.charAt(rd.nextInt(letters.length())) ;
@@ -123,9 +127,7 @@ public class CartActivity extends AppCompatActivity {
             transactionId += "" + numbers.charAt(rd.nextInt(numbers.length())) ;
         }
 
-        encryptedCode = String.valueOf(tempEncryptedCode) ;
         Log.i("TRANSACTION" , "Transactionid " + transactionId) ;
-        Log.i("TRANSACTION" , "Encrypted " + encryptedCode) ;
 
        companySpinner.setOnItemSelectedListener(new AdapterView.OnItemSelectedListener() {
            @Override
@@ -235,7 +237,7 @@ public class CartActivity extends AppCompatActivity {
         payUmoneyConfig.setPayUmoneyActivityTitle("Payment Activity");
         PayUmoneySdkInitializer.PaymentParam.Builder builder = new PayUmoneySdkInitializer.PaymentParam.Builder();
 
-        double amount = (double) 1 ;
+        double amount = (double) 0.5 ;
         String txnId = transactionId ;
         String phone = mobile;
         String productName = productinfo;
@@ -361,9 +363,9 @@ public class CartActivity extends AppCompatActivity {
                             }
                         }).show(); */
 
+                Date date = new Date();
+                transEndTime = sdf.format(date) ;
                 if (transactionResponse.getTransactionStatus().equals(TransactionResponse.TransactionStatus.SUCCESSFUL)) {
-                    Date date = new Date();
-                    transEndTime = sdf.format(date) ;
                     Log.i("TRANSACTION" , "Success");
                     Toast.makeText(this, "Transaction Success", Toast.LENGTH_SHORT).show();
                 } else {
@@ -383,7 +385,19 @@ public class CartActivity extends AppCompatActivity {
 
                 transStatus = status ;
 
-                if (!transStatus.equals("")){
+                if (!transStatus.equalsIgnoreCase("success")){
+                    UserLogTask ult = new UserLogTask(CartActivity.this, mobile, machine_serial_no, quality, quantity, "1.0", company
+                            ,transStartTime, transEndTime, transMode, transactionId, transStatus, encryptedCode, new AsyncResponseUserLog() {
+                        @Override
+                        public void processFinish(String output) {
+                            Log.i("TRANSACTION" ,"Correct " + output) ;
+                            Toast.makeText(CartActivity.this, ""+output, Toast.LENGTH_SHORT).show();
+                            sendOTP("9953777187");
+
+                        }
+                    });
+                    ult.execute() ;
+                }else {
                     UserLogTask ult = new UserLogTask(CartActivity.this, mobile, machine_serial_no, quality, quantity, "1.0", company
                             ,transStartTime, transEndTime, transMode, transactionId, transStatus, encryptedCode, new AsyncResponseUserLog() {
                         @Override
@@ -404,6 +418,24 @@ public class CartActivity extends AppCompatActivity {
             }
         }
     }
+
+    public void sendOTP(String m){
+        Log.i("TRANSACTION" , "SEND OTP : "+encryptedCode) ;
+        StringBuilder sb=new StringBuilder(mobile+"-"+encryptedCode);
+        sb.insert(0,"~");
+        String message = sb.toString() ;
+        SendSMSTask sendSMSTask=new SendSMSTask(CartActivity.this, ""+m, ""+message, new AsyncResponseFindSearch() {
+            @Override
+            public void processFinish(String output) {
+                Toast.makeText(CartActivity.this, "Message Sent : "+output, Toast.LENGTH_SHORT).show();
+                Intent i = new Intent(CartActivity.this , FinalStepActivity.class);
+                i.putExtra("OTP" , encryptedCode) ;
+                startActivity(i);
+            }
+        });
+        sendSMSTask.execute();
+    }
+
 
 
 }

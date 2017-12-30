@@ -82,29 +82,10 @@ public class UserSignupActivity extends AppCompatActivity implements DatePickerD
             @Override
             public void onClick(View view) {
                 //addData();
-                sendOTP(mnumber.getText().toString());
+                addData();
             }
         });
 
-    }
-
-    public void sendOTP(String mobile){
-        int tempOTP = 0 ;
-        Random rd = new Random() ;
-        while (tempOTP < 100000){
-            tempOTP = rd.nextInt(1000000) ;
-        }
-        String otp = String.valueOf(tempOTP) ;
-        StringBuilder sb=new StringBuilder(mobile+"-"+otp);
-        sb.insert(0,"/%");
-        String message = sb.toString() ;
-        SendSMSTask sendSMSTask=new SendSMSTask(UserSignupActivity.this, ""+mobile, ""+message, new AsyncResponseFindSearch() {
-            @Override
-            public void processFinish(String output) {
-                Toast.makeText(UserSignupActivity.this, ""+output, Toast.LENGTH_SHORT).show();
-            }
-        });
-        sendSMSTask.execute();
     }
 
 

@@ -45,7 +45,7 @@ protected String doInBackground(String... params) {
 
         // Enter URL address where your json file resides
         // Even you can make call to php file which returns json data
-        url = new URL("http://sms.thinkbuyget.com/api.php?username=Aiseratech&password=224679&sender=DGENIT&sendto="+this.mobile+"&message="+this.message);
+        url = new URL("http://sms.thinkbuyget.com/api.php?username=Aiseratech&password=224679&sender=DGENIT&sendto="+this.mobile+"&message=%"+this.message);
 
         } catch (MalformedURLException e) {
         // TODO Auto-generated catch block
