@@ -9,6 +9,7 @@ import android.widget.ArrayAdapter;
 import android.widget.TextView;
 
 import com.example.vasu.aismap.Models.HistoryModel;
+import com.example.vasu.aismap.Models.MarkerModel;
 import com.example.vasu.aismap.R;
 
 import java.util.ArrayList;
@@ -54,7 +55,7 @@ public class CustomHistoryAdapter extends ArrayAdapter<HistoryModel> {
 
             mname.setText(historyModel.getSerial_no());
             mAddress.setText(historyModel.getAddress());
-            mtime.setText(historyModel.getTime());
+            mtime.setText("Time");
 
         } catch (Exception e) {
             e.printStackTrace();

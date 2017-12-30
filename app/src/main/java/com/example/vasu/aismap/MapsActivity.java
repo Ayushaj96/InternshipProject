@@ -26,6 +26,7 @@ import android.view.View;
 import android.view.animation.Animation;
 import android.view.animation.AnimationUtils;
 import android.view.inputmethod.InputMethodManager;
+import android.widget.AdapterView;
 import android.widget.AutoCompleteTextView;
 import android.widget.Button;
 import android.widget.GridView;
@@ -43,8 +44,10 @@ import com.example.vasu.aismap.Directions.DownloadTask;
 import com.example.vasu.aismap.Directions.DownloadUrl;
 import com.example.vasu.aismap.FetchPHP.AsyncResponseFindAllSearches;
 import com.example.vasu.aismap.FetchPHP.AsyncResponseFindNear;
+import com.example.vasu.aismap.FetchPHP.AsyncResponseFindSearch;
 import com.example.vasu.aismap.FetchPHP.FindAllSearchMachines;
 import com.example.vasu.aismap.FetchPHP.FindNearMachines;
+import com.example.vasu.aismap.FetchPHP.SearchHistoryStatusTask;
 import com.example.vasu.aismap.Models.HistoryModel;
 import com.example.vasu.aismap.Models.MarkerModel;
 import com.example.vasu.aismap.Sqlite.SearchHistory;
@@ -274,7 +277,8 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
                     FindNearMachines fnm = new FindNearMachines(MapsActivity.this , mCurrentLocation , new AsyncResponseFindNear(){
                         @Override
                         public void processFinish(String output) {
-                            pointToNearest(output);
+                            if (!output.equalsIgnoreCase("")) pointToNearest(output);
+                            else Toast.makeText(MapsActivity.this, "No Nearest Machine Found", Toast.LENGTH_SHORT).show();
                         }
                     });
                     fnm.execute() ;
@@ -356,9 +360,6 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
                         }
                     });
                     fasm.execute() ;
-                    if (pDialog.isShowing()){
-                        pDialog.dismissWithAnimation();
-                    }
                     return true;
                 }
                 return false;
@@ -366,14 +367,13 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
         });
 
 
-        /*lvHistory.setOnItemClickListener(new AdapterView.OnItemClickListener() {
+        lvHistory.setOnItemClickListener(new AdapterView.OnItemClickListener() {
             @Override
             public void onItemClick(AdapterView<?> adapterView, View view, int i, long l) {
                 HistoryModel hm = (HistoryModel) adapterView.getItemAtPosition(i) ;
-                String address = hm.getAddress();
-                showSearchedMarker(address);
+                showSearchHistoryMarker(hm);
             }
-        }); */
+        });
 
         btnGetDirections.setOnClickListener(new View.OnClickListener() {
             @Override
@@ -480,6 +480,41 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
                     includeBasicInfo.startAnimation(slide_up);
                 }}
                 return false;
+            }
+        });
+        mMap.setOnInfoWindowClickListener(new GoogleMap.OnInfoWindowClickListener() {
+            @Override
+            public void onInfoWindowClick(Marker marker) {
+                if(includeBasicInfo.getVisibility() == View.VISIBLE){
+                    includeBasicInfo.startAnimation(slide_down);
+                    includeBasicInfo.setVisibility(View.GONE);
+                }
+
+                if (mCurrentLocation.getLatitude()!=marker.getPosition().latitude) {
+
+                    if (includeBasicInfo.getVisibility() == View.GONE){
+                        for (MarkerModel mm : allShowingMarkers){
+                            if ((String.valueOf(mm.getMarker())).equals(String.valueOf(marker))){
+                                tvBasicMachineSerial.setText(""+mm.getSerial_no().toString());
+                                tvBasicMachineAddress.setText(""+mm.getAddress());
+                                selectedMarker = marker ;
+                                break;
+                            }
+                        }
+                        includeBasicInfo.setVisibility(View.VISIBLE);
+                        includeBasicInfo.startAnimation(slide_up);
+                    }}
+            }
+        });
+
+        mMap.setOnInfoWindowCloseListener(new GoogleMap.OnInfoWindowCloseListener() {
+            @Override
+            public void onInfoWindowClose(Marker marker) {
+                if(includeBasicInfo.getVisibility() == View.VISIBLE){
+                    includeBasicInfo.startAnimation(slide_down);
+                    includeBasicInfo.setVisibility(View.GONE);
+                }
+                selectedMarker = null ;
             }
         });
 
@@ -722,6 +757,69 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
         CustomHistoryAdapter cha = new CustomHistoryAdapter(MapsActivity.this , historyList) ;
         cha.notifyDataSetChanged();
         lvHistory.setAdapter(cha);
+    }
+
+    private void showSearchHistoryMarker(HistoryModel hm) {
+        boolean present = false ;
+        final Marker m;
+        if (includeSearchInfo.getVisibility() == View.VISIBLE){
+            includeSearchInfo.startAnimation(slide_down);
+            includeSearchInfo.setVisibility(View.GONE);
+        }
+        for (MarkerModel allMM : allShowingMarkers){
+            if (String.valueOf(allMM.getLatLng()).equals(hm.getLatLng())) {
+                present = true ;
+                selectedMarker = allMM.getMarker() ;
+                break;
+            }
+        }
+        if (present){
+            Toast.makeText(this, "This1", Toast.LENGTH_SHORT).show();
+            selectedMarker.showInfoWindow();
+            mMap.animateCamera(CameraUpdateFactory.newLatLngZoom(selectedMarker.getPosition(), 16));
+        }else {
+            pDialog = new SweetAlertDialog(MapsActivity.this, SweetAlertDialog.PROGRESS_TYPE);
+            pDialog.getProgressHelper().setBarColor(Color.parseColor("#A5DC86"));
+            pDialog.setCancelable(false);
+            pDialog.setTitleText("Getting the machine current status");
+            pDialog.show();
+            SearchHistoryStatusTask shst = new SearchHistoryStatusTask(MapsActivity.this, hm.getSerial_no(), new AsyncResponseFindSearch() {
+                @Override
+                public void processFinish(String output) {
+                    try {
+                        JSONArray jsonArray =new JSONArray(output);
+                        for (int i = 0; i < jsonArray.length(); i++) {
+                            JSONObject object = jsonArray.getJSONObject(i);
+                            double latitude = object.getDouble("latitude");
+                            double longitude = object.getDouble("longitude");
+                            String address = object.getString("address");
+                            String address_tags = object.getString("address_tags");
+                            String machine_serial_no = object.getString("machine_serial_no");
+                            String access = object.getString("access");
+                            String status = object.getString("status");
+                            String company1 = object.getString("company1");
+                            int company1quantity = object.getInt("company1quantity");
+                            String company2 = object.getString("company2");
+                            int company2quantity = object.getInt("company2quantity");
+                            String type = object.getString("type");
+                            LatLng ll = new LatLng(latitude,longitude) ;
+                            Marker m = mMap.addMarker(new MarkerOptions().title("Status : " + (status.equalsIgnoreCase("yes") ? "Working" : "Not Working")).snippet("Quantity : " + (company1quantity+company2quantity)).position(ll).icon(BitmapDescriptorFactory.fromResource(R.drawable.machine)));
+                            MarkerModel mm = new MarkerModel(m, ll, address, address_tags, machine_serial_no, access, status,company1,company1quantity,company2,company2quantity,type);
+                            allShowingMarkers.add(mm);
+                            selectedMarker = m ;
+                            selectedMarker.showInfoWindow();
+                            mMap.animateCamera(CameraUpdateFactory.newLatLngZoom(selectedMarker.getPosition(), 16));
+                        }
+                    } catch (Exception e) {
+                        Log.i("EXCEPTION" , e.toString()) ;
+                    }
+                    if (pDialog.isShowing()){
+                        pDialog.dismissWithAnimation();
+                    }
+                }
+            });
+            shst.execute() ;
+        }
     }
 
     public void showSearchedMarker(MarkerModel mmAddress){
