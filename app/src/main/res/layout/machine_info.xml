@@ -97,7 +97,7 @@
             android:layout_width="40dp"
             android:layout_height="40dp"
             android:elevation="15sp"
-            android:src="@drawable/user"
+            android:src="@drawable/ic_shopping_cart"
              android:layout_marginLeft="60dp"
             />
 

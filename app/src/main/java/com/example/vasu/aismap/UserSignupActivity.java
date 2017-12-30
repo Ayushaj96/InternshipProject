@@ -4,6 +4,7 @@ import android.content.Intent;
 import android.content.SharedPreferences;
 import android.graphics.Color;
 import android.os.Bundle;
+import android.support.design.widget.TextInputEditText;
 import android.support.v7.app.AppCompatActivity;
 import android.text.InputType;
 import android.text.TextUtils;
@@ -25,7 +26,8 @@ import cn.pedant.SweetAlert.SweetAlertDialog;
 public class UserSignupActivity extends AppCompatActivity implements DatePickerDialog.OnDateSetListener {
 
     Button submit;
-    EditText name,email,username,password,cpassword,mnumber,dob,profession;
+    EditText name,email,username,mnumber,dob,profession;
+    TextInputEditText password,cpassword;
     String NameHolder, EmailHolder,UnameHolder, PasswordHolder,CPasswordHolder,MobileHolder,DobHolder,ProfessionHolder;
 
     SharedPreferences sharedPreferences , sharedPreferencesMyInfo;
@@ -35,7 +37,7 @@ public class UserSignupActivity extends AppCompatActivity implements DatePickerD
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        setContentView(R.layout.regis);
+        setContentView(R.layout.signup);
 
         sharedPreferences=getApplicationContext().getSharedPreferences("MyLoginStatus", MODE_PRIVATE);
         sharedPreferencesMyInfo=getApplicationContext().getSharedPreferences("MyInfo", MODE_PRIVATE);
@@ -46,8 +48,8 @@ public class UserSignupActivity extends AppCompatActivity implements DatePickerD
         name = (EditText)findViewById(R.id.fullname);
         email = (EditText)findViewById(R.id.email);
         username=(EditText)findViewById(R.id.username);
-        password= (EditText)findViewById(R.id.password);
-        cpassword = (EditText)findViewById(R.id.confirmpassword);
+        password= (TextInputEditText) findViewById(R.id.password);
+        cpassword = (TextInputEditText) findViewById(R.id.confirmpassword);
         mnumber= (EditText)findViewById(R.id.mobilenumber);
         dob= (EditText)findViewById(R.id.DateOfbirth);
         profession = (EditText)findViewById(R.id.Profession);

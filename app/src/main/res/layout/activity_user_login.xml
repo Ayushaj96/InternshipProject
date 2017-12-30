@@ -48,7 +48,8 @@
                     android:singleLine="true"
                     android:hint="Email Id"
                     android:id="@+id/email"
-                    android:drawableLeft="@drawable/user"
+
+                    android:drawableLeft="@drawable/ic_user"
 
                     android:inputType="textEmailAddress" />
             </android.support.design.widget.TextInputLayout>
@@ -62,7 +63,7 @@
                     android:layout_height="wrap_content"
                     android:layout_marginTop="16dp"
                     android:singleLine="true"
-                    android:drawableLeft="@drawable/lock"
+                    android:drawableLeft="@drawable/ic_lock"
                     android:hint="Password"
                     android:id="@+id/password"
                     android:textColorHint="@color/black"
