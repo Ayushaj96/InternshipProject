@@ -13,48 +13,78 @@
         android:layout_marginTop="150dp"
         android:src="@drawable/girls"
         android:id="@+id/imageView" />
-
+<LinearLayout
+    android:layout_width="match_parent"
+    android:layout_height="wrap_content"
+    android:layout_below="@id/imageView"
+    android:layout_marginTop="80dp"
+    android:id="@+id/ll"
+    android:orientation="horizontal"
+    android:gravity="center_vertical"
+    >
     <EditText
-        android:layout_below="@id/imageView"
         android:layout_width="fill_parent"
-        android:layout_height="30dp"
-        android:layout_marginTop="120dp"
-        android:id="@+id/ed"
+        android:layout_height="wrap_content"
         android:background="@android:color/transparent"
         android:gravity="center"
         android:ems="10"
+        android:inputType="number"
+        android:id="@+id/edMobile"
         android:textSize="20sp"
         android:hint="Enter Mobile Number"
-        android:maxLines="1"
-        android:drawableRight="@drawable/ic_arrow"
-        android:layout_marginRight="20dp"/>
+        android:maxLines="1"/>
+
+</LinearLayout>
+
     <LinearLayout
-        android:id="@+id/ll"
         android:layout_width="match_parent"
-        android:layout_below="@id/ed"
+        android:layout_below="@id/ll"
         android:layout_height="1dp"
         android:layout_marginTop="2dp"
         android:layout_marginLeft="40dp"
         android:layout_marginRight="40dp"
         android:background="#d4d8dc"
         android:orientation="horizontal" />
-    <TextView
 
+    <Button
+        android:id="@+id/Signup"
+        android:textColor="#fff"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:text="Create Account"
+        android:background="@drawable/btn"
+        android:layout_gravity="center"
+        android:padding="10dp"
+        android:minWidth="200dp"
+        android:text="Sign Up"
+        android:gravity="center"
+        android:layout_below="@+id/ll"
+        android:layout_centerVertical="true"
+        android:layout_marginTop="15dp"
+        android:layout_centerHorizontal="true"
+        android:layout_marginBottom="5dp"/>
+    <LinearLayout
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_below="@id/Signup"
+        android:orientation="vertical"
+        android:layout_centerVertical="true"
+        android:layout_centerHorizontal="true">
+    <TextView
+        android:id="@+id/Login"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="Already registered with email?"
         android:textSize="16sp"
         android:textColor="#13a5ec"
-        android:layout_below="@id/ll"
         android:layout_marginTop="25dp"
         android:layout_centerHorizontal="true"
-        android:id="@+id/textView4" />
+         />
     <LinearLayout
-        android:layout_width="120dp"
-        android:layout_below="@id/textView4"
+        android:layout_width="match_parent"
+        android:layout_below="@id/Login"
         android:layout_height="1dp"
         android:layout_centerHorizontal="true"
         android:background="#13a5ec"
         />
-
+    </LinearLayout>
 </RelativeLayout>
