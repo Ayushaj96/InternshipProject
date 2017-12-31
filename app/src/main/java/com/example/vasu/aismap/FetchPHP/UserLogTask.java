@@ -83,7 +83,7 @@ public class UserLogTask extends AsyncTask<String,String,String> {
                     + URLEncoder.encode(this.quantity, "UTF-8");
 
             data += "&" + URLEncoder.encode("cost", "UTF-8") + "="
-                    + URLEncoder.encode(String.valueOf(this.cost), "UTF-8");
+                    + URLEncoder.encode(this.cost, "UTF-8");
 
             data += "&" + URLEncoder.encode("company", "UTF-8") + "="
                     + URLEncoder.encode(this.company, "UTF-8");

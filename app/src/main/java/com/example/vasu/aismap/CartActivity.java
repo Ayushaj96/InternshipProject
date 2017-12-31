@@ -4,6 +4,7 @@ import android.app.AlertDialog;
 import android.content.DialogInterface;
 import android.content.Intent;
 import android.content.SharedPreferences;
+import android.graphics.Color;
 import android.os.Bundle;
 import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.CardView;
@@ -17,8 +18,10 @@ import android.widget.Spinner;
 import android.widget.TextView;
 import android.widget.Toast;
 
+import com.example.vasu.aismap.FetchPHP.AsyncResponseFindSearch;
 import com.example.vasu.aismap.FetchPHP.AsyncResponseUserLog;
 import com.example.vasu.aismap.FetchPHP.MachineQuantityUpdationTask;
+import com.example.vasu.aismap.FetchPHP.SendSMSTask;
 import com.example.vasu.aismap.FetchPHP.UserLogTask;
 import com.payumoney.core.PayUmoneyConfig;
 import com.payumoney.core.PayUmoneyConstants;
@@ -36,6 +39,8 @@ import java.util.ArrayList;
 import java.util.Date;
 import java.util.HashMap;
 import java.util.Random;
+
+import cn.pedant.SweetAlert.SweetAlertDialog;
 
 public class CartActivity extends AppCompatActivity {
 
@@ -65,6 +70,8 @@ public class CartActivity extends AppCompatActivity {
     private PayUmoneySdkInitializer.PaymentParam mPaymentParams;
 
     SimpleDateFormat sdf ;
+
+    SweetAlertDialog pDialog ;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -115,6 +122,8 @@ public class CartActivity extends AppCompatActivity {
         while (tempEncryptedCode < 100000){
             tempEncryptedCode = rd.nextInt(1000000) ;
         }
+        encryptedCode = String.valueOf(tempEncryptedCode) ;
+        Log.i("TRANSACTION" , "Encrypted " + encryptedCode) ;
 
         for (int j=0 ; j < 3 ; j++){
             transactionId += "" + letters.charAt(rd.nextInt(letters.length())) ;
@@ -123,9 +132,7 @@ public class CartActivity extends AppCompatActivity {
             transactionId += "" + numbers.charAt(rd.nextInt(numbers.length())) ;
         }
 
-        encryptedCode = String.valueOf(tempEncryptedCode) ;
         Log.i("TRANSACTION" , "Transactionid " + transactionId) ;
-        Log.i("TRANSACTION" , "Encrypted " + encryptedCode) ;
 
        companySpinner.setOnItemSelectedListener(new AdapterView.OnItemSelectedListener() {
            @Override
@@ -137,9 +144,11 @@ public class CartActivity extends AppCompatActivity {
                     if (i == 1){
                         chosenCompany = 1 ;
                         company = productinfo.substring(0,productinfo.indexOf("-"));
-                        quality = productinfo.substring(productinfo.indexOf("-"),productinfo.length());
+                        quality = productinfo.substring(productinfo.indexOf("-")+1,productinfo.length());
                     }else if(i == 2){
                         chosenCompany = 2 ;
+                        company = productinfo.substring(0,productinfo.indexOf("-"));
+                        quality = productinfo.substring(productinfo.indexOf("-")+1,productinfo.length());
                     }
                     setValues(temp);
                 }else {
@@ -231,11 +240,11 @@ public class CartActivity extends AppCompatActivity {
 
         PayUmoneyConfig payUmoneyConfig = PayUmoneyConfig.getInstance();
 
-        payUmoneyConfig.setDoneButtonText("Done");
-        payUmoneyConfig.setPayUmoneyActivityTitle("Payment Activity");
+        payUmoneyConfig.setDoneButtonText("NEXT");
+        payUmoneyConfig.setPayUmoneyActivityTitle("Payments");
         PayUmoneySdkInitializer.PaymentParam.Builder builder = new PayUmoneySdkInitializer.PaymentParam.Builder();
 
-        double amount = (double) 1 ;
+        double amount = (double) 0.5 ;
         String txnId = transactionId ;
         String phone = mobile;
         String productName = productinfo;
@@ -339,9 +348,9 @@ public class CartActivity extends AppCompatActivity {
         // Result Code is -1 send from Payumoney activity
         Log.d("TRANSACTION", "request code " + requestCode + " resultcode " + resultCode);
         if (requestCode == PayUmoneyFlowManager.REQUEST_CODE_PAYMENT && resultCode == RESULT_OK && data != null) {
+
             Log.i("TRANSACTION" , "INSIDE PAYMENTS") ;
-            TransactionResponse transactionResponse = data.getParcelableExtra(PayUmoneyFlowManager
-                    .INTENT_EXTRA_TRANSACTION_RESPONSE);
+            TransactionResponse transactionResponse = data.getParcelableExtra(PayUmoneyFlowManager.INTENT_EXTRA_TRANSACTION_RESPONSE);
 
             ResultModel resultModel = data.getParcelableExtra(PayUmoneyFlowManager.ARG_RESULT);
 
@@ -352,18 +361,10 @@ public class CartActivity extends AppCompatActivity {
                 // Response from SURl and FURL
                 String merchantResponse = transactionResponse.getTransactionDetails();
 
-                /*new AlertDialog.Builder(this)
-                        .setCancelable(false)
-                        .setMessage("Payu's Data : " + payuResponse + "\n\n\n Merchant's Data: " + merchantResponse)
-                        .setPositiveButton(android.R.string.ok, new DialogInterface.OnClickListener() {
-                            public void onClick(DialogInterface dialog, int whichButton) {
-                                dialog.dismiss();
-                            }
-                        }).show(); */
+                Date date = new Date();
+                transEndTime = sdf.format(date) ;
 
                 if (transactionResponse.getTransactionStatus().equals(TransactionResponse.TransactionStatus.SUCCESSFUL)) {
-                    Date date = new Date();
-                    transEndTime = sdf.format(date) ;
                     Log.i("TRANSACTION" , "Success");
                     Toast.makeText(this, "Transaction Success", Toast.LENGTH_SHORT).show();
                 } else {
@@ -383,15 +384,47 @@ public class CartActivity extends AppCompatActivity {
 
                 transStatus = status ;
 
-                if (!transStatus.equals("")){
-                    UserLogTask ult = new UserLogTask(CartActivity.this, mobile, machine_serial_no, quality, quantity, "1.0", company
+                if (transactionResponse.getTransactionStatus().equals(TransactionResponse.TransactionStatus.SUCCESSFUL)){
+                    pDialog = new SweetAlertDialog(CartActivity.this, SweetAlertDialog.PROGRESS_TYPE);
+                    pDialog.getProgressHelper().setBarColor(Color.parseColor("#A5DC86"));
+                    pDialog.setCancelable(false);
+                    pDialog.setTitleText("Please Wait");
+                    pDialog.setContentText("We are generating OTP for you!") ;
+                    pDialog.show();
+                    UserLogTask ult = new UserLogTask(CartActivity.this, mobile, machine_serial_no, quality, quantity, "0.5", company
+                            ,transStartTime, transEndTime, transMode, transactionId, transStatus, encryptedCode, new AsyncResponseUserLog() {
+                        @Override
+                        public void processFinish(String output) {
+                            Log.i("TRANSACTION" ,"Correct " + output) ;
+                            Log.i("TRANSACTION" , "SEND OTP : "+encryptedCode) ;
+                            String message = "~"+mobile+"-"+encryptedCode ;
+                            if (output.equalsIgnoreCase("User Log Inserted")) {
+                                SendSMSTask sendSMSTask = new SendSMSTask(CartActivity.this, "9953777187", "" + message, new AsyncResponseFindSearch() {
+                                    @Override
+                                    public void processFinish(String output) {
+                                        if (pDialog.isShowing()) pDialog.dismissWithAnimation();
+                                        Intent i = new Intent(CartActivity.this, FinalStepActivity.class);
+                                        i.putExtra("OTP", encryptedCode);
+                                        startActivity(i);
+                                        finish();
+                                    }
+                                });
+                                sendSMSTask.execute();
+                            }else {
+                                if (pDialog.isShowing()) pDialog.dismissWithAnimation();
+                                finish();
+                            }
+                        }
+                    });
+                    ult.execute() ;
+                }else {
+                    Toast.makeText(this, "Please Try Again Later", Toast.LENGTH_SHORT).show();
+                    UserLogTask ult = new UserLogTask(CartActivity.this, mobile, machine_serial_no, quality, quantity, "0.5", company
                             ,transStartTime, transEndTime, transMode, transactionId, transStatus, encryptedCode, new AsyncResponseUserLog() {
                         @Override
                         public void processFinish(String output) {
                             Log.i("TRANSACTION" , output) ;
-                            if (output.equalsIgnoreCase("User Log Inserted")){
-                                Toast.makeText(CartActivity.this, ""+output, Toast.LENGTH_SHORT).show();
-                            }
+                            finish();
                         }
                     });
                     ult.execute() ;
@@ -404,6 +437,25 @@ public class CartActivity extends AppCompatActivity {
             }
         }
     }
+
+    public void sendOTP(String m){
+        Log.i("TRANSACTION" , "SEND OTP : "+encryptedCode) ;
+        StringBuilder sb=new StringBuilder(mobile+"-"+encryptedCode);
+        sb.insert(0,"~");
+        String message = sb.toString() ;
+        Toast.makeText(this, "Please wait while we are generating otp for you", Toast.LENGTH_SHORT).show();
+        SendSMSTask sendSMSTask=new SendSMSTask(CartActivity.this, ""+m, ""+message, new AsyncResponseFindSearch() {
+            @Override
+            public void processFinish(String output) {
+                Toast.makeText(CartActivity.this, "Message Sent : "+output, Toast.LENGTH_SHORT).show();
+                Intent i = new Intent(CartActivity.this , FinalStepActivity.class);
+                i.putExtra("OTP" , encryptedCode) ;
+                startActivity(i);
+            }
+        });
+        sendSMSTask.execute();
+    }
+
 
 
 }
