@@ -6,6 +6,7 @@ import android.content.Intent;
 import android.content.SharedPreferences;
 import android.graphics.Color;
 import android.os.Bundle;
+import android.support.v4.content.ContextCompat;
 import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.CardView;
 import android.util.Log;
@@ -238,9 +239,11 @@ public class CartActivity extends AppCompatActivity {
 
     private void launchPayUMoneyFlow() {
 
-        /*PayUmoneyConfig payUmoneyConfig = PayUmoneyConfig.getInstance();
-        payUmoneyConfig.setDoneButtonText("NEXT");
-        payUmoneyConfig.setPayUmoneyActivityTitle("Payments");*/
+        PayUmoneyConfig payUmoneyConfig = PayUmoneyConfig.getInstance();
+        /*payUmoneyConfig.setColorPrimary(String.valueOf(ContextCompat.getColor(CartActivity.this, R.color.colorPrimary)));
+        payUmoneyConfig.setColorPrimaryDark(String.valueOf(ContextCompat.getColor(CartActivity.this, R.color.colorPrimaryDark)));
+        payUmoneyConfig.setAccentColor(String.valueOf(ContextCompat.getColor(CartActivity.this, R.color.colorAccent)));*/
+        payUmoneyConfig.setPayUmoneyActivityTitle("Payments");
         PayUmoneySdkInitializer.PaymentParam.Builder builder = new PayUmoneySdkInitializer.PaymentParam.Builder();
 
         double amount = (double) 0.5 ;
@@ -287,7 +290,7 @@ public class CartActivity extends AppCompatActivity {
 
             mPaymentParams = calculateServerSideHashAndInitiatePayment1(mPaymentParams);
 
-            PayUmoneyFlowManager.startPayUMoneyFlow(mPaymentParams,CartActivity.this, R.style.AppTheme_default, true);
+            PayUmoneyFlowManager.startPayUMoneyFlow(mPaymentParams,CartActivity.this, R.style.AppTheme_Green, true);
 
 
         } catch (Exception e) {
