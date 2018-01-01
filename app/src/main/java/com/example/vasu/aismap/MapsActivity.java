@@ -289,6 +289,10 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
                     includeSearchInfo.setVisibility(View.VISIBLE);
                     includeSearchInfo.startAnimation(slide_up);
                 }
+                if(includeBasicInfo.getVisibility() == View.VISIBLE){
+                    includeBasicInfo.startAnimation(slide_down);
+                    includeBasicInfo.setVisibility(View.GONE);
+                }
             }
         });
 
@@ -376,7 +380,8 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
                     pDialog = new SweetAlertDialog(MapsActivity.this, SweetAlertDialog.PROGRESS_TYPE);
                     pDialog.getProgressHelper().setBarColor(Color.parseColor("#A5DC86"));
                     pDialog.setCancelable(false);
-                    pDialog.setTitleText("Find all Machines near : " + etSearch.getText().toString());
+                    pDialog.setTitleText("Find all Machines near");
+                    pDialog.setContentText(etSearch.getText().toString());
                     pDialog.show();
                     FindAllSearchMachines fasm = new FindAllSearchMachines(MapsActivity.this, etSearch.getText().toString(), new AsyncResponseFindAllSearches() {
                         @Override
@@ -982,6 +987,7 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
             m = mMap.addMarker(new MarkerOptions().title("Status : " + (mmAddress.getStatus().equalsIgnoreCase("yes") ? "Working" : "Not Working")).snippet("Quantity : " + (mmAddress.getCompany1quantity()+mmAddress.getCompany2quantity()) ).position(ll).icon(BitmapDescriptorFactory.fromResource(R.drawable.machine)));
             mmAddress.setMarker(m);
             allShowingMarkers.add(mmAddress);
+            selectedMarker = m ;
             mMap.animateCamera(CameraUpdateFactory.newLatLngZoom(mmAddress.getLatLng(), 16));
             mmAddress.getMarker().showInfoWindow() ;
         }else{
@@ -989,11 +995,11 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
             selectedMarker.showInfoWindow() ;
         }
         showBasicInfo(selectedMarker);
-        Location temp ;
-        if (isNetworkAvailable())
+        Location temp = new Location(LocationManager.GPS_PROVIDER);
+        /*if (isNetworkAvailable())
             temp  = new Location(LocationManager.NETWORK_PROVIDER);
         else
-           temp  = new Location(LocationManager.GPS_PROVIDER);
+           temp  = new Location(LocationManager.GPS_PROVIDER); */
         temp.setLatitude(mmAddress.getLatLng().latitude);
         temp.setLongitude(mmAddress.getLatLng().longitude);
         FindNearMachines fnm = new FindNearMachines(MapsActivity.this , temp , "1", new AsyncResponseFindNear(){
