@@ -6,7 +6,6 @@ import android.graphics.Color;
 import android.os.Bundle;
 import android.support.design.widget.TextInputEditText;
 import android.support.v7.app.AppCompatActivity;
-import android.text.InputType;
 import android.text.TextUtils;
 import android.view.View;
 import android.widget.Button;
@@ -75,17 +74,39 @@ public class UserSignupActivity extends AppCompatActivity implements DatePickerD
             }
         });
 
-        mnumber.setInputType(InputType.TYPE_CLASS_NUMBER);
+        //mnumber.setInputType(InputType.TYPE_CLASS_NUMBER);
+
+        String number=getIntent().getStringExtra("mobile");
+        mnumber.setText(number);
 
         //Adding Click Listener on button.
         submit.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
-                //addData();
                 addData();
+                sendOTP(mnumber.getText().toString());
             }
         });
 
+    }
+
+    public void sendOTP(String mobile){
+        int tempOTP = 0 ;
+        Random rd = new Random() ;
+        while (tempOTP < 100000){
+            tempOTP = rd.nextInt(1000000) ;
+        }
+        String otp = String.valueOf(tempOTP) ;
+        StringBuilder sb=new StringBuilder(mobile+"-"+otp);
+        sb.insert(0,"/%");
+        String message = sb.toString() ;
+        SendSMSTask sendSMSTask=new SendSMSTask(UserSignupActivity.this, ""+mobile, ""+message, new AsyncResponseFindSearch() {
+            @Override
+            public void processFinish(String output) {
+                Toast.makeText(UserSignupActivity.this, ""+output, Toast.LENGTH_SHORT).show();
+            }
+        });
+        sendSMSTask.execute();
     }
 
 
