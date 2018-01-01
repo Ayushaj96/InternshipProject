@@ -3,12 +3,12 @@ package com.example.vasu.aismap;
 import android.content.Intent;
 import android.content.SharedPreferences;
 import android.graphics.Bitmap;
-import android.graphics.BitmapFactory;
 import android.net.Uri;
 import android.os.Bundle;
 import android.os.Environment;
 import android.provider.MediaStore;
 import android.support.v7.app.AppCompatActivity;
+import android.util.Log;
 import android.view.View;
 import android.widget.TextView;
 import android.widget.Toast;
@@ -57,11 +57,8 @@ public class ProfileActivity extends AppCompatActivity {
         tvProfession.setText(sharedPreferences.getString("Profession" , ""));
 
         if(!sharedPreferencesPhoto.getString("Path","").equals(""))
-        { /*Uri myUri = Uri.parse(sharedPreferencesPhoto.getString("Path",""));
-            profilePhoto.setImageURI(myUri);*/
-            String filePath=sharedPreferencesPhoto.getString("Path","");
-            Bitmap bmp = BitmapFactory.decodeFile(filePath);
-            profilePhoto.setImageBitmap(bmp);
+        { Uri myUri = Uri.parse(sharedPreferencesPhoto.getString("Path",""));
+            profilePhoto.setImageURI(myUri);
         }
 
       profilePhoto.setOnClickListener(new View.OnClickListener() {
@@ -116,7 +113,7 @@ public class ProfileActivity extends AppCompatActivity {
         try {
             FileOutputStream out = new FileOutputStream(file);
             finalBitmap.compress(Bitmap.CompressFormat.JPEG, 90, out);
-            editor.putString("Path", String.valueOf(myDir));
+            editor.putString("Path", String.valueOf(Uri.fromFile(file)));
             editor.commit();
             out.flush();
             out.close();
@@ -125,7 +122,4 @@ public class ProfileActivity extends AppCompatActivity {
             e.printStackTrace();
         }
     }
-
-// editor.putString("Path",mypath.getAbsolutePath());
-            //editor.commit();
 }
