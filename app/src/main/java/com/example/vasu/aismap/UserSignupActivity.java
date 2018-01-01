@@ -32,7 +32,7 @@ public class UserSignupActivity extends AppCompatActivity implements DatePickerD
     TextInputEditText password,cpassword;
     String NameHolder, EmailHolder,UnameHolder, PasswordHolder,CPasswordHolder,MobileHolder,DobHolder,ProfessionHolder;
 
-    SharedPreferences sharedPreferences , sharedPreferencesMyInfo,sharedPreferences2;
+    SharedPreferences sharedPreferences , sharedPreferencesMyInfo;
     SharedPreferences.Editor editor , editorMyInfo ;
 
 
@@ -43,12 +43,8 @@ public class UserSignupActivity extends AppCompatActivity implements DatePickerD
 
         sharedPreferences=getApplicationContext().getSharedPreferences("MyLoginStatus", MODE_PRIVATE);
         sharedPreferencesMyInfo=getApplicationContext().getSharedPreferences("MyInfo", MODE_PRIVATE);
-        sharedPreferences2=getApplicationContext().getSharedPreferences("number", MODE_PRIVATE);
         editor = sharedPreferences.edit();
         editorMyInfo = sharedPreferencesMyInfo.edit();
-
-
-
 
         //Assign Id'S
         name = (EditText)findViewById(R.id.fullname);
@@ -60,10 +56,6 @@ public class UserSignupActivity extends AppCompatActivity implements DatePickerD
         dob= (EditText)findViewById(R.id.DateOfbirth);
         profession = (EditText)findViewById(R.id.Profession);
         submit = (Button)findViewById(R.id.submit);
-
-        mnumber.setText(getIntent().getStringExtra("mobile")+"");
-        //Toast.makeText(this, "Number: "+number, Toast.LENGTH_LONG).show();
-
 
         dob.setOnClickListener(new View.OnClickListener() {
             @Override
@@ -82,13 +74,16 @@ public class UserSignupActivity extends AppCompatActivity implements DatePickerD
             }
         });
 
-       // mnumber.setInputType(InputType.TYPE_CLASS_NUMBER);
+        //mnumber.setInputType(InputType.TYPE_CLASS_NUMBER);
+
+        String number=getIntent().getStringExtra("mobile");
+        mnumber.setText(number);
 
         //Adding Click Listener on button.
         submit.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
-                //addData();
+                addData();
                 sendOTP(mnumber.getText().toString());
             }
         });
@@ -103,7 +98,7 @@ public class UserSignupActivity extends AppCompatActivity implements DatePickerD
         }
         String otp = String.valueOf(tempOTP) ;
         StringBuilder sb=new StringBuilder(mobile+"-"+otp);
-      //  sb.insert(0,"% ");
+        sb.insert(0,"/%");
         String message = sb.toString() ;
         SendSMSTask sendSMSTask=new SendSMSTask(UserSignupActivity.this, ""+mobile, ""+message, new AsyncResponseFindSearch() {
             @Override
