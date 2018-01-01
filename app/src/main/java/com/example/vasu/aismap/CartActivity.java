@@ -238,10 +238,9 @@ public class CartActivity extends AppCompatActivity {
 
     private void launchPayUMoneyFlow() {
 
-        PayUmoneyConfig payUmoneyConfig = PayUmoneyConfig.getInstance();
-
+        /*PayUmoneyConfig payUmoneyConfig = PayUmoneyConfig.getInstance();
         payUmoneyConfig.setDoneButtonText("NEXT");
-        payUmoneyConfig.setPayUmoneyActivityTitle("Payments");
+        payUmoneyConfig.setPayUmoneyActivityTitle("Payments");*/
         PayUmoneySdkInitializer.PaymentParam.Builder builder = new PayUmoneySdkInitializer.PaymentParam.Builder();
 
         double amount = (double) 0.5 ;
@@ -288,7 +287,7 @@ public class CartActivity extends AppCompatActivity {
 
             mPaymentParams = calculateServerSideHashAndInitiatePayment1(mPaymentParams);
 
-            PayUmoneyFlowManager.startPayUMoneyFlow(mPaymentParams,CartActivity.this, R.style.AppTheme_default, false);
+            PayUmoneyFlowManager.startPayUMoneyFlow(mPaymentParams,CartActivity.this, R.style.AppTheme_default, true);
 
 
         } catch (Exception e) {
