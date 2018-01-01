@@ -24,10 +24,11 @@
 	'machine_serial_no'=>$row[5],
 	'access'=>$row[6],
 	'status'=>$row[7],
-	'quantity'=>$row[8],
-	'type'=>$row[9],
-	'cost'=>$row[10],
-	'company'=>$row[11]
+	'company1'=>$row[8],
+	'company1quantity'=>$row[9],
+	'company2'=>$row[10],
+	'company2quantity'=>$row[11],
+	'type'=>$row[12]
 	));
 	}
 	 

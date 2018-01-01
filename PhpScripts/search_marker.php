@@ -1,9 +1,9 @@
 <?php
    require('config.php');
    
-   $search   = urldecode($_POST['search']);
+   $machine_id   = urldecode($_POST['machine_id']);
    
-   $result = mysqli_query($connection,"SELECT * FROM AIS_MACHINES WHERE (Address LIKE '%$search%') OR (AddressTags LIKE '%$search%') ");
+   $result = mysqli_query($connection,"SELECT * FROM AIS_MACHINES WHERE MachineSerialNo='$machine_id' ");
 
 	$data = array();
 	 

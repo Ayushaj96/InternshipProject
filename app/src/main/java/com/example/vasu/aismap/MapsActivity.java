@@ -40,6 +40,7 @@ import android.widget.ListView;
 import android.widget.TextView;
 import android.widget.Toast;
 
+import com.afollestad.materialdialogs.MaterialDialog;
 import com.example.vasu.aismap.CustomAdapter.CustomHistoryAdapter;
 import com.example.vasu.aismap.CustomAdapter.CustomSearchListAdapter;
 import com.example.vasu.aismap.CustomAdapter.NearMachinesAdapter;
@@ -143,6 +144,8 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
 
     protected static final int REQUEST_CHECK_SETTINGS = 0x1;
 
+    MaterialDialog alertInternet , alertGPS ;
+
     protected void createLocationRequest() {
         mLocationRequest = LocationRequest.create();
         mLocationRequest.setPriority(LocationRequest.PRIORITY_HIGH_ACCURACY);
@@ -157,6 +160,17 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
         setContentView(R.layout.activity_maps);
         SupportMapFragment mapFragment = (SupportMapFragment) getSupportFragmentManager().findFragmentById(R.id.map);
         mapFragment.getMapAsync(this);
+
+        MaterialDialog.Builder builder1 = new MaterialDialog.Builder(this)
+                .title("Internet Services Not Active")
+                .content("Internet is required to run this application!")
+                .cancelable(false);
+        alertInternet = builder1.build();
+
+        MaterialDialog.Builder builder2 = new MaterialDialog.Builder(this)
+                .title("GPS Services Not Active")
+                .content("GPS is required to run this application!");
+        alertGPS = builder2.build();
 
         sharedPreferences =getApplicationContext().getSharedPreferences("MyPref", MODE_PRIVATE);
         sharedPreferencesLocation =getApplicationContext().getSharedPreferences("MyLocation", MODE_PRIVATE);
@@ -597,8 +611,6 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
             Toast.makeText(this, "Finding Nearby Machines", Toast.LENGTH_SHORT).show();
             findNearTask(1,true);
         }
-
-
     }
 
     public void showBasicInfo(Marker marker){
@@ -690,6 +702,19 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
 
     @Override
     public void onLocationChanged(Location location) {
+
+        if (!isNetworkAvailable()){
+            if (!alertInternet.isShowing()) alertInternet.show();
+        }else {
+            if (alertInternet.isShowing()) alertInternet.dismiss();
+        }
+
+        if (!manager.isProviderEnabled(LocationManager.GPS_PROVIDER)){
+            if (!alertGPS.isShowing()) alertGPS.show();
+        }else {
+            if (alertGPS.isShowing()) alertGPS.dismiss();
+        }
+
         mCurrentLocation = location;
         Log.i("LOCATION" , ""+mCurrentLocation.getLatitude() + "  " + mCurrentLocation.getLongitude()) ;
         editorLocation.putString("Latitude" , String.valueOf(mCurrentLocation.getLatitude()));
@@ -697,8 +722,6 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
         editorLocation.commit();
         if(manager.isProviderEnabled(LocationManager.GPS_PROVIDER) && isNetworkAvailable() ) {
             findNearTask(1, false);
-        }else {
-            Toast.makeText(this, "Please Make Sure GPS and Internet are working", Toast.LENGTH_SHORT).show();
         }
         showHistory();
         updateUI();
