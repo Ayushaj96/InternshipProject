@@ -17,6 +17,9 @@ import com.example.vasu.aismap.FetchPHP.UserLoginTask;
 import org.json.JSONArray;
 import org.json.JSONObject;
 
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
+
 import cn.pedant.SweetAlert.SweetAlertDialog;
 
 
@@ -50,26 +53,55 @@ public class UserLoginActivity  extends AppCompatActivity {
         });
     }
     public void loginUser(){
-        final SweetAlertDialog pDialog = new SweetAlertDialog(this, SweetAlertDialog.PROGRESS_TYPE);
-        pDialog.getProgressHelper().setBarColor(Color.parseColor("#A5DC86"));
-        pDialog.setTitleText("Checking Credentials");
-        pDialog.setCancelable(true);
-        pDialog.show();
+
+        String validemail = "[a-zA-Z0-9\\+\\.\\_\\%\\-\\+]{1,256}" +
+
+                "\\@" +
+
+                "[a-zA-Z0-9][a-zA-Z0-9\\-]{0,64}" +
+
+                "(" +
+
+                "\\." +
+
+                "[a-zA-Z0-9][a-zA-Z0-9\\-]{0,25}" +
+
+                ")+";
+
+
 
         EmailHolder = Email.getText().toString();
         PasswordHolder = Password.getText().toString();
 
+        Matcher matcher= Pattern.compile(validemail).matcher(EmailHolder);
+
         if(TextUtils.isEmpty(EmailHolder) || TextUtils.isEmpty(PasswordHolder))
         {
-            pDialog.hide();
             Toast.makeText(this, "Something Is missing", Toast.LENGTH_SHORT).show();
         }
+
+        else
+            if(!matcher.matches())
+            {
+                Email.setError("Invalid Email" );
+
+            }
         else {
+
+                final SweetAlertDialog pDialog = new SweetAlertDialog(this, SweetAlertDialog.PROGRESS_TYPE);
+                pDialog.getProgressHelper().setBarColor(Color.parseColor("#A5DC86"));
+                pDialog.setTitleText("Checking Credentials");
+                pDialog.setCancelable(true);
+                pDialog.show();
             UserLoginTask ult = new UserLoginTask(UserLoginActivity.this, EmailHolder, PasswordHolder, new AsyncResponseUserRegistration() {
+
 
                 @Override
                 public void processFinish(String output) {
                     if (output.startsWith("Login Success")){
+
+
+
                         String result = output.substring(output.indexOf("[") , output.length()) ;
                         try {
                             JSONArray jsonArray =new JSONArray(result);
