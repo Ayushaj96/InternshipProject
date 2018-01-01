@@ -384,7 +384,8 @@ public class CartActivity extends AppCompatActivity {
                     Log.i("TRANSACTION" , "JSON Exception" + e);
                 }
 
-                transStatus = status ;
+                if (!status.equals("")) transStatus = status ;
+                else transStatus = "failure" ;
 
                 if (transactionResponse.getTransactionStatus().equals(TransactionResponse.TransactionStatus.SUCCESSFUL)){
                     pDialog = new SweetAlertDialog(CartActivity.this, SweetAlertDialog.PROGRESS_TYPE);
