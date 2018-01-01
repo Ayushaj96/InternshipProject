@@ -55,8 +55,10 @@ public class DetailedMachineInfo extends AppCompatActivity {
         tvAddress.setText(address);
         tvAccess.setText(access);
         tvStatus.setText(status);
-        tvCompany1.setText(""+company1.replace("ld","Light Days").replace("hd","Heavy Days") + "-" + company1quantity);
-        tvCompany2.setText(""+company2.replace("ld","Light Days").replace("hd","Heavy Days") + "-" + company2quantity);
+        String company1message = "=> " + company1.substring(0,company1.indexOf("-")) + "\n\t\tType : " + company1.substring(company1.indexOf("-")+1,company1.length()).replace("ld","Light Days").replace("hd","Heavy Days") + "\n\t\tQuantity : " + company1quantity ;
+        String company2message = "=> " + company2.substring(0,company2.indexOf("-")) + "\n\t\tType : " + company2.substring(company2.indexOf("-")+1,company2.length()).replace("ld","Light Days").replace("hd","Heavy Days") + "\n\t\tQuantity : " + company2quantity ;
+        tvCompany1.setText(company1message);
+        tvCompany2.setText(company2message);
 
         bt1.setOnClickListener(new View.OnClickListener() {
             @Override

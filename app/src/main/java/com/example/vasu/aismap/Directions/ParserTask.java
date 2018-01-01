@@ -2,8 +2,11 @@ package com.example.vasu.aismap.Directions;
 
 import android.graphics.Color;
 import android.os.AsyncTask;
+import android.support.v4.content.ContextCompat;
 import android.util.Log;
 
+import com.example.vasu.aismap.CartActivity;
+import com.example.vasu.aismap.R;
 import com.google.android.gms.maps.model.LatLng;
 import com.google.android.gms.maps.model.MarkerOptions;
 import com.google.android.gms.maps.model.PolylineOptions;
@@ -93,7 +96,9 @@ public class ParserTask extends AsyncTask<String, Integer, List<List<HashMap<Str
                 lineOptions[i].color(Color.BLUE);
             }*/
             if (this.distanceList.get(i) == tempDistance.get(0)){
-                lineOptions[i].color(Color.BLUE);
+                int greenColorValue = Color.parseColor("#058c16");
+                lineOptions[i].color(greenColorValue);
+                lineOptions[i].zIndex(5.0f);
             }else{
                 lineOptions[i].color(Color.GRAY);
             }

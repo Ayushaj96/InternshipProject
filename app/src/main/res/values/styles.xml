@@ -20,15 +20,46 @@
 
     <style name="AppTheme.PopupOverlay" parent="ThemeOverlay.AppCompat.Light" />
 
-    <style name="TextAppearance.MaterialSheetFab.Sheet.Item" parent="">
-        <item name="android:layout_width">@dimen/sheet_width</item>
-        <item name="android:layout_height">wrap_content</item>
-        <item name="android:padding">@dimen/sheet_item_spacing</item>
-        <item name="android:background">?attr/selectableItemBackground</item>
-        <item name="android:clickable">true</item>
-        <item name="android:textSize">@dimen/sheet_item_textsize</item>
-        <item name="android:textColor">@color/text_black_87</item>
-        <item name="android:drawablePadding">@dimen/sheet_item_image_spacing</item>
+    <style name="AlertDialogStyle_green" parent="Theme.AppCompat.Light.Dialog.Alert">
+        <item name="colorAccent">@color/persian_green_accent</item>
+        <item name="android:textColorPrimary">@color/payumoney_text_color</item>
+    </style>
+
+    <style name="AlertDialogStyle_pink" parent="Theme.AppCompat.Light.Dialog.Alert">
+        <item name="colorAccent">@color/pink_accent</item>
+        <item name="android:textColorPrimary">@color/payumoney_text_color</item>
+    </style>
+
+    <style name="AlertDialogStyle_blue" parent="Theme.AppCompat.Light.Dialog.Alert">
+        <item name="colorAccent">@color/royal_blue_accent</item>
+        <item name="android:textColorPrimary">@color/payumoney_text_color</item>
+    </style>
+
+    <style name="AppTheme.Green" parent="PayumoneyAppTheme">
+        <item name="colorPrimary">@color/persian_green_primary</item>
+        <item name="colorPrimaryDark">@color/persian_green_dark</item>
+        <item name="colorAccent">@color/persian_green_accent</item>
+        <item name="colorButtonNormal">@color/persian_green_primary</item>
+        <item name="alertDialogTheme">@style/AlertDialogStyle_green</item>
+        <item name="actionMenuTextColor">@color/white</item>
+    </style>
+
+    <style name="AppTheme.pink" parent="PayumoneyAppTheme">
+        <item name="colorPrimary">@color/pink_primary</item>
+        <item name="colorPrimaryDark">@color/pink_dark</item>
+        <item name="colorAccent">@color/pink_accent</item>
+        <item name="colorButtonNormal">@color/pink_primary</item>
+        <item name="alertDialogTheme">@style/AlertDialogStyle_pink</item>
+        <item name="actionMenuTextColor">@color/white</item>
+    </style>
+
+    <style name="AppTheme.blue" parent="PayumoneyAppTheme">
+        <item name="colorPrimary">@color/royal_blue_primary</item>
+        <item name="colorPrimaryDark">@color/royal_blue_dark</item>
+        <item name="colorAccent">@color/royal_blue_accent</item>
+        <item name="colorButtonNormal">@color/royal_blue_primary</item>
+        <item name="alertDialogTheme">@style/AlertDialogStyle_blue</item>
+        <item name="actionMenuTextColor">@color/white</item>
     </style>
 
 </resources>
