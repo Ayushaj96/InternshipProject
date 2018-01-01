@@ -72,10 +72,8 @@ public class ProfileActivity extends AppCompatActivity {
                 CropImage.activity()
                         .setGuidelines(CropImageView.Guidelines.ON)
                         .start(ProfileActivity.this);
-
             }
         });
-
     }
 
     @Override
@@ -92,11 +90,9 @@ public class ProfileActivity extends AppCompatActivity {
                 try{
                     Bitmap bitmap = MediaStore.Images.Media.getBitmap(this.getContentResolver(), resultUri);
                     saveToInternalStorage(bitmap);}
-                catch (Exception e)
-                {
+                catch (Exception e) {
 
                 }
-
             } else if (resultCode == CropImage.CROP_IMAGE_ACTIVITY_RESULT_ERROR_CODE) {//ERROR
 
                 Toast.makeText(this, "Cropping failed: " + result.getError(), Toast.LENGTH_LONG).show();
@@ -146,5 +142,4 @@ public class ProfileActivity extends AppCompatActivity {
             // permissions this app might request
         }
     }
-
 }
