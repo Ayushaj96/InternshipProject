@@ -8,11 +8,15 @@ import android.content.pm.PackageManager;
 import android.os.Bundle;
 import android.support.v4.app.ActivityCompat;
 import android.support.v7.app.AppCompatActivity;
+import android.text.TextUtils;
 import android.view.View;
 import android.widget.Button;
 import android.widget.EditText;
 import android.widget.TextView;
 import android.widget.Toast;
+
+import com.example.vasu.aismap.FetchPHP.AsyncResponseFindSearch;
+import com.example.vasu.aismap.FetchPHP.SendSMSTask;
 
 public class MainActivity extends AppCompatActivity {
 
@@ -46,11 +50,32 @@ public class MainActivity extends AppCompatActivity {
         Rsignup.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-               // Toast.makeText(MainActivity.this, ""+mobile, Toast.LENGTH_SHORT).show();
-                Intent intent=new Intent(MainActivity.this,UserSignupActivity.class);
+                final String num="123456";
                 mobile= mnumber.getText().toString();
-                intent.putExtra("mobile",mobile);
-                startActivity(intent);
+
+                if(TextUtils.isEmpty(mobile))
+                {
+                    Toast.makeText(MainActivity.this, "Enter Mobile Number", Toast.LENGTH_SHORT).show();
+
+
+                }
+                else
+                if(mobile.length()>10||mobile.length()<10)
+                {
+                    Toast.makeText(MainActivity.this, "Enter Valid Mobile Number", Toast.LENGTH_SHORT).show();
+                }
+                else {
+                    SendSMSTask sendSMSTask = new SendSMSTask(MainActivity.this, mobile, String.valueOf(num), new AsyncResponseFindSearch() {
+                        @Override
+                        public void processFinish(String output) {
+                            Intent intent = new Intent(MainActivity.this, SignUpOTPActivity.class);
+                            intent.putExtra("mobile", mobile);
+                            intent.putExtra("otp", num);
+                            startActivity(intent);
+                        }
+                    });
+                    sendSMSTask.execute();
+                }
             }
         });
         Rlogin=(TextView) findViewById(R.id.Login);
