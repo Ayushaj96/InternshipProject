@@ -1,14 +1,17 @@
 package com.example.vasu.aismap;
 
+import android.Manifest;
 import android.content.Intent;
 import android.content.SharedPreferences;
+import android.content.pm.PackageManager;
 import android.graphics.Bitmap;
-import android.graphics.BitmapFactory;
 import android.net.Uri;
 import android.os.Bundle;
 import android.os.Environment;
 import android.provider.MediaStore;
+import android.support.v4.app.ActivityCompat;
 import android.support.v7.app.AppCompatActivity;
+import android.util.Log;
 import android.view.View;
 import android.widget.TextView;
 import android.widget.Toast;
@@ -26,7 +29,6 @@ public class ProfileActivity extends AppCompatActivity {
 
     CircleImageView profilePhoto ;
     TextView tvName,tvUsername,tvMobile,tvEmail,tvDob,tvProfession ;
-   // Integer REQUEST_CAMERA=1,SELECT_FILE=0;
     SharedPreferences sharedPreferences,sharedPreferencesPhoto ;
     SharedPreferences.Editor editor;
 
@@ -34,6 +36,9 @@ public class ProfileActivity extends AppCompatActivity {
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_profile);
+
+        ActivityCompat.requestPermissions(ProfileActivity.this,new String[]
+                {Manifest.permission.WRITE_EXTERNAL_STORAGE}, 1);
 
         sharedPreferences=getApplicationContext().getSharedPreferences("MyInfo", MODE_PRIVATE);
         sharedPreferencesPhoto=getApplicationContext().getSharedPreferences("ProfilePhoto",MODE_PRIVATE);
@@ -57,11 +62,8 @@ public class ProfileActivity extends AppCompatActivity {
         tvProfession.setText(sharedPreferences.getString("Profession" , ""));
 
         if(!sharedPreferencesPhoto.getString("Path","").equals(""))
-        { /*Uri myUri = Uri.parse(sharedPreferencesPhoto.getString("Path",""));
-            profilePhoto.setImageURI(myUri);*/
-            String filePath=sharedPreferencesPhoto.getString("Path","");
-            Bitmap bmp = BitmapFactory.decodeFile(filePath);
-            profilePhoto.setImageBitmap(bmp);
+        { Uri myUri = Uri.parse(sharedPreferencesPhoto.getString("Path",""));
+            profilePhoto.setImageURI(myUri);
         }
 
       profilePhoto.setOnClickListener(new View.OnClickListener() {
@@ -70,10 +72,8 @@ public class ProfileActivity extends AppCompatActivity {
                 CropImage.activity()
                         .setGuidelines(CropImageView.Guidelines.ON)
                         .start(ProfileActivity.this);
-
             }
         });
-
     }
 
     @Override
@@ -90,11 +90,9 @@ public class ProfileActivity extends AppCompatActivity {
                 try{
                     Bitmap bitmap = MediaStore.Images.Media.getBitmap(this.getContentResolver(), resultUri);
                     saveToInternalStorage(bitmap);}
-                catch (Exception e)
-                {
+                catch (Exception e) {
 
                 }
-
             } else if (resultCode == CropImage.CROP_IMAGE_ACTIVITY_RESULT_ERROR_CODE) {//ERROR
 
                 Toast.makeText(this, "Cropping failed: " + result.getError(), Toast.LENGTH_LONG).show();
@@ -116,7 +114,7 @@ public class ProfileActivity extends AppCompatActivity {
         try {
             FileOutputStream out = new FileOutputStream(file);
             finalBitmap.compress(Bitmap.CompressFormat.JPEG, 90, out);
-            editor.putString("Path", String.valueOf(myDir));
+            editor.putString("Path", String.valueOf(Uri.fromFile(file)));
             editor.commit();
             out.flush();
             out.close();
@@ -126,6 +124,22 @@ public class ProfileActivity extends AppCompatActivity {
         }
     }
 
-// editor.putString("Path",mypath.getAbsolutePath());
-            //editor.commit();
+    public void onRequestPermissionsResult(int requestCode, String permissions[], int[] grantResults) {
+        switch (requestCode) {
+            case 1: {
+                // If request is cancelled, the result arrays are empty.
+                if (grantResults.length > 0
+                        && grantResults[0] == PackageManager.PERMISSION_GRANTED) {
+
+                } else {
+                    // permission denied, boo! Disable the
+                    // functionality that depends on this permission.
+                    Toast.makeText(this, "Permission not Given", Toast.LENGTH_SHORT).show();
+                }
+                return;
+            }
+            // other 'case' lines to check for other
+            // permissions this app might request
+        }
+    }
 }

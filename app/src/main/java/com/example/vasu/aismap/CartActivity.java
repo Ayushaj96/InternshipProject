@@ -207,7 +207,7 @@ public class CartActivity extends AppCompatActivity {
                     quantity = tvQuantity.getText().toString();
                     launchPayUMoneyFlow();
                 }else {
-                    Toast.makeText(CartActivity.this, "Total Cost is 0", Toast.LENGTH_SHORT).show();
+                    Toast.makeText(CartActivity.this, "Quantity should be greater than 0", Toast.LENGTH_SHORT).show();
                 }
             }
         });
@@ -394,7 +394,7 @@ public class CartActivity extends AppCompatActivity {
                     pDialog.setTitleText("Please Wait");
                     pDialog.setContentText("We are generating OTP for you!") ;
                     pDialog.show();
-                    UserLogTask ult = new UserLogTask(CartActivity.this, mobile, machine_serial_no, quality, quantity, "0.5", company
+                    UserLogTask ult = new UserLogTask(CartActivity.this, mobile, machine_serial_no, quality, quantity, String.valueOf(totalCost), company
                             ,transStartTime, transEndTime, transMode, transactionId, transStatus, encryptedCode, new AsyncResponseUserLog() {
                         @Override
                         public void processFinish(String output) {
@@ -422,7 +422,7 @@ public class CartActivity extends AppCompatActivity {
                     ult.execute() ;
                 }else {
                     Toast.makeText(this, "Please Try Again Later", Toast.LENGTH_SHORT).show();
-                    UserLogTask ult = new UserLogTask(CartActivity.this, mobile, machine_serial_no, quality, quantity, "0.5", company
+                    UserLogTask ult = new UserLogTask(CartActivity.this, mobile, machine_serial_no, quality, quantity, String.valueOf(totalCost), company
                             ,transStartTime, transEndTime, transMode, transactionId, transStatus, encryptedCode, new AsyncResponseUserLog() {
                         @Override
                         public void processFinish(String output) {

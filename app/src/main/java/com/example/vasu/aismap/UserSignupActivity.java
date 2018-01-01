@@ -84,10 +84,9 @@ public class UserSignupActivity extends AppCompatActivity implements DatePickerD
             @Override
             public void onClick(View view) {
                 addData();
-                sendOTP(mnumber.getText().toString());
+                //sendOTP(mnumber.getText().toString());
             }
         });
-
     }
 
     public void sendOTP(String mobile){
@@ -108,8 +107,6 @@ public class UserSignupActivity extends AppCompatActivity implements DatePickerD
         });
         sendSMSTask.execute();
     }
-
-
 
     public void addData(){
 
