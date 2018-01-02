@@ -78,6 +78,8 @@ public class MainActivity extends AppCompatActivity {
                 }
             }
         });
+
+
         Rlogin=(TextView) findViewById(R.id.Login);
         Rlogin.setOnClickListener(new View.OnClickListener() {
             @Override
